@@ -1,0 +1,503 @@
+[
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Full Article Writer",
+        "text": "You are an expert content strategist and writer specializing in [NICHE].\n\nWrite a long-form article on [TOPIC].\n\nAudience: [DESCRIBE YOUR AUDIENCE \u2014 e.g., \"tech-savvy 25-40 year olds who build with AI tools\"]\nTone: [SPECIFIC TONE \u2014 e.g., \"direct, punchy, slightly irreverent. No corporate speak.\"]\nLength: [WORD COUNT \u2014 e.g., \"2,500-3,000 words\"]\n\nStructure requirements:\n- Open with a bold claim or counterintuitive insight that hooks immediately\n- Use short paragraphs \u2014 maximum 3 sentences each\n- Include specific numbers, examples, and actionable takeaways\n- Bold key phrases for scannability\n- End with a clear call to action\n\nDoes NOT sound like: generic AI content, LinkedIn fluff, corporate blog post, \"in today's fast-paced world\"\n\nSuccess means: a reader finishes the article and immediately wants to implement something from it.",
+        "variables": [
+            "SPECIFIC TONE \u2014 e.g., \"direct, punchy, slightly irreverent. No corporate speak.\"",
+            "DESCRIBE YOUR AUDIENCE \u2014 e.g., \"tech-savvy 25-40 year olds who build with AI tools\"",
+            "WORD COUNT \u2014 e.g., \"2,500-3,000 words\"",
+            "NICHE",
+            "TOPIC"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Twitter/X Thread Writer",
+        "text": "You are a viral content writer for X/Twitter.\n\nWrite a 10-tweet thread on [TOPIC].\n\nTweet 1 must be a hook that stops the scroll. Use one of these formats:\n- A bold counterintuitive claim\n- A specific result with numbers\n- \"Most people do X. The top 1% do Y.\"\n\nEach tweet must be under 280 characters.\nEach tweet must be a standalone insight that works even out of context.\nUse line breaks for readability.\nNo hashtags. No emojis except where they add genuine emphasis.\n\nThe thread should build \u2014 each tweet adds a new layer. The final tweet should be a clear takeaway or call to action.\n\nTopic: [YOUR TOPIC]\nTarget audience: [YOUR AUDIENCE]",
+        "variables": [
+            "YOUR AUDIENCE",
+            "YOUR TOPIC",
+            "TOPIC"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Content Repurposer",
+        "text": "You are a content strategist who specializes in repurposing.\n\nTake this original content and create 5 different pieces from it:\n\n1. A Twitter/X thread (8-12 tweets, each under 280 characters)\n2. A LinkedIn post (hook + story + takeaway, 150-200 words)\n3. A newsletter intro paragraph (50-75 words, curiosity-driven)\n4. Three standalone quote graphics (short, bold statements from the content)\n5. A YouTube video script outline (hook, 3 main points, CTA)\n\nOriginal content:\n[PASTE YOUR CONTENT]\n\nEach output should feel native to its platform. Do not just cut and paste \u2014 rewrite for the audience and format of each platform.",
+        "variables": [
+            "PASTE YOUR CONTENT"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Headline Generator",
+        "text": "You are a headline specialist who has studied the top-performing content on X/Twitter.\n\nGenerate 20 headline options for an article about [TOPIC].\n\nEach headline must include:\n- A specific number (preferably between 15 and 50)\n- An exclusion or curiosity hook (\"Most users don't know,\" \"Nobody talks about,\" \"You're missing\")\n- A completeness signal (\"Complete List,\" \"Full Guide,\" \"Full Course\")\n\nRank your top 5 by predicted viral potential and explain why each one works.\n\nMy audience: [DESCRIBE AUDIENCE]\nMy niche: [YOUR NICHE]",
+        "variables": [
+            "DESCRIBE AUDIENCE",
+            "YOUR NICHE",
+            "TOPIC"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Content Calendar Builder",
+        "text": "You are a content strategist managing a creator's content calendar.\n\nBuild a 30-day content calendar for [PLATFORM].\n\nMy niche: [YOUR NICHE]\nPosting frequency: [HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\"]\nContent types I want to rotate: [e.g., \"threads, single posts, articles, polls, engagement posts\"]\n\nFor each day provide:\n- Content type\n- Topic\n- Hook (first line)\n- Key angle or unique perspective\n- Estimated production time\n\nGroup content into weekly themes. Include 2 \"tentpole\" pieces per month that are designed for maximum reach. The rest should be supporting content that builds authority in the same topic areas.",
+        "variables": [
+            "e.g., \"threads, single posts, articles, polls, engagement posts\"",
+            "YOUR NICHE",
+            "PLATFORM",
+            "HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\""
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Blog Post to Email Sequence",
+        "text": "You are an email marketing specialist.\n\nConvert this blog post into a 5-email nurture sequence.\n\nEmail 1: Hook \u2014 tease the core insight, drive curiosity\nEmail 2: Problem \u2014 describe the pain point in vivid detail\nEmail 3: Solution \u2014 deliver the main value from the blog post\nEmail 4: Proof \u2014 case study, testimonial, or specific results\nEmail 5: CTA \u2014 drive to action (purchase, sign up, reply)\n\nEach email:\n- Subject line (under 50 characters, curiosity-driven)\n- Preview text (under 90 characters)\n- Body (150-250 words)\n- One clear CTA per email\n\nBlog post:\n[PASTE BLOG POST]",
+        "variables": [
+            "PASTE BLOG POST"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "SEO Article Optimizer",
+        "text": "You are an SEO content specialist.\n\nAnalyze this article and optimize it for the keyword: [TARGET KEYWORD]\n\nProvide:\n1. Optimized title tag (under 60 characters, keyword near the front)\n2. Meta description (under 155 characters, includes keyword naturally)\n3. H2 and H3 header suggestions that include semantic variations of the keyword\n4. 5 internal linking suggestions (topics I should link to)\n5. 3 sections I should add to improve topical coverage\n6. Any paragraphs that should be rewritten for better keyword integration (without sounding forced)\n\nArticle:\n[PASTE ARTICLE]",
+        "variables": [
+            "PASTE ARTICLE",
+            "TARGET KEYWORD"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Case Study Writer",
+        "text": "You are a business writer who specializes in compelling case studies.\n\nWrite a case study based on these details:\n\nClient/Subject: [WHO]\nProblem: [WHAT THEY WERE STRUGGLING WITH]\nSolution: [WHAT WAS IMPLEMENTED]\nResults: [SPECIFIC OUTCOMES \u2014 use numbers]\n\nStructure:\n1. The situation (2-3 sentences, set the scene)\n2. The challenge (what made this hard, why previous attempts failed)\n3. The approach (step by step what was done)\n4. The results (specific numbers, before vs after)\n5. Key takeaway (one sentence the reader remembers)\n\nTone: professional but not boring. Make it read like a story, not a report.\nLength: 500-800 words.",
+        "variables": [
+            "WHO",
+            "WHAT WAS IMPLEMENTED",
+            "SPECIFIC OUTCOMES \u2014 use numbers",
+            "WHAT THEY WERE STRUGGLING WITH"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Video Script Writer",
+        "text": "You are a YouTube scriptwriter who specializes in educational content.\n\nWrite a script for a [LENGTH \u2014 e.g., \"10-minute\"] video about [TOPIC].\n\nStructure:\n- Hook (first 15 seconds \u2014 pattern interrupt, bold claim, or shocking stat)\n- Context (30 seconds \u2014 why this matters right now)\n- Main content (3-5 key points, each with a specific example)\n- Recap (15 seconds \u2014 summarize the 3 main takeaways)\n- CTA (10 seconds \u2014 subscribe, comment, or link)\n\nTone: [TONE \u2014 e.g., \"conversational like talking to a smart friend, not like a lecture\"]\nInclude transition phrases between sections.\nMark where b-roll or screen recordings should go with [B-ROLL: description].",
+        "variables": [
+            "LENGTH \u2014 e.g., \"10-minute\"",
+            "TONE \u2014 e.g., \"conversational like talking to a smart friend, not like a lecture\"",
+            "B-ROLL: description",
+            "TOPIC"
+        ]
+    },
+    {
+        "category": "Content Creation (Prompts 1\u201310)",
+        "title": "Social Media Bio Writer",
+        "text": "You are a personal branding specialist.\n\nWrite 5 bio options for my [PLATFORM] profile.\n\nAbout me: [DESCRIBE YOURSELF \u2014 role, expertise, achievements]\nTarget audience: [WHO DO YOU WANT TO ATTRACT]\nTone: [e.g., \"confident but not arrogant, slightly witty\"]\n\nEach bio must:\n- Be under [CHARACTER LIMIT] characters\n- Lead with what I do, not who I am\n- Include a specific credibility marker (number, result, achievement)\n- End with what the reader gets by following\n\nRank them by impact and explain which audience each one appeals to most.",
+        "variables": [
+            "CHARACTER LIMIT",
+            "WHO DO YOU WANT TO ATTRACT",
+            "e.g., \"confident but not arrogant, slightly witty\"",
+            "DESCRIBE YOURSELF \u2014 role, expertise, achievements",
+            "PLATFORM"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Competitive Analysis",
+        "text": "You are a senior market analyst.\n\nConduct a competitive analysis for [YOUR PRODUCT/COMPANY] against these competitors: [LIST COMPETITORS]\n\nFor each competitor provide:\n1. Core value proposition (1 sentence)\n2. Target audience\n3. Pricing model\n4. Key strengths (top 3)\n5. Key weaknesses (top 3)\n6. What they do better than us\n7. What we do better than them\n\nThen provide:\n- A positioning matrix showing where each competitor sits on [AXIS 1] vs [AXIS 2]\n- The biggest gap in the market that nobody is filling\n- 3 strategic recommendations for how we should differentiate\n\nBe specific. Use real observations, not generic strategy language.",
+        "variables": [
+            "LIST COMPETITORS",
+            "AXIS 1",
+            "YOUR PRODUCT/COMPANY",
+            "AXIS 2"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Business Model Evaluator",
+        "text": "You are a startup advisor who has evaluated hundreds of business models.\n\nEvaluate this business idea:\n\nIdea: [DESCRIBE YOUR IDEA]\nTarget market: [WHO IT IS FOR]\nRevenue model: [HOW IT MAKES MONEY]\nCurrent stage: [IDEA / MVP / LAUNCHED]\n\nProvide:\n1. Score from 1-10 on: market size, defensibility, monetization clarity, execution complexity, and timing\n2. The single biggest risk to this business\n3. The single biggest opportunity most founders in this space miss\n4. 3 things I should validate before investing more time\n5. A \"red team\" analysis \u2014 argue why this business will fail\n6. A \"blue team\" response \u2014 argue why it will succeed despite the risks\n\nBe direct. Do not hedge. I want honest analysis, not encouragement.",
+        "variables": [
+            "DESCRIBE YOUR IDEA",
+            "IDEA / MVP / LAUNCHED",
+            "HOW IT MAKES MONEY",
+            "WHO IT IS FOR"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Pricing Strategy Builder",
+        "text": "You are a pricing strategist.\n\nHelp me build a pricing structure for [PRODUCT/SERVICE].\n\nDetails:\n- What it does: [DESCRIPTION]\n- Target customer: [WHO]\n- Current pricing (if any): [CURRENT PRICE]\n- Competitor pricing: [WHAT COMPETITORS CHARGE]\n- My cost to deliver: [COST PER UNIT/USER]\n\nProvide:\n1. 3 pricing tier options (name each tier, define what is included, set the price)\n2. The psychology behind each tier (what role does each tier play in the buyer's decision)\n3. A recommended launch price vs eventual price\n4. One pricing mistake I should avoid in this market\n5. A simple A/B test I can run to validate the pricing",
+        "variables": [
+            "DESCRIPTION",
+            "WHO",
+            "CURRENT PRICE",
+            "WHAT COMPETITORS CHARGE",
+            "PRODUCT/SERVICE",
+            "COST PER UNIT/USER"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Customer Persona Builder",
+        "text": "You are a customer research specialist.\n\nBuild 3 detailed customer personas for [PRODUCT/SERVICE].\n\nFor each persona include:\n- Name and demographic snapshot\n- Job title and daily responsibilities\n- Top 3 frustrations in their workflow\n- What they have tried before and why it failed\n- What would make them pay for a solution immediately\n- Where they spend time online (specific platforms, communities, influencers)\n- The exact words they would use to describe their problem (use their language, not marketing language)\n- The objection they would raise before buying\n\nMake these feel like real people, not marketing templates.",
+        "variables": [
+            "PRODUCT/SERVICE"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Investor Pitch Deck Outline",
+        "text": "You are a pitch deck consultant who has helped raise over $50M in funding.\n\nCreate a pitch deck outline for [COMPANY NAME].\n\nDetails:\n- Problem we solve: [PROBLEM]\n- Our solution: [SOLUTION]\n- Target market: [MARKET]\n- Business model: [REVENUE MODEL]\n- Traction (if any): [METRICS]\n- Team: [TEAM BACKGROUND]\n- Ask: [HOW MUCH AND WHAT FOR]\n\nStructure it as a 12-slide deck:\n1. Cover\n2. Problem\n3. Solution\n4. Market size\n5. Product/demo\n6. Business model\n7. Traction\n8. Competition\n9. Team\n10. Financials\n11. The ask\n12. Vision/closing\n\nFor each slide, write the headline and 3-4 bullet points. The headline should tell the story even if the bullets are never read.",
+        "variables": [
+            "MARKET",
+            "TEAM BACKGROUND",
+            "HOW MUCH AND WHAT FOR",
+            "SOLUTION",
+            "PROBLEM",
+            "COMPANY NAME",
+            "METRICS",
+            "REVENUE MODEL"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Weekly Business Report Generator",
+        "text": "You are a COO writing a weekly executive summary.\n\nUsing this raw data, create a weekly business report:\n\n[PASTE RAW DATA \u2014 metrics, notes, observations, whatever you have]\n\nStructure:\n1. Top-line summary (3 sentences max \u2014 what happened this week)\n2. Key metrics table (metric, this week, last week, change %)\n3. Wins (top 3 things that went well)\n4. Concerns (top 3 things that need attention)\n5. Action items for next week (specific, with owners if possible)\n\nTone: direct, no filler. An executive should be able to read this in under 2 minutes and know exactly where the business stands.",
+        "variables": [
+            "PASTE RAW DATA \u2014 metrics, notes, observations, whatever you have"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "SWOT Analysis",
+        "text": "You are a strategic consultant.\n\nConduct a SWOT analysis for [COMPANY/PRODUCT/PROJECT].\n\nContext: [PROVIDE RELEVANT CONTEXT]\n\nFor each category (Strengths, Weaknesses, Opportunities, Threats):\n- List 5 items\n- Rank them by impact (highest first)\n- For each item, provide one specific action to leverage (strength/opportunity) or mitigate (weakness/threat)\n\nThen provide:\n- The single most important strategic priority based on this SWOT\n- One thing most companies in this position get wrong",
+        "variables": [
+            "COMPANY/PRODUCT/PROJECT",
+            "PROVIDE RELEVANT CONTEXT"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Partnership Outreach Drafter",
+        "text": "You are a business development specialist.\n\nDraft 3 versions of an outreach message to [POTENTIAL PARTNER].\n\nContext:\n- Who I am: [YOUR COMPANY/ROLE]\n- Who they are: [THEIR COMPANY/ROLE]\n- Why the partnership makes sense: [MUTUAL BENEFIT]\n- What I am proposing: [SPECIFIC ASK]\n\nVersion 1: Formal and professional\nVersion 2: Casual and relationship-first\nVersion 3: Value-forward (lead with what they get)\n\nEach version: under 150 words, one clear CTA, no corporate jargon.",
+        "variables": [
+            "MUTUAL BENEFIT",
+            "SPECIFIC ASK",
+            "YOUR COMPANY/ROLE",
+            "THEIR COMPANY/ROLE",
+            "POTENTIAL PARTNER"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Product Roadmap Builder",
+        "text": "You are a product manager building a quarterly roadmap.\n\nCreate a 90-day product roadmap for [PRODUCT].\n\nCurrent state: [WHERE THE PRODUCT IS NOW]\nTop user complaints: [LIST THEM]\nBusiness goals this quarter: [LIST THEM]\nAvailable resources: [TEAM SIZE/CONSTRAINTS]\n\nStructure:\n- Month 1: [Theme] \u2014 list features/improvements with effort estimate (S/M/L)\n- Month 2: [Theme] \u2014 list features/improvements with effort estimate\n- Month 3: [Theme] \u2014 list features/improvements with effort estimate\n\nFor each item mark priority (P0/P1/P2) and expected impact (High/Medium/Low).\n\nInclude one \"bold bet\" feature that could be a game-changer but carries risk. Explain why it is worth considering.",
+        "variables": [
+            "PRODUCT",
+            "LIST THEM",
+            "Theme",
+            "TEAM SIZE/CONSTRAINTS",
+            "WHERE THE PRODUCT IS NOW"
+        ]
+    },
+    {
+        "category": "Business and Strategy (Prompts 11\u201320)",
+        "title": "Meeting Agenda and Pre-Read",
+        "text": "You are an executive assistant preparing for a meeting.\n\nCreate a meeting agenda and pre-read for the following meeting:\n\nMeeting topic: [TOPIC]\nAttendees: [WHO]\nDuration: [LENGTH]\nGoal: [WHAT DECISION OR OUTCOME]\n\nProvide:\n1. Agenda with time allocations\n2. Pre-read document (1 page max) with context everyone needs before the meeting\n3. 3 key questions the meeting must answer\n4. A proposed decision framework for any choices being made\n5. Suggested next steps template to fill in at the end\n\nThe pre-read should take under 3 minutes to read. Dense information, no padding.",
+        "variables": [
+            "WHO",
+            "WHAT DECISION OR OUTCOME",
+            "LENGTH",
+            "TOPIC"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Full Feature Builder",
+        "text": "You are a senior full-stack developer.\n\nBuild [FEATURE DESCRIPTION] for my application.\n\nTech stack: [YOUR STACK \u2014 e.g., \"Next.js, TypeScript, Supabase, Tailwind\"]\nCurrent architecture: [BRIEF DESCRIPTION]\n\nRequirements:\n- [REQUIREMENT 1]\n- [REQUIREMENT 2]\n- [REQUIREMENT 3]\n\nConstraints:\n- [CONSTRAINT \u2014 e.g., \"Must work on mobile\"]\n- [CONSTRAINT \u2014 e.g., \"Under 200ms response time\"]\n\nBefore writing any code, outline your approach in 5 steps.\nThen implement each step with clean, production-ready code.\nInclude error handling and edge cases.\nAdd inline comments only where the logic is non-obvious.",
+        "variables": [
+            "REQUIREMENT 1",
+            "CONSTRAINT \u2014 e.g., \"Must work on mobile\"",
+            "CONSTRAINT \u2014 e.g., \"Under 200ms response time\"",
+            "BRIEF DESCRIPTION",
+            "FEATURE DESCRIPTION",
+            "YOUR STACK \u2014 e.g., \"Next.js, TypeScript, Supabase, Tailwind\"",
+            "REQUIREMENT 2",
+            "REQUIREMENT 3"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Code Reviewer",
+        "text": "You are a senior engineer conducting a thorough code review.\n\nReview this code for:\n1. Security vulnerabilities (injection, XSS, exposed secrets, auth bypasses)\n2. Logic errors and unhandled edge cases\n3. Performance issues (unnecessary re-renders, N+1 queries, memory leaks)\n4. Code readability and maintainability\n5. Architectural concerns\n\nFor each issue found:\n- Severity: Critical / High / Medium / Low\n- Location: exact file and line\n- Problem: what is wrong and why it matters\n- Fix: the corrected code snippet\n\nIf the code is solid, say so. Do not invent issues to seem thorough.\n\n[PASTE CODE]",
+        "variables": [
+            "PASTE CODE"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Database Schema Designer",
+        "text": "You are a database architect.\n\nDesign a database schema for [APPLICATION DESCRIPTION].\n\nRequirements:\n- [DATA REQUIREMENT 1]\n- [DATA REQUIREMENT 2]\n- [DATA REQUIREMENT 3]\n\nProvide:\n1. Table definitions with columns, types, and constraints\n2. Relationships (foreign keys, junction tables)\n3. Indexes for expected query patterns\n4. The reasoning behind each design decision\n5. One thing this schema handles well and one thing it might struggle with at scale\n\nUse [DATABASE \u2014 e.g., \"PostgreSQL\"] syntax.",
+        "variables": [
+            "DATABASE \u2014 e.g., \"PostgreSQL\"",
+            "DATA REQUIREMENT 2",
+            "APPLICATION DESCRIPTION",
+            "DATA REQUIREMENT 3",
+            "DATA REQUIREMENT 1"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "API Endpoint Designer",
+        "text": "You are a backend engineer designing a REST API.\n\nDesign the API endpoints for [FEATURE/APPLICATION].\n\nFor each endpoint provide:\n- Method and path\n- Request body (if applicable)\n- Response format (JSON)\n- Authentication requirements\n- Error responses (400, 401, 403, 404, 500)\n- Rate limiting recommendations\n\nThen implement the top 3 most important endpoints in [LANGUAGE/FRAMEWORK].\n\nInclude input validation and error handling.",
+        "variables": [
+            "LANGUAGE/FRAMEWORK",
+            "FEATURE/APPLICATION"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Bug Debugger",
+        "text": "You are a debugging specialist.\n\nThis code produces the following error:\n\nError message: [PASTE ERROR]\nExpected behavior: [WHAT SHOULD HAPPEN]\nActual behavior: [WHAT ACTUALLY HAPPENS]\nSteps to reproduce: [HOW TO TRIGGER THE BUG]\n\nCode:\n[PASTE CODE]\n\nDiagnose the root cause step by step. Do not jump to the fix.\n1. What is the error telling us?\n2. Where in the code does this originate?\n3. What is the root cause (not the symptom)?\n4. What is the fix?\n5. How do we prevent this class of bug in the future?\n\nThen provide the corrected code.",
+        "variables": [
+            "WHAT ACTUALLY HAPPENS",
+            "WHAT SHOULD HAPPEN",
+            "PASTE CODE",
+            "HOW TO TRIGGER THE BUG",
+            "PASTE ERROR"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Test Suite Generator",
+        "text": "You are a QA engineer who writes comprehensive test suites.\n\nWrite tests for [FUNCTION/COMPONENT/MODULE].\n\nCode to test:\n[PASTE CODE]\n\nInclude:\n1. Unit tests for every public function\n2. Edge cases (null inputs, empty arrays, boundary values, invalid types)\n3. Integration tests for any external dependencies\n4. At least one test that verifies error handling works correctly\n\nUse [TESTING FRAMEWORK \u2014 e.g., \"Jest\", \"pytest\"].\nEach test should have a clear, descriptive name that explains what it verifies.",
+        "variables": [
+            "TESTING FRAMEWORK \u2014 e.g., \"Jest\", \"pytest\"",
+            "FUNCTION/COMPONENT/MODULE",
+            "PASTE CODE"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Technical Documentation Writer",
+        "text": "You are a technical writer creating documentation for developers.\n\nWrite documentation for [PROJECT/API/LIBRARY].\n\nCode/API reference:\n[PASTE CODE OR API SPEC]\n\nInclude:\n1. Overview (what it does, who it is for, when to use it)\n2. Quick start (get running in under 5 minutes)\n3. API reference (every public method with parameters, return types, examples)\n4. Common use cases (3-5 real-world examples with code)\n5. Troubleshooting (top 5 issues and their fixes)\n\nWrite for a developer who is competent but has never seen this project before. Assume nothing.",
+        "variables": [
+            "PROJECT/API/LIBRARY",
+            "PASTE CODE OR API SPEC"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Codebase Refactoring Advisor",
+        "text": "You are a senior architect reviewing a codebase for refactoring.\n\nAnalyze this code and identify:\n1. Code smells (duplication, long functions, god objects, tight coupling)\n2. Architecture issues (wrong abstractions, missing layers, circular dependencies)\n3. Performance bottlenecks\n4. Security concerns\n\nFor each issue, provide:\n- Severity (Critical / High / Medium / Low)\n- Current code snippet\n- Refactored code snippet\n- Why the refactored version is better\n\nPrioritize by impact. Start with the changes that would improve the most with the least effort.\n\n[PASTE CODE]",
+        "variables": [
+            "PASTE CODE"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "DevOps Pipeline Builder",
+        "text": "You are a DevOps engineer building a CI/CD pipeline.\n\nCreate a deployment pipeline for [APPLICATION].\n\nStack: [YOUR STACK]\nHosting: [WHERE \u2014 e.g., \"Vercel\", \"AWS\", \"Railway\"]\nRepository: [PLATFORM \u2014 e.g., \"GitHub\"]\n\nProvide:\n1. GitHub Actions workflow file (or equivalent)\n2. Environment variable management strategy\n3. Testing stage configuration\n4. Deployment stage configuration\n5. Rollback procedure\n6. Monitoring and alerting recommendations\n\nInclude the actual YAML/config files, not just descriptions.",
+        "variables": [
+            "PLATFORM \u2014 e.g., \"GitHub\"",
+            "WHERE \u2014 e.g., \"Vercel\", \"AWS\", \"Railway\"",
+            "APPLICATION",
+            "YOUR STACK"
+        ]
+    },
+    {
+        "category": "Coding and Development (Prompts 21\u201330)",
+        "title": "Performance Optimizer",
+        "text": "You are a performance engineer.\n\nAnalyze this code/page for performance issues.\n\nContext: [WHAT THE CODE DOES AND WHERE IT RUNS]\n\nCode:\n[PASTE CODE]\n\nIdentify:\n1. What is slow and why (be specific \u2014 measure, don't guess)\n2. Quick wins (changes that take under 30 minutes and have immediate impact)\n3. Medium-term improvements (changes that require some refactoring)\n4. Architecture-level optimizations (if applicable)\n\nFor each optimization:\n- Current code\n- Optimized code\n- Expected improvement (estimate)\n\nPrioritize by effort-to-impact ratio.",
+        "variables": [
+            "WHAT THE CODE DOES AND WHERE IT RUNS",
+            "PASTE CODE"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Market Research Report",
+        "text": "You are a market research analyst.\n\nResearch [MARKET/INDUSTRY] and produce a structured report.\n\nInclude:\n1. Market size and growth rate\n2. Key players and their market share\n3. Emerging trends (top 5)\n4. Customer segments and their needs\n5. Barriers to entry\n6. Technology shifts that could disrupt the market\n7. 3 opportunities for a new entrant\n\nUse specific numbers where possible. If data is insufficient, state that clearly rather than speculating.\n\nFormat: executive summary (3 sentences) then detailed sections.",
+        "variables": [
+            "MARKET/INDUSTRY"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Trend Spotter",
+        "text": "You are a trend analyst specializing in [INDUSTRY].\n\nBased on current signals, identify:\n1. 5 trends that are currently accelerating\n2. 3 trends that are peaking (about to slow down)\n3. 2 emerging trends that most people have not noticed yet\n\nFor each trend:\n- What it is (1 sentence)\n- Evidence (what signals indicate this)\n- Who benefits most\n- Who gets disrupted\n- Timeline (when does this become mainstream)\n\nI want contrarian insights, not consensus views. Tell me what the crowd is missing.",
+        "variables": [
+            "INDUSTRY"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Data Analyzer",
+        "text": "You are a data analyst.\n\nAnalyze this dataset and provide:\n1. Summary statistics\n2. Top 3 trends or patterns\n3. Anomalies or outliers worth investigating\n4. Correlations between variables\n5. 3 actionable insights based on the data\n\nPresent findings as:\n- A summary table\n- A 2-paragraph narrative explanation\n- 3 specific recommendations with expected impact\n\nIf the data is insufficient for any conclusion, say so explicitly. Do not invent patterns.\n\nData:\n[PASTE DATA]",
+        "variables": [
+            "PASTE DATA"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Survey Designer",
+        "text": "You are a research methodologist.\n\nDesign a survey to understand [RESEARCH QUESTION].\n\nTarget respondents: [WHO]\nSurvey goal: [WHAT DECISION THIS DATA WILL INFORM]\n\nProvide:\n1. 15-20 questions organized by topic\n2. Question type for each (multiple choice, scale, open-ended)\n3. Answer options for each closed question\n4. The logic flow (skip logic, conditional questions)\n5. An estimated completion time\n6. 3 potential biases in the survey and how to mitigate them\n\nKeep questions neutral. Avoid leading language. Include at least 2 open-ended questions for unexpected insights.",
+        "variables": [
+            "WHO",
+            "RESEARCH QUESTION",
+            "WHAT DECISION THIS DATA WILL INFORM"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Literature Review",
+        "text": "You are an academic researcher.\n\nConduct a literature review on [TOPIC].\n\nProvide:\n1. Overview of the field (current state of knowledge)\n2. Key theories and frameworks\n3. Major findings from recent research\n4. Gaps in the existing research\n5. Methodological approaches commonly used\n6. 5 key papers or sources I should read (with brief descriptions of why each matters)\n\nOrganize chronologically or thematically, whichever provides a clearer narrative. Highlight areas of consensus and areas of active debate.",
+        "variables": [
+            "TOPIC"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Decision Matrix Builder",
+        "text": "You are a decision analyst.\n\nBuild a decision matrix for [DECISION TO MAKE].\n\nOptions: [LIST YOUR OPTIONS]\n\nFor each option, evaluate against these criteria:\n[CRITERION 1] \u2014 weight: [1-5]\n[CRITERION 2] \u2014 weight: [1-5]\n[CRITERION 3] \u2014 weight: [1-5]\n[CRITERION 4] \u2014 weight: [1-5]\n\nScore each option 1-10 on each criterion. Calculate weighted totals.\n\nThen provide:\n- The recommended option with reasoning\n- The biggest risk of the recommended option\n- Under what conditions a different option would be better",
+        "variables": [
+            "CRITERION 1",
+            "CRITERION 4",
+            "1-5",
+            "LIST YOUR OPTIONS",
+            "DECISION TO MAKE",
+            "CRITERION 3",
+            "CRITERION 2"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Risk Assessment",
+        "text": "You are a risk analyst.\n\nAssess the risks of [PROJECT/DECISION/VENTURE].\n\nFor each risk identified:\n1. Description (what could go wrong)\n2. Likelihood (Low / Medium / High)\n3. Impact (Low / Medium / High)\n4. Mitigation strategy (specific action to reduce the risk)\n5. Contingency plan (what to do if it happens)\n\nOrganize into a risk matrix. Identify the top 3 risks that could kill the project entirely. For those three, provide detailed mitigation plans.",
+        "variables": [
+            "PROJECT/DECISION/VENTURE"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Interview Question Generator",
+        "text": "You are a hiring manager building an interview process.\n\nCreate interview questions for a [ROLE] position.\n\nRequirements:\n- Experience level: [JUNIOR/MID/SENIOR]\n- Key skills: [LIST SKILLS]\n- Team culture: [DESCRIBE YOUR TEAM]\n\nProvide:\n1. 5 technical questions (with expected good answers)\n2. 5 behavioral questions (with what a strong answer looks like)\n3. 2 scenario-based questions (with evaluation criteria)\n4. 1 \"red flag\" question (designed to surface deal-breakers)\n\nFor each question, explain what you are actually evaluating and how to score responses.",
+        "variables": [
+            "ROLE",
+            "DESCRIBE YOUR TEAM",
+            "LIST SKILLS",
+            "JUNIOR/MID/SENIOR"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Legal Document Summarizer",
+        "text": "You are a legal analyst (not providing legal advice \u2014 just summarizing).\n\nSummarize this document in plain language:\n\n[PASTE LEGAL DOCUMENT]\n\nProvide:\n1. What this document is (type and purpose, 1 sentence)\n2. The key obligations for each party\n3. Important dates or deadlines\n4. Termination conditions\n5. Liability and risk clauses\n6. Anything unusual or worth flagging\n\nUse simple language. No legalese. Highlight anything a non-lawyer might miss.\n\nNote: this is a summary, not legal advice. I should consult a lawyer for any decisions.",
+        "variables": [
+            "PASTE LEGAL DOCUMENT"
+        ]
+    },
+    {
+        "category": "Research and Analysis (Prompts 31\u201340)",
+        "title": "Competitor Content Analyzer",
+        "text": "You are a content strategist analyzing competitor content.\n\nAnalyze the content strategy of [COMPETITOR NAME/URL].\n\nEvaluate:\n1. Content types they produce (blog, video, social, newsletter)\n2. Publishing frequency\n3. Top performing topics (based on engagement signals)\n4. Their content gaps (topics they should cover but don't)\n5. Their tone and style (with specific examples)\n6. Their distribution channels\n7. What I can learn from them\n8. How I can differentiate from them\n\nBe specific. Reference actual patterns, not generic observations.",
+        "variables": [
+            "COMPETITOR NAME/URL"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Daily Task Prioritizer",
+        "text": "You are a productivity coach.\n\nHere are my tasks for today:\n[LIST YOUR TASKS]\n\nMy top goal this week: [YOUR MAIN GOAL]\nAvailable hours: [HOW MANY HOURS]\n\nOrganize these tasks into:\n1. Must do today (non-negotiable)\n2. Should do today (high impact but can slide to tomorrow)\n3. Can wait (nice to do but not urgent)\n\nFor the \"must do\" items, suggest the optimal order and estimated time for each. Flag any task that could be delegated or eliminated entirely.",
+        "variables": [
+            "HOW MANY HOURS",
+            "YOUR MAIN GOAL",
+            "LIST YOUR TASKS"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Email Inbox Processor",
+        "text": "You are an executive assistant processing emails.\n\nHere are my unread emails:\n[PASTE EMAIL SUBJECTS AND SENDERS \u2014 or full emails]\n\nFor each email, categorize:\n1. Action required (what I need to do and by when)\n2. FYI only (no action needed, just awareness)\n3. Can delete (irrelevant or spam)\n\nFor action-required emails, draft a response. Keep each response under 5 sentences. Match the tone of the sender.\n\nPriority order the action items by urgency.",
+        "variables": [
+            "PASTE EMAIL SUBJECTS AND SENDERS \u2014 or full emails"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Meeting Notes Summarizer",
+        "text": "You are an executive assistant who creates perfect meeting summaries.\n\nSummarize these meeting notes:\n[PASTE NOTES OR TRANSCRIPT]\n\nProvide:\n1. Meeting purpose (1 sentence)\n2. Key decisions made (list each decision clearly)\n3. Action items (who, what, by when)\n4. Open questions (unresolved issues that need follow-up)\n5. Next steps\n\nFormat for easy scanning. An executive who was not in the meeting should understand everything in under 90 seconds.",
+        "variables": [
+            "PASTE NOTES OR TRANSCRIPT"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Learning Plan Builder",
+        "text": "You are an education strategist.\n\nBuild a learning plan for [SKILL I WANT TO LEARN].\n\nMy current level: [BEGINNER / INTERMEDIATE / ADVANCED]\nTime available: [HOURS PER WEEK]\nTimeline: [HOW LONG \u2014 e.g., \"3 months\"]\nLearning style: [e.g., \"hands-on projects, not lectures\"]\n\nProvide:\n1. A week-by-week curriculum\n2. Specific resources for each week (free preferred, paid if genuinely superior)\n3. A project to build at the end of each month to validate learning\n4. How to measure progress (specific milestones)\n5. Common mistakes beginners make and how to avoid them\n\nBe specific about resources \u2014 link names and platforms, not vague categories.",
+        "variables": [
+            "HOW LONG \u2014 e.g., \"3 months\"",
+            "e.g., \"hands-on projects, not lectures\"",
+            "BEGINNER / INTERMEDIATE / ADVANCED",
+            "HOURS PER WEEK",
+            "SKILL I WANT TO LEARN"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "SOP Writer",
+        "text": "You are an operations manager writing SOPs (Standard Operating Procedures).\n\nWrite an SOP for [PROCESS].\n\nContext: [WHO PERFORMS THIS PROCESS AND WHY]\n\nInclude:\n1. Purpose (why this SOP exists)\n2. Scope (what it covers and what it does not)\n3. Prerequisites (what must be in place before starting)\n4. Step-by-step procedure (numbered, detailed enough that a new hire can follow without asking questions)\n5. Decision points (where judgment is needed, with guidelines for each decision)\n6. Common mistakes and how to avoid them\n7. Quality check (how to verify the process was done correctly)\n\nWrite for someone doing this for the first time. Assume nothing.",
+        "variables": [
+            "PROCESS",
+            "WHO PERFORMS THIS PROCESS AND WHY"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Personal Finance Analyzer",
+        "text": "You are a financial analyst reviewing personal finances (not providing financial advice \u2014 just organizing and analyzing data).\n\nAnalyze this financial data:\n[PASTE YOUR INCOME, EXPENSES, OR FINANCIAL SUMMARY]\n\nProvide:\n1. Income vs expenses breakdown\n2. Top 5 spending categories\n3. Savings rate\n4. Trends compared to previous period (if data available)\n5. 3 specific areas where spending could be optimized\n6. A simple budget framework based on this data\n\nNote: this is analysis only, not financial advice. I should consult a financial advisor for decisions.",
+        "variables": [
+            "PASTE YOUR INCOME, EXPENSES, OR FINANCIAL SUMMARY"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Habit Tracker and Accountability Coach",
+        "text": "You are a behavioral psychologist specializing in habit formation.\n\nI want to build these habits:\n[LIST YOUR DESIRED HABITS]\n\nMy current routine: [DESCRIBE YOUR TYPICAL DAY]\nMy biggest challenge: [WHAT STOPS YOU]\n\nProvide:\n1. A habit stacking strategy (attach new habits to existing ones)\n2. Specific implementation intentions for each habit (\"When [CUE], I will [HABIT] in [LOCATION]\")\n3. A minimum viable version of each habit for days when motivation is low\n4. A tracking system I can use daily\n5. What to do when I miss a day (specific recovery protocol)\n\nMake it realistic. I am a human, not a robot.",
+        "variables": [
+            "CUE",
+            "LOCATION",
+            "DESCRIBE YOUR TYPICAL DAY",
+            "LIST YOUR DESIRED HABITS",
+            "HABIT",
+            "WHAT STOPS YOU"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Negotiation Prep",
+        "text": "You are a negotiation strategist.\n\nHelp me prepare for a negotiation about [WHAT YOU ARE NEGOTIATING].\n\nMy position: [WHAT I WANT]\nTheir likely position: [WHAT THEY PROBABLY WANT]\nMy BATNA (best alternative): [MY BACKUP PLAN]\nRelationship importance: [HIGH / MEDIUM / LOW]\n\nProvide:\n1. My opening position (where to start)\n2. My target (realistic best outcome)\n3. My walk-away point (minimum acceptable)\n4. 3 concessions I can offer that cost me little but have high perceived value\n5. 3 likely objections and how to respond to each\n6. The single most important thing to say in the first 2 minutes\n7. Red flags that mean I should walk away",
+        "variables": [
+            "MY BACKUP PLAN",
+            "WHAT I WANT",
+            "WHAT THEY PROBABLY WANT",
+            "HIGH / MEDIUM / LOW",
+            "WHAT YOU ARE NEGOTIATING"
+        ]
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Weekly Review Template",
+        "text": "You are a personal productivity consultant.\n\nGuide me through a weekly review. Ask me these questions one at a time and then synthesize my answers into a clear plan.\n\nQuestions:\n1. What were my 3 biggest wins this week?\n2. What did I not finish that I should have?\n3. What took longer than expected and why?\n4. What task should I have delegated or skipped entirely?\n5. What is the single most important thing I need to accomplish next week?\n6. What obstacles might prevent me from accomplishing it?\n7. What do I need to say no to next week?\n\nAfter my answers, provide a prioritized action plan for next week with no more than 5 items.",
+        "variables": []
+    },
+    {
+        "category": "Personal Productivity and Automation (Prompts 41\u201350)",
+        "title": "Life Decision Framework",
+        "text": "You are a decision-making consultant.\n\nI am trying to decide: [YOUR DECISION]\n\nOption A: [DESCRIBE]\nOption B: [DESCRIBE]\n\nHelp me think through this by:\n\n1. Listing the top 5 factors that should influence this decision\n2. Scoring each option on each factor (1-10)\n3. Identifying what I would regret more \u2014 choosing A and it failing, or choosing B and it failing\n4. Asking me 3 questions I probably have not considered\n5. Giving me a clear recommendation with reasoning\n6. Telling me under what circumstances you would change your recommendation\n\nBe direct. I want clarity, not more confusion.",
+        "variables": [
+            "YOUR DECISION",
+            "DESCRIBE"
+        ]
+    }
+]

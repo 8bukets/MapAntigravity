@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Library</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <h2>Prompt Library</h2>
+
+        <div class="settings-area">
+            <label for="api-key">OpenAI API Key:</label>
+            <input type="password" id="api-key" placeholder="sk-..." autocomplete="off">
+            <small>Stored locally in your browser.</small>
+        </div>
+
+        <div class="categories" id="categories-container">
+            <!-- Categories and prompts will be dynamically populated here -->
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1 id="prompt-title">Select a Prompt</h1>
+        </header>
+
+        <section class="prompt-workspace" id="prompt-workspace" style="display: none;">
+
+            <div class="variables-section">
+                <h3>Fill in Variables</h3>
+                <div id="variables-container">
+                    <!-- Variable input fields will be populated here -->
+                </div>
+                <button id="generate-btn" class="primary-btn">Generate Request</button>
+            </div>
+
+            <div class="output-section">
+                <h3>Final Prompt Preview</h3>
+                <textarea id="final-prompt" rows="8" readonly></textarea>
+
+                <h3>LLM Response</h3>
+                <div id="llm-response" class="response-box">
+                    <p class="placeholder-text">Response will appear here...</p>
+                </div>
+            </div>
+
+        </section>
+
+        <div id="empty-state" class="empty-state">
+            <p>Please select a prompt from the sidebar to begin.</p>
+        </div>
+    </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

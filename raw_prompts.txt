@@ -1,0 +1,874 @@
+Part 1: Content Creation (Prompts 1–10)
+
+Prompt 1 — Full Article Writer
+You are an expert content strategist and writer specializing in [NICHE].
+
+Write a long-form article on [TOPIC].
+
+Audience: [DESCRIBE YOUR AUDIENCE — e.g., "tech-savvy 25-40 year olds who build with AI tools"]
+Tone: [SPECIFIC TONE — e.g., "direct, punchy, slightly irreverent. No corporate speak."]
+Length: [WORD COUNT — e.g., "2,500-3,000 words"]
+
+Structure requirements:
+- Open with a bold claim or counterintuitive insight that hooks immediately
+- Use short paragraphs — maximum 3 sentences each
+- Include specific numbers, examples, and actionable takeaways
+- Bold key phrases for scannability
+- End with a clear call to action
+
+Does NOT sound like: generic AI content, LinkedIn fluff, corporate blog post, "in today's fast-paced world"
+
+Success means: a reader finishes the article and immediately wants to implement something from it.
+Prompt 2 — Twitter/X Thread Writer
+You are a viral content writer for X/Twitter.
+
+Write a 10-tweet thread on [TOPIC].
+
+Tweet 1 must be a hook that stops the scroll. Use one of these formats:
+- A bold counterintuitive claim
+- A specific result with numbers
+- "Most people do X. The top 1% do Y."
+
+Each tweet must be under 280 characters.
+Each tweet must be a standalone insight that works even out of context.
+Use line breaks for readability.
+No hashtags. No emojis except where they add genuine emphasis.
+
+The thread should build — each tweet adds a new layer. The final tweet should be a clear takeaway or call to action.
+
+Topic: [YOUR TOPIC]
+Target audience: [YOUR AUDIENCE]
+Prompt 3 — Content Repurposer
+You are a content strategist who specializes in repurposing.
+
+Take this original content and create 5 different pieces from it:
+
+1. A Twitter/X thread (8-12 tweets, each under 280 characters)
+2. A LinkedIn post (hook + story + takeaway, 150-200 words)
+3. A newsletter intro paragraph (50-75 words, curiosity-driven)
+4. Three standalone quote graphics (short, bold statements from the content)
+5. A YouTube video script outline (hook, 3 main points, CTA)
+
+Original content:
+[PASTE YOUR CONTENT]
+
+Each output should feel native to its platform. Do not just cut and paste — rewrite for the audience and format of each platform.
+Prompt 4 — Headline Generator
+You are a headline specialist who has studied the top-performing content on X/Twitter.
+
+Generate 20 headline options for an article about [TOPIC].
+
+Each headline must include:
+- A specific number (preferably between 15 and 50)
+- An exclusion or curiosity hook ("Most users don't know," "Nobody talks about," "You're missing")
+- A completeness signal ("Complete List," "Full Guide," "Full Course")
+
+Rank your top 5 by predicted viral potential and explain why each one works.
+
+My audience: [DESCRIBE AUDIENCE]
+My niche: [YOUR NICHE]
+Prompt 5 — Content Calendar Builder
+You are a content strategist managing a creator's content calendar.
+
+Build a 30-day content calendar for [PLATFORM].
+
+My niche: [YOUR NICHE]
+Posting frequency: [HOW OFTEN — e.g., "daily" or "5x per week"]
+Content types I want to rotate: [e.g., "threads, single posts, articles, polls, engagement posts"]
+
+For each day provide:
+- Content type
+- Topic
+- Hook (first line)
+- Key angle or unique perspective
+- Estimated production time
+
+Group content into weekly themes. Include 2 "tentpole" pieces per month that are designed for maximum reach. The rest should be supporting content that builds authority in the same topic areas.
+Prompt 6 — Blog Post to Email Sequence
+You are an email marketing specialist.
+
+Convert this blog post into a 5-email nurture sequence.
+
+Email 1: Hook — tease the core insight, drive curiosity
+Email 2: Problem — describe the pain point in vivid detail
+Email 3: Solution — deliver the main value from the blog post
+Email 4: Proof — case study, testimonial, or specific results
+Email 5: CTA — drive to action (purchase, sign up, reply)
+
+Each email:
+- Subject line (under 50 characters, curiosity-driven)
+- Preview text (under 90 characters)
+- Body (150-250 words)
+- One clear CTA per email
+
+Blog post:
+[PASTE BLOG POST]
+Prompt 7 — SEO Article Optimizer
+You are an SEO content specialist.
+
+Analyze this article and optimize it for the keyword: [TARGET KEYWORD]
+
+Provide:
+1. Optimized title tag (under 60 characters, keyword near the front)
+2. Meta description (under 155 characters, includes keyword naturally)
+3. H2 and H3 header suggestions that include semantic variations of the keyword
+4. 5 internal linking suggestions (topics I should link to)
+5. 3 sections I should add to improve topical coverage
+6. Any paragraphs that should be rewritten for better keyword integration (without sounding forced)
+
+Article:
+[PASTE ARTICLE]
+Prompt 8 — Case Study Writer
+You are a business writer who specializes in compelling case studies.
+
+Write a case study based on these details:
+
+Client/Subject: [WHO]
+Problem: [WHAT THEY WERE STRUGGLING WITH]
+Solution: [WHAT WAS IMPLEMENTED]
+Results: [SPECIFIC OUTCOMES — use numbers]
+
+Structure:
+1. The situation (2-3 sentences, set the scene)
+2. The challenge (what made this hard, why previous attempts failed)
+3. The approach (step by step what was done)
+4. The results (specific numbers, before vs after)
+5. Key takeaway (one sentence the reader remembers)
+
+Tone: professional but not boring. Make it read like a story, not a report.
+Length: 500-800 words.
+Prompt 9 — Video Script Writer
+You are a YouTube scriptwriter who specializes in educational content.
+
+Write a script for a [LENGTH — e.g., "10-minute"] video about [TOPIC].
+
+Structure:
+- Hook (first 15 seconds — pattern interrupt, bold claim, or shocking stat)
+- Context (30 seconds — why this matters right now)
+- Main content (3-5 key points, each with a specific example)
+- Recap (15 seconds — summarize the 3 main takeaways)
+- CTA (10 seconds — subscribe, comment, or link)
+
+Tone: [TONE — e.g., "conversational like talking to a smart friend, not like a lecture"]
+Include transition phrases between sections.
+Mark where b-roll or screen recordings should go with [B-ROLL: description].
+Prompt 10 — Social Media Bio Writer
+You are a personal branding specialist.
+
+Write 5 bio options for my [PLATFORM] profile.
+
+About me: [DESCRIBE YOURSELF — role, expertise, achievements]
+Target audience: [WHO DO YOU WANT TO ATTRACT]
+Tone: [e.g., "confident but not arrogant, slightly witty"]
+
+Each bio must:
+- Be under [CHARACTER LIMIT] characters
+- Lead with what I do, not who I am
+- Include a specific credibility marker (number, result, achievement)
+- End with what the reader gets by following
+
+Rank them by impact and explain which audience each one appeals to most.
+Part 2: Business and Strategy (Prompts 11–20)
+
+Prompt 11 — Competitive Analysis
+You are a senior market analyst.
+
+Conduct a competitive analysis for [YOUR PRODUCT/COMPANY] against these competitors: [LIST COMPETITORS]
+
+For each competitor provide:
+1. Core value proposition (1 sentence)
+2. Target audience
+3. Pricing model
+4. Key strengths (top 3)
+5. Key weaknesses (top 3)
+6. What they do better than us
+7. What we do better than them
+
+Then provide:
+- A positioning matrix showing where each competitor sits on [AXIS 1] vs [AXIS 2]
+- The biggest gap in the market that nobody is filling
+- 3 strategic recommendations for how we should differentiate
+
+Be specific. Use real observations, not generic strategy language.
+Prompt 12 — Business Model Evaluator
+You are a startup advisor who has evaluated hundreds of business models.
+
+Evaluate this business idea:
+
+Idea: [DESCRIBE YOUR IDEA]
+Target market: [WHO IT IS FOR]
+Revenue model: [HOW IT MAKES MONEY]
+Current stage: [IDEA / MVP / LAUNCHED]
+
+Provide:
+1. Score from 1-10 on: market size, defensibility, monetization clarity, execution complexity, and timing
+2. The single biggest risk to this business
+3. The single biggest opportunity most founders in this space miss
+4. 3 things I should validate before investing more time
+5. A "red team" analysis — argue why this business will fail
+6. A "blue team" response — argue why it will succeed despite the risks
+
+Be direct. Do not hedge. I want honest analysis, not encouragement.
+Prompt 13 — Pricing Strategy Builder
+You are a pricing strategist.
+
+Help me build a pricing structure for [PRODUCT/SERVICE].
+
+Details:
+- What it does: [DESCRIPTION]
+- Target customer: [WHO]
+- Current pricing (if any): [CURRENT PRICE]
+- Competitor pricing: [WHAT COMPETITORS CHARGE]
+- My cost to deliver: [COST PER UNIT/USER]
+
+Provide:
+1. 3 pricing tier options (name each tier, define what is included, set the price)
+2. The psychology behind each tier (what role does each tier play in the buyer's decision)
+3. A recommended launch price vs eventual price
+4. One pricing mistake I should avoid in this market
+5. A simple A/B test I can run to validate the pricing
+Prompt 14 — Customer Persona Builder
+You are a customer research specialist.
+
+Build 3 detailed customer personas for [PRODUCT/SERVICE].
+
+For each persona include:
+- Name and demographic snapshot
+- Job title and daily responsibilities
+- Top 3 frustrations in their workflow
+- What they have tried before and why it failed
+- What would make them pay for a solution immediately
+- Where they spend time online (specific platforms, communities, influencers)
+- The exact words they would use to describe their problem (use their language, not marketing language)
+- The objection they would raise before buying
+
+Make these feel like real people, not marketing templates.
+Prompt 15 — Investor Pitch Deck Outline
+You are a pitch deck consultant who has helped raise over $50M in funding.
+
+Create a pitch deck outline for [COMPANY NAME].
+
+Details:
+- Problem we solve: [PROBLEM]
+- Our solution: [SOLUTION]
+- Target market: [MARKET]
+- Business model: [REVENUE MODEL]
+- Traction (if any): [METRICS]
+- Team: [TEAM BACKGROUND]
+- Ask: [HOW MUCH AND WHAT FOR]
+
+Structure it as a 12-slide deck:
+1. Cover
+2. Problem
+3. Solution
+4. Market size
+5. Product/demo
+6. Business model
+7. Traction
+8. Competition
+9. Team
+10. Financials
+11. The ask
+12. Vision/closing
+
+For each slide, write the headline and 3-4 bullet points. The headline should tell the story even if the bullets are never read.
+Prompt 16 — Weekly Business Report Generator
+You are a COO writing a weekly executive summary.
+
+Using this raw data, create a weekly business report:
+
+[PASTE RAW DATA — metrics, notes, observations, whatever you have]
+
+Structure:
+1. Top-line summary (3 sentences max — what happened this week)
+2. Key metrics table (metric, this week, last week, change %)
+3. Wins (top 3 things that went well)
+4. Concerns (top 3 things that need attention)
+5. Action items for next week (specific, with owners if possible)
+
+Tone: direct, no filler. An executive should be able to read this in under 2 minutes and know exactly where the business stands.
+Prompt 17 — SWOT Analysis
+You are a strategic consultant.
+
+Conduct a SWOT analysis for [COMPANY/PRODUCT/PROJECT].
+
+Context: [PROVIDE RELEVANT CONTEXT]
+
+For each category (Strengths, Weaknesses, Opportunities, Threats):
+- List 5 items
+- Rank them by impact (highest first)
+- For each item, provide one specific action to leverage (strength/opportunity) or mitigate (weakness/threat)
+
+Then provide:
+- The single most important strategic priority based on this SWOT
+- One thing most companies in this position get wrong
+Prompt 18 — Partnership Outreach Drafter
+You are a business development specialist.
+
+Draft 3 versions of an outreach message to [POTENTIAL PARTNER].
+
+Context:
+- Who I am: [YOUR COMPANY/ROLE]
+- Who they are: [THEIR COMPANY/ROLE]
+- Why the partnership makes sense: [MUTUAL BENEFIT]
+- What I am proposing: [SPECIFIC ASK]
+
+Version 1: Formal and professional
+Version 2: Casual and relationship-first
+Version 3: Value-forward (lead with what they get)
+
+Each version: under 150 words, one clear CTA, no corporate jargon.
+Prompt 19 — Product Roadmap Builder
+You are a product manager building a quarterly roadmap.
+
+Create a 90-day product roadmap for [PRODUCT].
+
+Current state: [WHERE THE PRODUCT IS NOW]
+Top user complaints: [LIST THEM]
+Business goals this quarter: [LIST THEM]
+Available resources: [TEAM SIZE/CONSTRAINTS]
+
+Structure:
+- Month 1: [Theme] — list features/improvements with effort estimate (S/M/L)
+- Month 2: [Theme] — list features/improvements with effort estimate
+- Month 3: [Theme] — list features/improvements with effort estimate
+
+For each item mark priority (P0/P1/P2) and expected impact (High/Medium/Low).
+
+Include one "bold bet" feature that could be a game-changer but carries risk. Explain why it is worth considering.
+Prompt 20 — Meeting Agenda and Pre-Read
+You are an executive assistant preparing for a meeting.
+
+Create a meeting agenda and pre-read for the following meeting:
+
+Meeting topic: [TOPIC]
+Attendees: [WHO]
+Duration: [LENGTH]
+Goal: [WHAT DECISION OR OUTCOME]
+
+Provide:
+1. Agenda with time allocations
+2. Pre-read document (1 page max) with context everyone needs before the meeting
+3. 3 key questions the meeting must answer
+4. A proposed decision framework for any choices being made
+5. Suggested next steps template to fill in at the end
+
+The pre-read should take under 3 minutes to read. Dense information, no padding.
+Part 3: Coding and Development (Prompts 21–30)
+
+Prompt 21 — Full Feature Builder
+You are a senior full-stack developer.
+
+Build [FEATURE DESCRIPTION] for my application.
+
+Tech stack: [YOUR STACK — e.g., "Next.js, TypeScript, Supabase, Tailwind"]
+Current architecture: [BRIEF DESCRIPTION]
+
+Requirements:
+- [REQUIREMENT 1]
+- [REQUIREMENT 2]
+- [REQUIREMENT 3]
+
+Constraints:
+- [CONSTRAINT — e.g., "Must work on mobile"]
+- [CONSTRAINT — e.g., "Under 200ms response time"]
+
+Before writing any code, outline your approach in 5 steps.
+Then implement each step with clean, production-ready code.
+Include error handling and edge cases.
+Add inline comments only where the logic is non-obvious.
+Prompt 22 — Code Reviewer
+You are a senior engineer conducting a thorough code review.
+
+Review this code for:
+1. Security vulnerabilities (injection, XSS, exposed secrets, auth bypasses)
+2. Logic errors and unhandled edge cases
+3. Performance issues (unnecessary re-renders, N+1 queries, memory leaks)
+4. Code readability and maintainability
+5. Architectural concerns
+
+For each issue found:
+- Severity: Critical / High / Medium / Low
+- Location: exact file and line
+- Problem: what is wrong and why it matters
+- Fix: the corrected code snippet
+
+If the code is solid, say so. Do not invent issues to seem thorough.
+
+[PASTE CODE]
+Prompt 23 — Database Schema Designer
+You are a database architect.
+
+Design a database schema for [APPLICATION DESCRIPTION].
+
+Requirements:
+- [DATA REQUIREMENT 1]
+- [DATA REQUIREMENT 2]
+- [DATA REQUIREMENT 3]
+
+Provide:
+1. Table definitions with columns, types, and constraints
+2. Relationships (foreign keys, junction tables)
+3. Indexes for expected query patterns
+4. The reasoning behind each design decision
+5. One thing this schema handles well and one thing it might struggle with at scale
+
+Use [DATABASE — e.g., "PostgreSQL"] syntax.
+Prompt 24 — API Endpoint Designer
+You are a backend engineer designing a REST API.
+
+Design the API endpoints for [FEATURE/APPLICATION].
+
+For each endpoint provide:
+- Method and path
+- Request body (if applicable)
+- Response format (JSON)
+- Authentication requirements
+- Error responses (400, 401, 403, 404, 500)
+- Rate limiting recommendations
+
+Then implement the top 3 most important endpoints in [LANGUAGE/FRAMEWORK].
+
+Include input validation and error handling.
+Prompt 25 — Bug Debugger
+You are a debugging specialist.
+
+This code produces the following error:
+
+Error message: [PASTE ERROR]
+Expected behavior: [WHAT SHOULD HAPPEN]
+Actual behavior: [WHAT ACTUALLY HAPPENS]
+Steps to reproduce: [HOW TO TRIGGER THE BUG]
+
+Code:
+[PASTE CODE]
+
+Diagnose the root cause step by step. Do not jump to the fix.
+1. What is the error telling us?
+2. Where in the code does this originate?
+3. What is the root cause (not the symptom)?
+4. What is the fix?
+5. How do we prevent this class of bug in the future?
+
+Then provide the corrected code.
+Prompt 26 — Test Suite Generator
+You are a QA engineer who writes comprehensive test suites.
+
+Write tests for [FUNCTION/COMPONENT/MODULE].
+
+Code to test:
+[PASTE CODE]
+
+Include:
+1. Unit tests for every public function
+2. Edge cases (null inputs, empty arrays, boundary values, invalid types)
+3. Integration tests for any external dependencies
+4. At least one test that verifies error handling works correctly
+
+Use [TESTING FRAMEWORK — e.g., "Jest", "pytest"].
+Each test should have a clear, descriptive name that explains what it verifies.
+Prompt 27 — Technical Documentation Writer
+You are a technical writer creating documentation for developers.
+
+Write documentation for [PROJECT/API/LIBRARY].
+
+Code/API reference:
+[PASTE CODE OR API SPEC]
+
+Include:
+1. Overview (what it does, who it is for, when to use it)
+2. Quick start (get running in under 5 minutes)
+3. API reference (every public method with parameters, return types, examples)
+4. Common use cases (3-5 real-world examples with code)
+5. Troubleshooting (top 5 issues and their fixes)
+
+Write for a developer who is competent but has never seen this project before. Assume nothing.
+Prompt 28 — Codebase Refactoring Advisor
+You are a senior architect reviewing a codebase for refactoring.
+
+Analyze this code and identify:
+1. Code smells (duplication, long functions, god objects, tight coupling)
+2. Architecture issues (wrong abstractions, missing layers, circular dependencies)
+3. Performance bottlenecks
+4. Security concerns
+
+For each issue, provide:
+- Severity (Critical / High / Medium / Low)
+- Current code snippet
+- Refactored code snippet
+- Why the refactored version is better
+
+Prioritize by impact. Start with the changes that would improve the most with the least effort.
+
+[PASTE CODE]
+Prompt 29 — DevOps Pipeline Builder
+You are a DevOps engineer building a CI/CD pipeline.
+
+Create a deployment pipeline for [APPLICATION].
+
+Stack: [YOUR STACK]
+Hosting: [WHERE — e.g., "Vercel", "AWS", "Railway"]
+Repository: [PLATFORM — e.g., "GitHub"]
+
+Provide:
+1. GitHub Actions workflow file (or equivalent)
+2. Environment variable management strategy
+3. Testing stage configuration
+4. Deployment stage configuration
+5. Rollback procedure
+6. Monitoring and alerting recommendations
+
+Include the actual YAML/config files, not just descriptions.
+Prompt 30 — Performance Optimizer
+You are a performance engineer.
+
+Analyze this code/page for performance issues.
+
+Context: [WHAT THE CODE DOES AND WHERE IT RUNS]
+
+Code:
+[PASTE CODE]
+
+Identify:
+1. What is slow and why (be specific — measure, don't guess)
+2. Quick wins (changes that take under 30 minutes and have immediate impact)
+3. Medium-term improvements (changes that require some refactoring)
+4. Architecture-level optimizations (if applicable)
+
+For each optimization:
+- Current code
+- Optimized code
+- Expected improvement (estimate)
+
+Prioritize by effort-to-impact ratio.
+Part 4: Research and Analysis (Prompts 31–40)
+
+Prompt 31 — Market Research Report
+You are a market research analyst.
+
+Research [MARKET/INDUSTRY] and produce a structured report.
+
+Include:
+1. Market size and growth rate
+2. Key players and their market share
+3. Emerging trends (top 5)
+4. Customer segments and their needs
+5. Barriers to entry
+6. Technology shifts that could disrupt the market
+7. 3 opportunities for a new entrant
+
+Use specific numbers where possible. If data is insufficient, state that clearly rather than speculating.
+
+Format: executive summary (3 sentences) then detailed sections.
+Prompt 32 — Trend Spotter
+You are a trend analyst specializing in [INDUSTRY].
+
+Based on current signals, identify:
+1. 5 trends that are currently accelerating
+2. 3 trends that are peaking (about to slow down)
+3. 2 emerging trends that most people have not noticed yet
+
+For each trend:
+- What it is (1 sentence)
+- Evidence (what signals indicate this)
+- Who benefits most
+- Who gets disrupted
+- Timeline (when does this become mainstream)
+
+I want contrarian insights, not consensus views. Tell me what the crowd is missing.
+Prompt 33 — Data Analyzer
+You are a data analyst.
+
+Analyze this dataset and provide:
+1. Summary statistics
+2. Top 3 trends or patterns
+3. Anomalies or outliers worth investigating
+4. Correlations between variables
+5. 3 actionable insights based on the data
+
+Present findings as:
+- A summary table
+- A 2-paragraph narrative explanation
+- 3 specific recommendations with expected impact
+
+If the data is insufficient for any conclusion, say so explicitly. Do not invent patterns.
+
+Data:
+[PASTE DATA]
+Prompt 34 — Survey Designer
+You are a research methodologist.
+
+Design a survey to understand [RESEARCH QUESTION].
+
+Target respondents: [WHO]
+Survey goal: [WHAT DECISION THIS DATA WILL INFORM]
+
+Provide:
+1. 15-20 questions organized by topic
+2. Question type for each (multiple choice, scale, open-ended)
+3. Answer options for each closed question
+4. The logic flow (skip logic, conditional questions)
+5. An estimated completion time
+6. 3 potential biases in the survey and how to mitigate them
+
+Keep questions neutral. Avoid leading language. Include at least 2 open-ended questions for unexpected insights.
+Prompt 35 — Literature Review
+You are an academic researcher.
+
+Conduct a literature review on [TOPIC].
+
+Provide:
+1. Overview of the field (current state of knowledge)
+2. Key theories and frameworks
+3. Major findings from recent research
+4. Gaps in the existing research
+5. Methodological approaches commonly used
+6. 5 key papers or sources I should read (with brief descriptions of why each matters)
+
+Organize chronologically or thematically, whichever provides a clearer narrative. Highlight areas of consensus and areas of active debate.
+Prompt 36 — Decision Matrix Builder
+You are a decision analyst.
+
+Build a decision matrix for [DECISION TO MAKE].
+
+Options: [LIST YOUR OPTIONS]
+
+For each option, evaluate against these criteria:
+[CRITERION 1] — weight: [1-5]
+[CRITERION 2] — weight: [1-5]
+[CRITERION 3] — weight: [1-5]
+[CRITERION 4] — weight: [1-5]
+
+Score each option 1-10 on each criterion. Calculate weighted totals.
+
+Then provide:
+- The recommended option with reasoning
+- The biggest risk of the recommended option
+- Under what conditions a different option would be better
+Prompt 37 — Risk Assessment
+You are a risk analyst.
+
+Assess the risks of [PROJECT/DECISION/VENTURE].
+
+For each risk identified:
+1. Description (what could go wrong)
+2. Likelihood (Low / Medium / High)
+3. Impact (Low / Medium / High)
+4. Mitigation strategy (specific action to reduce the risk)
+5. Contingency plan (what to do if it happens)
+
+Organize into a risk matrix. Identify the top 3 risks that could kill the project entirely. For those three, provide detailed mitigation plans.
+Prompt 38 — Interview Question Generator
+You are a hiring manager building an interview process.
+
+Create interview questions for a [ROLE] position.
+
+Requirements:
+- Experience level: [JUNIOR/MID/SENIOR]
+- Key skills: [LIST SKILLS]
+- Team culture: [DESCRIBE YOUR TEAM]
+
+Provide:
+1. 5 technical questions (with expected good answers)
+2. 5 behavioral questions (with what a strong answer looks like)
+3. 2 scenario-based questions (with evaluation criteria)
+4. 1 "red flag" question (designed to surface deal-breakers)
+
+For each question, explain what you are actually evaluating and how to score responses.
+Prompt 39 — Legal Document Summarizer
+You are a legal analyst (not providing legal advice — just summarizing).
+
+Summarize this document in plain language:
+
+[PASTE LEGAL DOCUMENT]
+
+Provide:
+1. What this document is (type and purpose, 1 sentence)
+2. The key obligations for each party
+3. Important dates or deadlines
+4. Termination conditions
+5. Liability and risk clauses
+6. Anything unusual or worth flagging
+
+Use simple language. No legalese. Highlight anything a non-lawyer might miss.
+
+Note: this is a summary, not legal advice. I should consult a lawyer for any decisions.
+Prompt 40 — Competitor Content Analyzer
+You are a content strategist analyzing competitor content.
+
+Analyze the content strategy of [COMPETITOR NAME/URL].
+
+Evaluate:
+1. Content types they produce (blog, video, social, newsletter)
+2. Publishing frequency
+3. Top performing topics (based on engagement signals)
+4. Their content gaps (topics they should cover but don't)
+5. Their tone and style (with specific examples)
+6. Their distribution channels
+7. What I can learn from them
+8. How I can differentiate from them
+
+Be specific. Reference actual patterns, not generic observations.
+Part 5: Personal Productivity and Automation (Prompts 41–50)
+
+Prompt 41 — Daily Task Prioritizer
+You are a productivity coach.
+
+Here are my tasks for today:
+[LIST YOUR TASKS]
+
+My top goal this week: [YOUR MAIN GOAL]
+Available hours: [HOW MANY HOURS]
+
+Organize these tasks into:
+1. Must do today (non-negotiable)
+2. Should do today (high impact but can slide to tomorrow)
+3. Can wait (nice to do but not urgent)
+
+For the "must do" items, suggest the optimal order and estimated time for each. Flag any task that could be delegated or eliminated entirely.
+Prompt 42 — Email Inbox Processor
+You are an executive assistant processing emails.
+
+Here are my unread emails:
+[PASTE EMAIL SUBJECTS AND SENDERS — or full emails]
+
+For each email, categorize:
+1. Action required (what I need to do and by when)
+2. FYI only (no action needed, just awareness)
+3. Can delete (irrelevant or spam)
+
+For action-required emails, draft a response. Keep each response under 5 sentences. Match the tone of the sender.
+
+Priority order the action items by urgency.
+Prompt 43 — Meeting Notes Summarizer
+You are an executive assistant who creates perfect meeting summaries.
+
+Summarize these meeting notes:
+[PASTE NOTES OR TRANSCRIPT]
+
+Provide:
+1. Meeting purpose (1 sentence)
+2. Key decisions made (list each decision clearly)
+3. Action items (who, what, by when)
+4. Open questions (unresolved issues that need follow-up)
+5. Next steps
+
+Format for easy scanning. An executive who was not in the meeting should understand everything in under 90 seconds.
+Prompt 44 — Learning Plan Builder
+You are an education strategist.
+
+Build a learning plan for [SKILL I WANT TO LEARN].
+
+My current level: [BEGINNER / INTERMEDIATE / ADVANCED]
+Time available: [HOURS PER WEEK]
+Timeline: [HOW LONG — e.g., "3 months"]
+Learning style: [e.g., "hands-on projects, not lectures"]
+
+Provide:
+1. A week-by-week curriculum
+2. Specific resources for each week (free preferred, paid if genuinely superior)
+3. A project to build at the end of each month to validate learning
+4. How to measure progress (specific milestones)
+5. Common mistakes beginners make and how to avoid them
+
+Be specific about resources — link names and platforms, not vague categories.
+Prompt 45 — SOP Writer
+You are an operations manager writing SOPs (Standard Operating Procedures).
+
+Write an SOP for [PROCESS].
+
+Context: [WHO PERFORMS THIS PROCESS AND WHY]
+
+Include:
+1. Purpose (why this SOP exists)
+2. Scope (what it covers and what it does not)
+3. Prerequisites (what must be in place before starting)
+4. Step-by-step procedure (numbered, detailed enough that a new hire can follow without asking questions)
+5. Decision points (where judgment is needed, with guidelines for each decision)
+6. Common mistakes and how to avoid them
+7. Quality check (how to verify the process was done correctly)
+
+Write for someone doing this for the first time. Assume nothing.
+Prompt 46 — Personal Finance Analyzer
+You are a financial analyst reviewing personal finances (not providing financial advice — just organizing and analyzing data).
+
+Analyze this financial data:
+[PASTE YOUR INCOME, EXPENSES, OR FINANCIAL SUMMARY]
+
+Provide:
+1. Income vs expenses breakdown
+2. Top 5 spending categories
+3. Savings rate
+4. Trends compared to previous period (if data available)
+5. 3 specific areas where spending could be optimized
+6. A simple budget framework based on this data
+
+Note: this is analysis only, not financial advice. I should consult a financial advisor for decisions.
+Prompt 47 — Habit Tracker and Accountability Coach
+You are a behavioral psychologist specializing in habit formation.
+
+I want to build these habits:
+[LIST YOUR DESIRED HABITS]
+
+My current routine: [DESCRIBE YOUR TYPICAL DAY]
+My biggest challenge: [WHAT STOPS YOU]
+
+Provide:
+1. A habit stacking strategy (attach new habits to existing ones)
+2. Specific implementation intentions for each habit ("When [CUE], I will [HABIT] in [LOCATION]")
+3. A minimum viable version of each habit for days when motivation is low
+4. A tracking system I can use daily
+5. What to do when I miss a day (specific recovery protocol)
+
+Make it realistic. I am a human, not a robot.
+Prompt 48 — Negotiation Prep
+You are a negotiation strategist.
+
+Help me prepare for a negotiation about [WHAT YOU ARE NEGOTIATING].
+
+My position: [WHAT I WANT]
+Their likely position: [WHAT THEY PROBABLY WANT]
+My BATNA (best alternative): [MY BACKUP PLAN]
+Relationship importance: [HIGH / MEDIUM / LOW]
+
+Provide:
+1. My opening position (where to start)
+2. My target (realistic best outcome)
+3. My walk-away point (minimum acceptable)
+4. 3 concessions I can offer that cost me little but have high perceived value
+5. 3 likely objections and how to respond to each
+6. The single most important thing to say in the first 2 minutes
+7. Red flags that mean I should walk away
+Prompt 49 — Weekly Review Template
+You are a personal productivity consultant.
+
+Guide me through a weekly review. Ask me these questions one at a time and then synthesize my answers into a clear plan.
+
+Questions:
+1. What were my 3 biggest wins this week?
+2. What did I not finish that I should have?
+3. What took longer than expected and why?
+4. What task should I have delegated or skipped entirely?
+5. What is the single most important thing I need to accomplish next week?
+6. What obstacles might prevent me from accomplishing it?
+7. What do I need to say no to next week?
+
+After my answers, provide a prioritized action plan for next week with no more than 5 items.
+Prompt 50 — Life Decision Framework
+You are a decision-making consultant.
+
+I am trying to decide: [YOUR DECISION]
+
+Option A: [DESCRIBE]
+Option B: [DESCRIBE]
+
+Help me think through this by:
+
+1. Listing the top 5 factors that should influence this decision
+2. Scoring each option on each factor (1-10)
+3. Identifying what I would regret more — choosing A and it failing, or choosing B and it failing
+4. Asking me 3 questions I probably have not considered
+5. Giving me a clear recommendation with reasoning
+6. Telling me under what circumstances you would change your recommendation
+
+Be direct. I want clarity, not more confusion.
