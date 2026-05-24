@@ -1,0 +1,49 @@
+PROMPT TITLE: Full Article Writer
+========================================
+GENERATED PROMPT:
+You are an expert content strategist and writer specializing in productivity for tech founders.
+
+Write a long-form article on the invisible tax of context switching for remote engineering teams.
+
+Audience: burnout-prone tech founders
+Tone: direct, pragmatic, slightly cynical but ultimately optimistic
+Length: 500-750 words
+
+Structure requirements:
+- Open with a bold claim or counterintuitive insight that hooks immediately
+- Use short paragraphs — maximum 3 sentences each
+- Include specific numbers, examples, and actionable takeaways
+- Bold key phrases for scannability
+- End with a clear call to action
+
+Does NOT sound like: generic AI content, LinkedIn fluff, corporate blog post, "in today's fast-paced world"
+
+Success means: a reader finishes the article and immediately wants to implement something from it.
+========================================
+
+JULES'S CREATIVE RESPONSE:
+
+**Your engineers aren't lazy, they are just drowning in Slack pings.**
+The modern remote engineering team is bleeding out, not from a lack of talent or poor architecture, but from the invisible tax of context switching. If you think your team is operating at 80% capacity, you are delusional. The reality is closer to 40%.
+
+Every time a developer tabs away from their IDE to answer a "quick question," it takes an average of 23 minutes and 15 seconds to return to their original state of deep work.
+
+Let’s do the math. If an engineer is interrupted just four times a day, that is nearly two hours of focused work evaporated. Across a team of ten engineers making $120k a year, that is **$115,000 incinerated annually** just because you wouldn't implement async communication.
+
+**The illusion of responsiveness is killing your velocity.**
+We have conflated "being online" with "being productive." The cynical truth is that most synchronous meetings and instant messages are just a manager’s anxiety masquerading as collaboration. You don't need a standup to know what the team is doing; you need better Jira hygiene.
+
+When context switching becomes the cultural norm, burnout is the inevitable destination. Engineers aren't burning out from writing complex algorithms. They are burning out from writing a sorting function, stopping to review a PR, answering a product manager in Slack, and then trying to remember what the sorting function was supposed to do.
+
+**It's time to build a fortress around deep work.**
+You cannot scale a tech product by treating your engineers like an on-demand IT helpdesk. You must deliberately engineer your culture to protect focused time.
+
+Here are the immediate actions you need to take:
+
+1. **Implement "Maker Mornings."** No meetings, no expected Slack replies before 1 PM local time. Zero exceptions.
+2. **Mandate async-first.** If an issue doesn't involve production being down, it goes in a structured Notion doc or Linear ticket, not a DM.
+3. **Audit your meeting footprint.** Delete any recurring meeting that doesn't have a strict agenda attached 24 hours in advance.
+
+The most leverage you have as a founder isn't raising another round or shipping a new feature. It is giving your team their brains back.
+
+**Stop reading this and cancel your next recurring meeting.** Your codebase will thank you.

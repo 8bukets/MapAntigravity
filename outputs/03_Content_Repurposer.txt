@@ -1,0 +1,95 @@
+PROMPT TITLE: Content Repurposer
+========================================
+GENERATED PROMPT:
+You are a content strategist who specializes in repurposing.
+
+Take this original content and create 5 different pieces from it:
+
+1. A Twitter/X thread (8-12 tweets, each under 280 characters)
+2. A LinkedIn post (hook + story + takeaway, 150-200 words)
+3. A newsletter intro paragraph (50-75 words, curiosity-driven)
+4. Three standalone quote graphics (short, bold statements from the content)
+5. A YouTube video script outline (hook, 3 main points, CTA)
+
+Original content:
+A short blog post about why developers should learn to write well. Writing clarifies thinking. It helps you advocate for your ideas. Code is read more than written, so being clear is a superpower. Start by writing documentation.
+
+Each output should feel native to its platform. Do not just cut and paste — rewrite for the audience and format of each platform.
+========================================
+
+JULES'S CREATIVE RESPONSE:
+
+**1. Twitter/X Thread**
+
+Most developers think their code speaks for itself. It doesn't.
+If you want to level up from Junior to Senior, writing is the highest-ROI skill you can learn.
+Here is why clear writing is an engineering superpower.
+
+***
+Writing is just debugging your own thoughts.
+When you force yourself to write a design doc, you uncover the logic flaws before you ever write a line of code.
+Clear writing = clear thinking.
+
+***
+The best code in the world is useless if you can't convince your team to use it.
+Advocating for technical decisions requires persuasion.
+Persuasion requires excellent writing.
+
+***
+Code is read 10x more than it is written.
+When you write clean, concise PR descriptions and comments, you are saving hundreds of hours of future developer time.
+That is massive leverage.
+
+***
+Want to get promoted faster?
+The engineers who get promoted are the ones whose impact is visible.
+Writing internal blog posts, changelogs, and architecture docs makes your impact undeniable.
+
+***
+Don't know where to start? Start with the documentation.
+Take the worst README in your codebase and rewrite it so a beginner could understand it.
+It's the ultimate test of empathy and clarity.
+
+***
+Code rusts. Frameworks die.
+The ability to communicate complex technical concepts simply? That never depreciates.
+Stop grinding LeetCode for a week and start writing.
+
+**2. LinkedIn Post**
+
+Early in my career, I spent two weeks building an incredibly elegant architecture for a microservice. I was so proud of it.
+
+I pitched it to the staff engineers... and they completely rejected it.
+
+It wasn't because the code was bad. It was because my proposal document was an unreadable mess. I couldn't clearly explain the "why" behind the "how."
+
+That day I realized a harsh truth: **Your code does not speak for itself.**
+
+As developers, we obsess over syntax and system design, but we ignore the ultimate API: human communication.
+
+Writing forces you to clarify your thinking. It allows you to advocate for your ideas. Most importantly, since code is read far more often than it's written, clarity is the ultimate engineering superpower.
+
+Want to stand out in a crowded job market? Don't just learn another framework. Learn how to write exceptional documentation.
+
+**3. Newsletter Intro**
+
+We all know that one engineer who can write brilliant code but can't explain it to save their life. Today, we're talking about the uncomfortable truth of software engineering: the ceiling on your career isn't your technical ability, it's your communication skills. Here is why the most dangerous weapon in a developer's arsenal isn't an IDE—it's a text editor.
+
+**4. Quote Graphics**
+
+Graphic 1:
+"Your code does not speak for itself. You have to speak for it."
+
+Graphic 2:
+"Writing is just debugging your own thoughts."
+
+Graphic 3:
+"The most underrated engineering superpower is clarity."
+
+**5. YouTube Video Outline**
+
+**Hook (0:00-0:30):** Show a confusing, messy block of code, then fade to a sleek, well-formatted PR description. "You can be a 10x developer, but if you can't communicate your ideas, you'll always be treated like a 1x developer. Today, I'm showing you why writing is the most important programming language you need to learn."
+**Point 1: Writing = Clear Thinking (0:30-3:00):** Explain how forcing yourself to write a technical spec reveals architectural flaws before you even open your editor.
+**Point 2: The Power of Persuasion (3:00-6:00):** Tell a story about a time good code was rejected because it was pitched poorly. Explain how writing helps advocate for refactoring or new tools.
+**Point 3: Code is for Humans (6:00-8:30):** Emphasize that code is read more than written. Discuss how great PRs and documentation create massive leverage across a whole team.
+**CTA (8:30-9:00):** "Your homework today: go rewrite the worst README in your company's codebase. Subscribe for more engineering career tips."

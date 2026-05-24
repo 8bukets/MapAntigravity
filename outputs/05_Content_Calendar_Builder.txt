@@ -1,0 +1,216 @@
+PROMPT TITLE: Content Calendar Builder
+========================================
+GENERATED PROMPT:
+You are a content strategist managing a creator's content calendar.
+
+Build a 30-day content calendar for LinkedIn.
+
+My niche: AI automation
+Posting frequency: Daily
+Content types I want to rotate: threads, single posts, articles, polls, engagement posts
+
+For each day provide:
+- Content type
+- Topic
+- Hook (first line)
+- Key angle or unique perspective
+- Estimated production time
+
+Group content into weekly themes. Include 2 "tentpole" pieces per month that are designed for maximum reach. The rest should be supporting content that builds authority in the same topic areas.
+========================================
+
+JULES'S CREATIVE RESPONSE:
+
+Here is your 30-day high-impact LinkedIn content calendar for the AI Automation niche.
+
+### Week 1 Theme: The Reality vs. The Hype of AI
+*Goal: Establish authority by cutting through the noise and setting realistic expectations.*
+
+**Day 1 (Single Post)**
+*   **Topic:** The AI hype cycle is hurting actual implementation.
+*   **Hook:** Stop trying to replace your entire workforce with ChatGPT tomorrow.
+*   **Angle:** Pragmatism. Businesses need small, boring automations, not AGI.
+*   **Time:** 20 mins
+
+**Day 2 (Thread/Carousel)**
+*   **Topic:** 5 AI tools that actually save 10+ hours a week (no fluff).
+*   **Hook:** I tested 40 "revolutionary" AI tools this month. 35 of them were garbage. Here are the 5 I actually use.
+*   **Angle:** Curation and honest review. High value.
+*   **Time:** 60 mins
+
+**Day 3 (Poll)**
+*   **Topic:** Biggest barrier to AI adoption.
+*   **Hook:** What is the single biggest reason your company hasn't implemented AI workflows yet?
+*   **Angle:** Market research disguised as engagement.
+*   **Time:** 10 mins
+
+**Day 4 (Article - TENTPOLE 1)**
+*   **Topic:** The "AI-First" Company Blueprint for 2025.
+*   **Hook:** In 2025, companies won't use AI. They will be built on it. Here is the exact architectural blueprint.
+*   **Angle:** Deep dive into systemic business transformation, not just tool-swapping.
+*   **Time:** 3 hours
+
+**Day 5 (Engagement Post)**
+*   **Topic:** Hot take on AI wrappers.
+*   **Hook:** 90% of the AI startups you saw on Product Hunt today will be dead in 6 months.
+*   **Angle:** Contrarian. Spark debate in the comments about defensibility.
+*   **Time:** 15 mins
+
+**Day 6 (Single Post)**
+*   **Topic:** Automating customer support safely.
+*   **Hook:** Yes, you can automate customer support with AI. No, you shouldn't automate the apologies.
+*   **Angle:** Empathy combined with technology. Knowing where to draw the line.
+*   **Time:** 20 mins
+
+**Day 7 (Single Post - Personal Story)**
+*   **Topic:** My first massive failure building an AI automation.
+*   **Hook:** I accidentally sent an AI-generated invoice to a client for $4.5 million. Here is what I learned.
+*   **Angle:** Vulnerability builds trust.
+*   **Time:** 30 mins
+
+### Week 2 Theme: Zero-Code AI Workflows
+*Goal: Make AI accessible and show actionable, immediate value.*
+
+**Day 8 (Thread/Carousel)**
+*   **Topic:** Zapier + OpenAI integration tutorial.
+*   **Hook:** You don't need to be a developer to build an AI agent. You just need Zapier and 20 minutes.
+*   **Angle:** Step-by-step tactical value.
+*   **Time:** 90 mins
+
+**Day 9 (Single Post)**
+*   **Topic:** The prompt engineering myth.
+*   **Hook:** "Prompt Engineering" isn't a long-term career. It's just clear communication.
+*   **Angle:** Demystifying tech jargon.
+*   **Time:** 20 mins
+
+**Day 10 (Engagement Post)**
+*   **Topic:** What is your weirdest ChatGPT use case?
+*   **Hook:** We all use AI for writing emails. But what is the absolute weirdest thing you've successfully used ChatGPT for?
+*   **Angle:** Fun, community building.
+*   **Time:** 10 mins
+
+**Day 11 (Single Post)**
+*   **Topic:** Automating lead qualification.
+*   **Hook:** If your sales team is manually reading inbound forms, you are losing money.
+*   **Angle:** ROI focus. Tying automation directly to revenue.
+*   **Time:** 25 mins
+
+**Day 12 (Poll)**
+*   **Topic:** AI budget allocation.
+*   **Hook:** How much of your Q3 software budget is dedicated strictly to AI tools?
+*   **Angle:** Industry benchmarking.
+*   **Time:** 10 mins
+
+**Day 13 (Thread/Carousel)**
+*   **Topic:** 3 workflows every agency should automate today.
+*   **Hook:** I consult for 7-figure agencies. Here are the 3 manual workflows I automate for them on day one.
+*   **Angle:** Authority and specific niche targeting.
+*   **Time:** 60 mins
+
+**Day 14 (Single Post)**
+*   **Topic:** The hidden cost of bad data in AI.
+*   **Hook:** Your LLM is only as smart as your messy CRM data.
+*   **Angle:** Highlighting the unsexy prerequisite to AI success (data hygiene).
+*   **Time:** 20 mins
+
+### Week 3 Theme: The Economics of AI Automation
+*Goal: Shift the conversation from "cool tech" to "hard ROI and business strategy."*
+
+**Day 15 (Single Post)**
+*   **Topic:** Token pricing is dropping.
+*   **Hook:** The cost of intelligence is trending toward zero. Your business model probably isn't ready for it.
+*   **Angle:** Macro-economic view of the AI landscape.
+*   **Time:** 30 mins
+
+**Day 16 (Engagement Post)**
+*   **Topic:** Build vs. Buy in AI.
+*   **Hook:** Unpopular opinion: Stop trying to train your own open-source model. Just pay OpenAI.
+*   **Angle:** Practical business advice over technical vanity.
+*   **Time:** 15 mins
+
+**Day 17 (Thread/Carousel - TENTPOLE 2)**
+*   **Topic:** The exact ROI calculation for an AI automation project.
+*   **Hook:** I’ve audited 50+ AI projects. Most fail because nobody did the math. Here is the exact ROI calculator I use.
+*   **Angle:** Extremely high utility. Offering a framework people want to save.
+*   **Time:** 2.5 hours
+
+**Day 18 (Poll)**
+*   **Topic:** Job security fears.
+*   **Hook:** Be honest: are you secretly worried an AI workflow will replace a core part of your job in the next 2 years?
+*   **Angle:** Tapping into emotional undercurrents.
+*   **Time:** 10 mins
+
+**Day 19 (Single Post)**
+*   **Topic:** Selling AI internally.
+*   **Hook:** Your boss doesn't care about "Large Language Models." They care about margin.
+*   **Angle:** Communication strategy for internal champions.
+*   **Time:** 20 mins
+
+**Day 20 (Single Post)**
+*   **Topic:** The "Automation Paradox."
+*   **Hook:** Automating tasks doesn't give you free time. It just raises the baseline expectation of your output.
+*   **Angle:** Philosophical, slightly contrarian view on productivity.
+*   **Time:** 25 mins
+
+**Day 21 (Single Post - Case Study mini)**
+*   **Topic:** A 10x ROI example.
+*   **Hook:** Client X spent $500 on an automation. They saved $5,000 in week one. Here is the breakdown.
+*   **Angle:** Proof of competence.
+*   **Time:** 30 mins
+
+### Week 4 Theme: Future-Proofing and Ethics
+*Goal: Position yourself as a forward-thinking leader, not just a tactician.*
+
+**Day 22 (Thread/Carousel)**
+*   **Topic:** How to audit your company for AI opportunities.
+*   **Hook:** Don't know where to start with AI? Here is a 5-step audit you can run on your team tomorrow.
+*   **Angle:** Actionable strategy.
+*   **Time:** 60 mins
+
+**Day 23 (Single Post)**
+*   **Topic:** AI Data Privacy.
+*   **Hook:** You are probably feeding your company's proprietary data to a public LLM right now. Please stop.
+*   **Angle:** Risk mitigation and enterprise security.
+*   **Time:** 25 mins
+
+**Day 24 (Poll)**
+*   **Topic:** AI Regulation.
+*   **Hook:** Do you believe government regulation will slow down AI innovation in the next 12 months?
+*   **Angle:** Timely industry discussion.
+*   **Time:** 10 mins
+
+**Day 25 (Single Post)**
+*   **Topic:** The skills that AI can't automate.
+*   **Hook:** As AI automates the code and the copy, your ability to facilitate human connection becomes your most valuable asset.
+*   **Angle:** Soft skills as a differentiator in a hard-tech world.
+*   **Time:** 20 mins
+
+**Day 26 (Engagement Post)**
+*   **Topic:** Favorite AI learning resource.
+*   **Hook:** What is the one newsletter or podcast you read to actually keep up with AI (without losing your mind)?
+*   **Angle:** Community curation.
+*   **Time:** 10 mins
+
+**Day 27 (Single Post)**
+*   **Topic:** Vendor lock-in risk.
+*   **Hook:** Building your entire startup on top of OpenAI's API is a massive single point of failure.
+*   **Angle:** Architecture and risk management.
+*   **Time:** 20 mins
+
+**Day 28 (Single Post)**
+*   **Topic:** The "AI fatigue" is real.
+*   **Hook:** It is okay if you are exhausted by the daily AI announcements. Focus on the fundamentals.
+*   **Angle:** Empathy and grounding.
+*   **Time:** 15 mins
+
+**Day 29 (Thread/Carousel)**
+*   **Topic:** Month in Review: Top 3 AI changes you missed.
+*   **Hook:** You were busy working this month. I was busy reading AI docs. Here are the 3 updates that actually matter.
+*   **Angle:** Curation and time-saving for the audience.
+*   **Time:** 60 mins
+
+**Day 30 (Article)**
+*   **Topic:** Predictions vs. Reality for Q4.
+*   **Hook:** Everyone predicted AI would do X this year. They were wrong. Here is what is actually happening on the ground.
+*   **Angle:** Reality check and thought leadership.
+*   **Time:** 90 mins

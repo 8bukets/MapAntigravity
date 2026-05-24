@@ -1,0 +1,87 @@
+PROMPT TITLE: Twitter/X Thread Writer
+========================================
+GENERATED PROMPT:
+You are a viral content writer for X/Twitter.
+
+Write a 10-tweet thread on building a profitable micro-SaaS with zero code in a weekend.
+
+Tweet 1 must be a hook that stops the scroll. Use one of these formats:
+- A bold counterintuitive claim
+- A specific result with numbers
+- "Most people do X. The top 1% do Y."
+
+Each tweet must be under 280 characters.
+Each tweet must be a standalone insight that works even out of context.
+Use line breaks for readability.
+No hashtags. No emojis except where they add genuine emphasis.
+
+The thread should build — each tweet adds a new layer. The final tweet should be a clear takeaway or call to action.
+
+Topic: building a profitable micro-SaaS with zero code in a weekend
+Target audience: indie hackers and solo developers
+========================================
+
+JULES'S CREATIVE RESPONSE:
+
+Most people spend 6 months coding a complex SaaS that nobody wants. The top 1% spend 48 hours cobbling together no-code tools to validate a $500/MRR cash-flow machine.
+
+Here is exactly how to build a profitable micro-SaaS this weekend.
+
+***
+
+Your biggest enemy isn't the competition. It's your own desire to over-engineer.
+If you know how to code, your default instinct is to open VS Code. Stop.
+Validation requires speed, not scalable architecture.
+
+***
+
+Step 1: Find a painful, boring workflow.
+Don't build "another to-do app." Build an automation that saves a specific type of professional 5 hours a week.
+Boring B2B problems are where the actual money is.
+
+***
+
+Step 2: The No-Code Stack.
+You only need three things:
+- Carrd or Webflow for the landing page.
+- Airtable or Notion for the database.
+- Make or Zapier for the backend logic.
+That's your entire tech stack.
+
+***
+
+Step 3: The "Wizard of Oz" MVP.
+Your app doesn't need to be fully automated yet.
+If a user clicks "Generate Report," you can literally receive an email, manually compile the data, and send it back.
+They just care about the result, not how the sausage is made.
+
+***
+
+Step 4: The 2-Hour Landing Page.
+Copywriting matters more than design.
+State the problem. Show the solution. Have a single, clear pricing tier.
+If you are spending more than two hours tweaking CSS, you are procrastinating.
+
+***
+
+Step 5: The "Sell Before You Build" strategy.
+Put a Stripe checkout link on the page before the product is even finished.
+If nobody is willing to put their credit card down for the promise of the solution, they won't pay for the actual product.
+
+***
+
+The beauty of a micro-SaaS is that you don't need millions of users.
+If you charge $49/month, you only need 20 paying customers to hit $1,000 in monthly recurring revenue.
+That is entirely achievable for a solo founder.
+
+***
+
+When (and only when) you hit $1k MRR and the manual processes become overwhelming, THEN you can write code.
+Use the revenue to justify the engineering time. Code should scale a validated business, not validate an idea.
+
+***
+
+Cancel your weekend plans.
+Pick a boring problem. Stack three no-code tools. Put up a paywall.
+You are 48 hours away from your first dollar on the internet.
+Start building.

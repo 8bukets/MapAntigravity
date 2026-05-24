@@ -1,0 +1,59 @@
+PROMPT TITLE: Headline Generator
+========================================
+GENERATED PROMPT:
+You are a headline specialist who has studied the top-performing content on X/Twitter.
+
+Generate 20 headline options for an article about the invisible tax of context switching for remote engineering teams.
+
+Each headline must include:
+- A specific number (preferably between 15 and 50)
+- An exclusion or curiosity hook ("Most users don't know," "Nobody talks about," "You're missing")
+- A completeness signal ("Complete List," "Full Guide," "Full Course")
+
+Rank your top 5 by predicted viral potential and explain why each one works.
+
+My audience: mid-level software engineers
+My niche: productivity for tech founders
+========================================
+
+JULES'S CREATIVE RESPONSE:
+
+Here are 20 headline options engineered for virality:
+
+1. 23 Minutes Wasted: The Full Guide to The Invisible Context-Switching Tax Nobody Talks About
+2. The Complete Breakdown: 17 Ways Context Switching is Quietly Destroying Your Engineering Velocity
+3. Most Founders Don't Know This: The Full Guide to Reclaiming 40 Hours Lost to Slack Pings
+4. You're Missing The Point of Async: 18 Rules to Kill Context Switching (The Complete Framework)
+5. 21 Silent Velocity Killers Nobody Talks About: The Full Guide to Protecting Engineering Focus
+6. The Complete Playbook: 25 Ways Most Managers Unintentionally Ruin Deep Work
+7. What Most Devs Don't Realize: The Full Course on Eliminating the 30% Context-Switching Tax
+8. The Full Guide: 15 Reasons Your Remote Engineering Team is Burned Out (That Nobody Talks About)
+9. You're Missing $115k a Year: The Complete Guide to Calculating the Context Switching Tax
+10. 19 Async Communication Secrets Most Founders Don't Know (The Complete Manual)
+11. The Complete Blueprint: 22 Ways to Stop Slack from Stealing Your Engineering Momentum
+12. Nobody Talks About the 23-Minute Rule: The Full Guide to True Remote Productivity
+13. You're Missing the Root Cause: 16 Ways Context Switching Causes Burnout (Complete Analysis)
+14. The Full Guide: 24 Calendar Hacks Most Engineers Don't Know to Protect Deep Work
+15. 27 Dev-Productivity Myths Nobody Talks About: The Complete Guide to Engineering Focus
+16. Most Teams Don't Realize They Are Operating at 40%: The Full Course on Async Engineering
+17. The Complete Breakdown: You're Missing These 18 Context-Switching Traps in Your Startup
+18. 20 Hidden Costs of Synchronous Meetings Nobody Talks About (The Full Guide)
+19. Most Managers Don't Know Why Velocity Dropped: The Complete Guide to the Interruption Tax
+20. The Full Blueprint: 25 Ways to Cure the Context-Switching Epidemic You're Missing
+
+### Top 5 Ranked for Viral Potential
+
+**#1. 23 Minutes Wasted: The Full Guide to The Invisible Context-Switching Tax Nobody Talks About**
+*Why it works:* It starts with a highly specific, painful number ("23 Minutes Wasted"—referencing the famous study on interruption recovery). The phrase "Invisible Context-Switching Tax" sounds authoritative and mildly threatening, while "Nobody Talks About" sparks immediate curiosity.
+
+**#2. Most Founders Don't Know This: The Full Guide to Reclaiming 40 Hours Lost to Slack Pings**
+*Why it works:* It leverages the "us vs. them" dynamic. It calls out "Founders" directly, making engineers want to read it to validate their frustrations, and founders want to read it out of FOMO. "Slack Pings" is a universally recognized pain point.
+
+**#3. You're Missing The Point of Async: 18 Rules to Kill Context Switching (The Complete Framework)**
+*Why it works:* The challenge "You're Missing The Point" is slightly combative, which drives engagement on X. "18 Rules" promises a highly skimmable, actionable listicle, which performs incredibly well in thread formats.
+
+**#4. 21 Silent Velocity Killers Nobody Talks About: The Full Guide to Protecting Engineering Focus**
+*Why it works:* "Silent Velocity Killers" uses highly emotive language combined with standard engineering terminology ("Velocity"). It frames the problem as an existential threat to the team, compelling the reader to click to see if they are guilty of any of the 21 items.
+
+**#5. The Complete Breakdown: 17 Ways Context Switching is Quietly Destroying Your Engineering Velocity**
+*Why it works:* It feels analytical and thorough. "Quietly Destroying" plays on the fear that things are going wrong beneath the surface. It promises a comprehensive audit (17 ways) that the reader can use to diagnose their own team's issues.
