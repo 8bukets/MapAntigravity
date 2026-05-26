@@ -79,9 +79,17 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
   head_ref=$(echo "$pr" | jq -r '.head.ref')
   base_ref=$(echo "$pr" | jq -r '.base.ref')
   head_repo=$(echo "$pr" | jq -r '.head.repo.full_name')
+  is_draft=$(echo "$pr" | jq -r '.draft')
+  pr_title=$(echo "$pr" | jq -r '.title')
+  pr_body=$(echo "$pr" | jq -r '.body')
 
   echo ""
   echo "=== Processing PR #$number ($head_ref -> $base_ref) ==="
+
+  if [ "$is_draft" = "true" ]; then
+    echo "PR #$number is a draft. Skipping."
+    continue
+  fi
 
   # Ensure a clean state for each iteration
   git reset --hard HEAD
@@ -116,8 +124,26 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
         echo "Resolving conflicts in $file..."
         # Use gemini-cli to resolve conflicts autonomously
         # We use --yolo and --skip-trust as requested for autonomous automatic resolution
-        gemini -p "The file '$file' has git merge conflicts. Use your tools to read the file, resolve the conflicts accurately while preserving all intended logic from both sides where appropriate, and write the resolved content back to the file." --yolo --approval-mode yolo --skip-trust
-        git add "$file"
+
+        # PROMPT GENERATION (Hardened against command injection)
+        # We use a temporary file to construct the prompt and pass it via stdin.
+        # Note: We must allow variable expansion for $file and $number, but we treat
+        # pr_title and pr_body as literal to avoid injection from untrusted PR data.
+        echo "The file '$file' has git merge conflicts in the context of Pull Request #$number." > .gemini_prompt.txt
+        echo "PR Title: $pr_title" >> .gemini_prompt.txt
+        echo "PR Description: $pr_body" >> .gemini_prompt.txt
+        echo "" >> .gemini_prompt.txt
+        echo "Use your tools to read the file, resolve the conflicts accurately while preserving all intended logic from both sides where appropriate, and write the resolved content back to the file." >> .gemini_prompt.txt
+        # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
+        cat .gemini_prompt.txt | gemini --prompt "" --yolo --approval-mode yolo --skip-trust
+        rm .gemini_prompt.txt
+
+        # Verify that conflict markers are gone
+        if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
+          echo "WARNING: Conflict markers still present in $file after Gemini attempt. Skipping this file."
+        else
+          git add "$file"
+        fi
       done
 
       if [ -n "$(git status --short)" ]; then
