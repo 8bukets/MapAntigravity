@@ -7,14 +7,30 @@ set -e
 REPO="${GITHUB_REPOSITORY:-8bukets/MapAntigravity}"
 API_BASE="https://api.github.com/repos/$REPO"
 
+# Helper function for logging with timestamps
+log() {
+  echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"
+}
+
 if [ -z "$GITHUB_TOKEN" ]; then
-  echo "Error: GITHUB_TOKEN is not set."
+  log "Error: GITHUB_TOKEN is not set."
   exit 1
 fi
 
 if [ -z "$GEMINI_API_KEY" ]; then
-  echo "Error: GEMINI_API_KEY is not set."
+  log "Error: GEMINI_API_KEY is not set."
   exit 1
+fi
+
+# Check for required tools
+if ! command -v jq &> /dev/null; then
+    log "Error: jq is not installed or not in PATH."
+    exit 1
+fi
+
+if ! command -v gemini &> /dev/null; then
+    log "Error: gemini is not installed or not in PATH."
+    exit 1
 fi
 
 # Configure git
@@ -22,7 +38,7 @@ git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
 # Fetch all remotes and branches to ensure we have context
-echo "Fetching all branches..."
+log "Fetching all branches..."
 git fetch --all
 
 # Function to poll mergeability
@@ -38,7 +54,7 @@ poll_mergeability() {
                          "$API_BASE/pulls/$pr_number")
     status=$(echo "$pr_detail" | jq -r '.mergeable')
     if [ "$status" = "null" ]; then
-      echo "Mergeability status for PR #$pr_number is null (calculating). Waiting..."
+      log "Mergeability status for PR #$pr_number is null (calculating). Waiting..."
       sleep 10
       attempts=$((attempts+1))
     fi
@@ -47,7 +63,7 @@ poll_mergeability() {
 }
 
 # 1. Fetch all open pull requests (handling pagination)
-echo "Fetching all open pull requests for $REPO..."
+log "Fetching all open pull requests for $REPO..."
 page=1
 all_prs="[]"
 while : ; do
@@ -57,7 +73,7 @@ while : ; do
 
   # Check if we got an error message instead of an array
   if echo "$prs_page" | jq -e '.message' >/dev/null 2>&1; then
-    echo "Error from GitHub API: $(echo "$prs_page" | jq -r '.message')"
+    log "Error from GitHub API: $(echo "$prs_page" | jq -r '.message')"
     exit 1
   fi
 
@@ -71,7 +87,7 @@ while : ; do
 done
 
 total_count=$(echo "$all_prs" | jq '. | length')
-echo "Found $total_count open pull requests."
+log "Found $total_count open pull requests."
 
 # Loop through each PR
 echo "$all_prs" | jq -c '.[]' | while read -r pr; do
@@ -83,11 +99,11 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
   pr_title=$(echo "$pr" | jq -r '.title')
   pr_body=$(echo "$pr" | jq -r '.body')
 
-  echo ""
-  echo "=== Processing PR #$number ($head_ref -> $base_ref) ==="
+  log ""
+  log "=== Processing PR #$number ($head_ref -> $base_ref) ==="
 
   if [ "$is_draft" = "true" ]; then
-    echo "PR #$number is a draft. Skipping."
+    log "PR #$number is a draft. Skipping."
     continue
   fi
 
@@ -97,7 +113,7 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
 
   # Avoid messing with forks if permissions are restricted
   if [ "$head_repo" != "$REPO" ]; then
-    echo "PR #$number is from a fork ($head_repo). Skipping to avoid potential permission issues with GITHUB_TOKEN."
+    log "PR #$number is from a fork ($head_repo). Skipping to avoid potential permission issues with GITHUB_TOKEN."
     continue
   fi
 
@@ -105,7 +121,7 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
   mergeable=$(poll_mergeability "$number")
 
   if [ "$mergeable" = "false" ]; then
-    echo "PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
+    log "PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
 
     # Fetch and checkout the PR branch explicitly
     git fetch origin "$head_ref"
@@ -115,13 +131,13 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
     git fetch origin "$base_ref"
 
     # Attempt to merge the base branch into the head branch
-    echo "Attempting to merge origin/$base_ref into $head_ref..."
+    log "Attempting to merge origin/$base_ref into $head_ref..."
     if ! git merge "origin/$base_ref" --no-edit; then
-      echo "Merge failed with conflicts. Identifying files..."
+      log "Merge failed with conflicts. Identifying files..."
       conflicts=$(git diff --name-only --diff-filter=U)
 
       for file in $conflicts; do
-        echo "Resolving conflicts in $file..."
+        log "Resolving conflicts in $file..."
         # Use gemini-cli to resolve conflicts autonomously
         # We use --yolo and --skip-trust as requested for autonomous automatic resolution
 
@@ -129,18 +145,30 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
         # We use a temporary file to construct the prompt and pass it via stdin.
         # Note: We must allow variable expansion for $file and $number, but we treat
         # pr_title and pr_body as literal to avoid injection from untrusted PR data.
-        echo "The file '$file' has git merge conflicts in the context of Pull Request #$number." > .gemini_prompt.txt
-        echo "PR Title: $pr_title" >> .gemini_prompt.txt
-        echo "PR Description: $pr_body" >> .gemini_prompt.txt
-        echo "" >> .gemini_prompt.txt
-        echo "Use your tools to read the file, resolve the conflicts accurately while preserving all intended logic from both sides where appropriate, and write the resolved content back to the file." >> .gemini_prompt.txt
+        cat <<EOF > .gemini_prompt.txt
+The file '$file' has git merge conflicts in the context of Pull Request #$number.
+PR Title: $pr_title
+PR Description: $pr_body
+
+### OBJECTIVE
+You are an autonomous agent tasked with resolving git merge conflicts.
+Use your tools to:
+1. Read the file '$file'.
+2. Identify the conflict markers (<<<<<<<, =======, >>>>>>>).
+3. Resolve the conflicts accurately.
+4. Preserve the intended logic from both the base and head branches where appropriate.
+5. Write the resolved, clean content back to '$file'.
+6. Ensure NO conflict markers remain in the file.
+
+Be precise and ensure the code remains functional.
+EOF
         # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
         cat .gemini_prompt.txt | gemini --prompt "" --yolo --approval-mode yolo --skip-trust
         rm .gemini_prompt.txt
 
         # Verify that conflict markers are gone
         if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
-          echo "WARNING: Conflict markers still present in $file after Gemini attempt. Skipping this file."
+          log "WARNING: Conflict markers still present in $file after Gemini attempt. Skipping this file."
         else
           git add "$file"
         fi
@@ -148,34 +176,37 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
 
       if [ -n "$(git status --short)" ]; then
         git commit -m "chore: auto-resolve merge conflicts via gemini-cli"
+      fi
+
+      if [ $(git rev-list --count "origin/$head_ref..$head_ref") -gt 0 ]; then
         git push origin "$head_ref"
-        echo "Resolved conflicts and pushed to $head_ref."
+        log "Resolved conflicts and pushed to $head_ref."
 
         # Wait a bit for GitHub to re-calculate mergeability after push
-        echo "Waiting for GitHub to re-calculate mergeability..."
+        log "Waiting for GitHub to re-calculate mergeability..."
         sleep 15
         mergeable=$(poll_mergeability "$number")
       else
-        echo "No changes to commit after resolution attempt."
+        log "No changes to commit or push after resolution attempt."
       fi
     else
-      echo "Merge was successful (no conflicts found upon local merge attempt)."
-      if [ -n "$(git status --short)" ]; then
+      log "Merge was successful (no conflicts found upon local merge attempt)."
+      if [ $(git rev-list --count "origin/$head_ref..$head_ref") -gt 0 ]; then
          git push origin "$head_ref"
-         echo "Waiting for GitHub to re-calculate mergeability..."
+         log "Waiting for GitHub to re-calculate mergeability..."
          sleep 15
          mergeable=$(poll_mergeability "$number")
       fi
     fi
   elif [ "$mergeable" = "true" ]; then
-    echo "PR #$number is mergeable."
+    log "PR #$number is mergeable."
   else
-    echo "PR #$number mergeability is unknown or still calculating ($mergeable). Skipping resolution."
+    log "PR #$number mergeability is unknown or still calculating ($mergeable). Skipping resolution."
   fi
 
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
-    echo "Attempting squash and merge for PR #$number..."
+    log "Attempting squash and merge for PR #$number..."
     merge_response=$(curl -s -X PUT -H "Authorization: token $GITHUB_TOKEN" \
                                    -H "Accept: application/vnd.github.v3+json" \
                                    -d '{"merge_method":"squash"}' \
@@ -183,13 +214,13 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
 
     merged=$(echo "$merge_response" | jq -r '.merged // false')
     if [ "$merged" = "true" ]; then
-      echo "SUCCESS: PR #$number has been squash-merged."
+      log "SUCCESS: PR #$number has been squash-merged."
     else
       msg=$(echo "$merge_response" | jq -r '.message // "Unknown error"')
-      echo "FAILED: Could not merge PR #$number. Reason: $msg"
+      log "FAILED: Could not merge PR #$number. Reason: $msg"
     fi
   else
-    echo "PR #$number is not mergeable ($mergeable). Skipping merge."
+    log "PR #$number is not mergeable ($mergeable). Skipping merge."
   fi
 
   # Return to default branch for next iteration
