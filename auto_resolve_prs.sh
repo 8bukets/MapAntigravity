@@ -91,6 +91,8 @@ log "Found $total_count open pull requests."
 
 # Loop through each PR
 echo "$all_prs" | jq -c '.[]' | while read -r pr; do
+  # Use a subshell to ensure failures in one PR don't stop the script
+  (
   number=$(echo "$pr" | jq -r '.number')
   head_ref=$(echo "$pr" | jq -r '.head.ref')
   base_ref=$(echo "$pr" | jq -r '.base.ref')
@@ -158,9 +160,10 @@ Use your tools to:
 3. Resolve the conflicts accurately.
 4. Preserve the intended logic from both the base and head branches where appropriate.
 5. Write the resolved, clean content back to '$file'.
-6. Ensure NO conflict markers remain in the file.
+6. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.
+7. Ensure the resulting code is syntactically correct and functional.
 
-Be precise and ensure the code remains functional.
+Do not include any explanation or additional text in the output, only the clean file content.
 EOF
         # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
         cat .gemini_prompt.txt | gemini --prompt "" --yolo --approval-mode yolo --skip-trust
@@ -225,4 +228,5 @@ EOF
 
   # Return to default branch for next iteration
   git checkout "$base_ref" || true
+  ) || log "Error occurred while processing PR. Continuing to next PR..."
 done
