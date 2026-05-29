@@ -1,7 +1,7 @@
 #!/bin/bash
 # auto_resolve_prs.sh
 
-set -e
+set -euo pipefail
 
 # Use GITHUB_REPOSITORY if available, otherwise fallback to the current repo
 REPO="${GITHUB_REPOSITORY:-8bukets/MapAntigravity}"
@@ -49,7 +49,7 @@ poll_mergeability() {
   local max_attempts=10
 
   while [ "$status" = "null" ] && [ $attempts -lt $max_attempts ]; do
-    pr_detail=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+    pr_detail=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "$API_BASE/pulls/$pr_number")
     status=$(echo "$pr_detail" | jq -r '.mergeable')
@@ -67,9 +67,9 @@ log "Fetching all open pull requests for $REPO..."
 page=1
 all_prs="[]"
 while : ; do
-  prs_page=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+  prs_page=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                     -H "Accept: application/vnd.github.v3+json" \
-                    "$API_BASE/pulls?state=open&per_page=100&page=$page")
+                    "$API_BASE/pulls?state=open&per_page=100&page=$page&sort=created&direction=asc")
 
   # Check if we got an error message instead of an array
   if echo "$prs_page" | jq -e '.message' >/dev/null 2>&1; then
@@ -143,36 +143,37 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
         # Use gemini-cli to resolve conflicts autonomously
         # We use --yolo and --skip-trust as requested for autonomous automatic resolution
 
-        # PROMPT GENERATION (Hardened against command injection)
+        # PROMPT GENERATION (Hardened against injection from PR metadata)
         # We use a temporary file to construct the prompt and pass it via stdin.
-        # Note: We must allow variable expansion for $file and $number, but we treat
-        # pr_title and pr_body as literal to avoid injection from untrusted PR data.
-        cat <<EOF > .gemini_prompt.txt
-The file '$file' has git merge conflicts in the context of Pull Request #$number.
-PR Title: $pr_title
-PR Description: $pr_body
-
-### OBJECTIVE
-You are an autonomous agent tasked with resolving git merge conflicts.
-Use your tools to:
-1. Read the file '$file'.
-2. Identify the conflict markers (<<<<<<<, =======, >>>>>>>).
-3. Resolve the conflicts accurately.
-4. Preserve the intended logic from both the base and head branches where appropriate.
-5. Write the resolved, clean content back to '$file'.
-6. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.
-7. Ensure the resulting code is syntactically correct and functional.
-
-Do not include any explanation or additional text in the output, only the clean file content.
-EOF
+        {
+          printf "You are an autonomous AI engineer working in a GitHub Actions CI environment.\n"
+          printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
+          printf "### CONTEXT\n"
+          printf "PR Title: %s\n" "$pr_title"
+          printf "PR Description: %s\n\n" "$pr_body"
+          printf "### OBJECTIVE\n"
+          printf "Use your tools to:\n"
+          printf "1. Read the file '%s' to identify the conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
+          printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
+          printf "3. Write the fully resolved, clean content back to '%s' using your file-writing tools.\n" "$file"
+          printf "4. Ensure NO conflict markers remain in the file.\n"
+          printf "5. Ensure the resulting code is syntactically correct and functional.\n\n"
+          printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve the conflicts in '%s'.\n" "$file"
+        } > .gemini_prompt.txt
         # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
-        cat .gemini_prompt.txt | gemini --prompt "" --yolo --approval-mode yolo --skip-trust
+        log "Invoking Gemini CLI for $file..."
+        if cat .gemini_prompt.txt | gemini --prompt "" --yolo --approval-mode yolo --skip-trust; then
+          log "Gemini CLI finished processing $file."
+        else
+          log "Error: Gemini CLI failed while processing $file."
+        fi
         rm .gemini_prompt.txt
 
         # Verify that conflict markers are gone
         if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
           log "WARNING: Conflict markers still present in $file after Gemini attempt. Skipping this file."
         else
+          log "Conflict markers successfully removed from $file."
           git add "$file"
         fi
       done
@@ -210,7 +211,7 @@ EOF
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
     log "Attempting squash and merge for PR #$number..."
-    merge_response=$(curl -s -X PUT -H "Authorization: token $GITHUB_TOKEN" \
+    merge_response=$(curl -s -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
                                    -H "Accept: application/vnd.github.v3+json" \
                                    -d '{"merge_method":"squash"}' \
                                    "$API_BASE/pulls/$number/merge")
