@@ -4,7 +4,12 @@
 set -euo pipefail
 
 # Use GITHUB_REPOSITORY if available, otherwise fallback to the current repo
-REPO="${GITHUB_REPOSITORY:-8bukets/MapAntigravity}"
+if [ -z "${GITHUB_REPOSITORY:-}" ]; then
+  REPO=$(git remote get-url origin | sed -E 's/.*github.com[:\/]//; s/\.git$//')
+else
+  REPO="$GITHUB_REPOSITORY"
+fi
+REPO="${REPO:-8bukets/MapAntigravity}"
 API_BASE="https://api.github.com/repos/$REPO"
 
 # Helper function for logging with timestamps
@@ -41,6 +46,17 @@ git config user.email "github-actions[bot]@users.noreply.github.com"
 log "Fetching all branches..."
 git fetch --all
 
+# Function to post a comment to a PR
+post_comment() {
+  local pr_number=$1
+  local body=$2
+  log "Posting comment to PR #$pr_number..."
+  curl -s -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+       -H "Accept: application/vnd.github.v3+json" \
+       -d "$(jq -n --arg body "$body" '{body: $body}')" \
+       "$API_BASE/issues/$pr_number/comments" > /dev/null
+}
+
 # Function to poll mergeability
 poll_mergeability() {
   local pr_number=$1
@@ -52,7 +68,7 @@ poll_mergeability() {
     pr_detail=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "$API_BASE/pulls/$pr_number")
-    status=$(echo "$pr_detail" | jq -r '.mergeable')
+    status=$(echo "$pr_detail" | jq -r '.mergeable // "null"')
     if [ "$status" = "null" ]; then
       log "Mergeability status for PR #$pr_number is null (calculating). Waiting..."
       sleep 10
@@ -124,6 +140,7 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
 
   if [ "$mergeable" = "false" ]; then
     log "PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
+    post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
 
     # Fetch and checkout the PR branch explicitly
     git fetch origin "$head_ref"
@@ -139,6 +156,17 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
       conflicts=$(git diff --name-only --diff-filter=U)
 
       for file in $conflicts; do
+        if [ ! -f "$file" ]; then
+           log "File $file no longer exists. Skipping."
+           continue
+        fi
+
+        # Skip binary files
+        if file --mime "$file" | grep -q "binary"; then
+          log "Skipping binary file: $file"
+          continue
+        fi
+
         log "Resolving conflicts in $file..."
         # Use gemini-cli to resolve conflicts autonomously
         # We use --yolo and --skip-trust as requested for autonomous automatic resolution
@@ -185,6 +213,7 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
       if [ $(git rev-list --count "origin/$head_ref..$head_ref") -gt 0 ]; then
         git push origin "$head_ref"
         log "Resolved conflicts and pushed to $head_ref."
+        post_comment "$number" "✅ Successfully resolved conflicts in $conflicts and pushed to $head_ref."
 
         # Wait a bit for GitHub to re-calculate mergeability after push
         log "Waiting for GitHub to re-calculate mergeability..."
@@ -211,17 +240,22 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
     log "Attempting squash and merge for PR #$number..."
-    merge_response=$(curl -s -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
+    # Capture HTTP status code and response body
+    merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
                                    -H "Accept: application/vnd.github.v3+json" \
                                    -d '{"merge_method":"squash"}' \
                                    "$API_BASE/pulls/$number/merge")
 
-    merged=$(echo "$merge_response" | jq -r '.merged // false')
-    if [ "$merged" = "true" ]; then
+    merge_response=$(echo "$merge_output" | head -n -1)
+    http_code=$(echo "$merge_output" | tail -n 1)
+
+    merged=$(echo "$merge_response" | jq -r '.merged // false' 2>/dev/null || echo "false")
+    if [ "$merged" = "true" ] && [ "$http_code" -eq 200 ]; then
       log "SUCCESS: PR #$number has been squash-merged."
     else
-      msg=$(echo "$merge_response" | jq -r '.message // "Unknown error"')
-      log "FAILED: Could not merge PR #$number. Reason: $msg"
+    msg=$(echo "$merge_response" | jq -r '.message // "Unknown error"' 2>/dev/null || echo "Unknown error")
+      log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
+      post_comment "$number" "❌ Failed to squash-merge PR #$number (HTTP $http_code). Reason: $msg"
     fi
   else
     log "PR #$number is not mergeable ($mergeable). Skipping merge."
