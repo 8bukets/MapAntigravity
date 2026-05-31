@@ -51,10 +51,14 @@ post_comment() {
   local pr_number=$1
   local body=$2
   log "Posting comment to PR #$pr_number..."
-  curl -s -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+  local http_code
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
        -H "Accept: application/vnd.github.v3+json" \
        -d "$(jq -n --arg body "$body" '{body: $body}')" \
-       "$API_BASE/issues/$pr_number/comments" > /dev/null
+       "$API_BASE/issues/$pr_number/comments")
+  if [ "$http_code" -ne 201 ]; then
+    log "Warning: Failed to post comment to PR #$pr_number (HTTP $http_code)"
+  fi
 }
 
 # Function to poll mergeability
@@ -183,10 +187,10 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
           printf "Use your tools to:\n"
           printf "1. Read the file '%s' to identify the conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
           printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
-          printf "3. Write the fully resolved, clean content back to '%s' using your file-writing tools.\n" "$file"
-          printf "4. Ensure NO conflict markers remain in the file.\n"
+          printf "3. Write the fully resolved, clean content back to '%s' using your file-writing tools or outputting the full file content.\n" "$file"
+          printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
           printf "5. Ensure the resulting code is syntactically correct and functional.\n\n"
-          printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve the conflicts in '%s'.\n" "$file"
+          printf "Do not provide any conversational response or explanation. Produce only the resolved code for '%s'.\n" "$file"
         } > .gemini_prompt.txt
         # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
         log "Invoking Gemini CLI for $file..."
@@ -205,6 +209,15 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
           git add "$file"
         fi
       done
+
+      # Final check for remaining conflicts
+      remaining_conflicts=$(git diff --name-only --diff-filter=U)
+      if [ -n "$remaining_conflicts" ]; then
+        log "Error: Unresolved conflicts remain in: $remaining_conflicts. Aborting merge for PR #$number."
+        git merge --abort
+        post_comment "$number" "❌ Failed to autonomously resolve all conflicts. Remaining: $remaining_conflicts"
+        exit 0 # Terminate subshell for this PR
+      fi
 
       if [ -n "$(git status --short)" ]; then
         git commit -m "chore: auto-resolve merge conflicts via gemini-cli"
