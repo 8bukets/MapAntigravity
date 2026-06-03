@@ -109,8 +109,12 @@ done
 total_count=$(echo "$all_prs" | jq '. | length')
 log "Found $total_count open pull requests."
 
-# Loop through each PR
-echo "$all_prs" | jq -c '.[]' | while read -r pr; do
+# Loop through each PR using a temporary file to avoid subshell issues with pipe
+pr_list_file=$(mktemp)
+trap 'rm -f "$pr_list_file"' EXIT
+echo "$all_prs" | jq -c '.[]' > "$pr_list_file"
+
+while read -r pr; do
   # Use a subshell to ensure failures in one PR don't stop the script
   (
   number=$(echo "$pr" | jq -r '.number')
@@ -126,7 +130,7 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
 
   if [ "$is_draft" = "true" ]; then
     log "PR #$number is a draft. Skipping."
-    continue
+    exit 0
   fi
 
   # Ensure a clean state for each iteration
@@ -136,7 +140,7 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
   # Avoid messing with forks if permissions are restricted
   if [ "$head_repo" != "$REPO" ]; then
     log "PR #$number is from a fork ($head_repo). Skipping to avoid potential permission issues with GITHUB_TOKEN."
-    continue
+    exit 0
   fi
 
   # 2. Check mergeability
@@ -293,4 +297,4 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
   # Return to default branch for next iteration
   git checkout "$base_ref" || true
   ) || log "Error occurred while processing PR. Continuing to next PR..."
-done
+done < "$pr_list_file"
