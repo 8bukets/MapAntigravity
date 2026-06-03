@@ -172,6 +172,9 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
         fi
 
         log "Resolving conflicts in $file..."
+        # Calculate checksum before resolution
+        pre_checksum=$(sha256sum "$file" | awk '{print $1}')
+
         # Use gemini-cli to resolve conflicts autonomously
         # We use --yolo and --skip-trust as requested for autonomous automatic resolution
 
@@ -187,19 +190,32 @@ echo "$all_prs" | jq -c '.[]' | while read -r pr; do
           printf "Use your tools to:\n"
           printf "1. Read the file '%s' to identify the conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
           printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
-          printf "3. Write the fully resolved, clean content back to '%s' using your file-writing tools or outputting the full file content.\n" "$file"
+          printf "3. MANDATORY: Write the fully resolved, clean content back to '%s' using your file-writing tools. You must overwrite the file with the resolved version.\n" "$file"
           printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
           printf "5. Ensure the resulting code is syntactically correct and functional.\n\n"
-          printf "Do not provide any conversational response or explanation. Produce only the resolved code for '%s'.\n" "$file"
+          printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
         } > .gemini_prompt.txt
         # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
         log "Invoking Gemini CLI for $file..."
-        if cat .gemini_prompt.txt | gemini --prompt "" --yolo --approval-mode yolo --skip-trust; then
+        set +e
+        gemini --prompt "" --yolo --approval-mode yolo --skip-trust < .gemini_prompt.txt
+        gemini_status=$?
+        rm -f .gemini_prompt.txt
+        set -e
+
+        if [ $gemini_status -eq 0 ]; then
           log "Gemini CLI finished processing $file."
+          post_checksum=$(sha256sum "$file" | awk '{print $1}')
+          if [ "$pre_checksum" = "$post_checksum" ]; then
+            log "Error: File $file was not modified by Gemini CLI. Aborting resolution for this file."
+            continue
+          else
+            log "File $file was modified and supposedly resolved."
+          fi
         else
           log "Error: Gemini CLI failed while processing $file."
+          continue
         fi
-        rm .gemini_prompt.txt
 
         # Verify that conflict markers are gone
         if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
