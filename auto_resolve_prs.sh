@@ -196,7 +196,9 @@ while read -r pr; do
           printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
           printf "3. MANDATORY: Write the fully resolved, clean content back to '%s' using your file-writing tools. You must overwrite the file with the resolved version.\n" "$file"
           printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-          printf "5. Ensure the resulting code is syntactically correct and functional.\n\n"
+          printf "5. Ensure the resulting code is syntactically correct and functional.\n"
+          printf "6. If you need to see other files in the repository to understand context or imports, use your tools to list and read them.\n\n"
+          printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
           printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
         } > .gemini_prompt.txt
         # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
@@ -244,24 +246,33 @@ while read -r pr; do
       fi
 
       if [ $(git rev-list --count "origin/$head_ref..$head_ref") -gt 0 ]; then
-        git push origin "$head_ref"
-        log "Resolved conflicts and pushed to $head_ref."
-        post_comment "$number" "✅ Successfully resolved conflicts in $conflicts and pushed to $head_ref."
+        if git push origin "$head_ref"; then
+          log "Resolved conflicts and pushed to $head_ref."
+          post_comment "$number" "✅ Successfully resolved conflicts in $conflicts and pushed to $head_ref."
 
-        # Wait a bit for GitHub to re-calculate mergeability after push
-        log "Waiting for GitHub to re-calculate mergeability..."
-        sleep 15
-        mergeable=$(poll_mergeability "$number")
+          # Wait a bit for GitHub to re-calculate mergeability after push
+          log "Waiting for GitHub to re-calculate mergeability..."
+          sleep 15
+          mergeable=$(poll_mergeability "$number")
+        else
+          log "Error: Failed to push resolved changes to $head_ref."
+          post_comment "$number" "❌ Failed to push resolved changes to $head_ref. Please check if the branch is protected or if there are concurrent updates."
+          exit 0
+        fi
       else
         log "No changes to commit or push after resolution attempt."
       fi
     else
       log "Merge was successful (no conflicts found upon local merge attempt)."
       if [ $(git rev-list --count "origin/$head_ref..$head_ref") -gt 0 ]; then
-         git push origin "$head_ref"
-         log "Waiting for GitHub to re-calculate mergeability..."
-         sleep 15
-         mergeable=$(poll_mergeability "$number")
+         if git push origin "$head_ref"; then
+           log "Waiting for GitHub to re-calculate mergeability..."
+           sleep 15
+           mergeable=$(poll_mergeability "$number")
+         else
+           log "Error: Failed to push merge changes to $head_ref."
+           exit 0
+         fi
       fi
     fi
   elif [ "$mergeable" = "true" ]; then
