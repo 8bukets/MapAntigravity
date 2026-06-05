@@ -109,50 +109,60 @@ done
 total_count=$(echo "$all_prs" | jq '. | length')
 log "Found $total_count open pull requests."
 
-# Loop through each PR using a temporary file to avoid subshell issues with pipe
-pr_list_file=$(mktemp)
-trap 'rm -f "$pr_list_file"' EXIT
-echo "$all_prs" | jq -c '.[]' > "$pr_list_file"
+# Function to process a single PR
+process_pr() {
+  local pr="$1"
+  local number head_ref base_ref head_repo head_clone_url is_draft pr_title pr_body maintainer_can_modify
 
-while read -r pr; do
-  # Use a subshell to ensure failures in one PR don't stop the script
-  (
   number=$(echo "$pr" | jq -r '.number')
   head_ref=$(echo "$pr" | jq -r '.head.ref')
   base_ref=$(echo "$pr" | jq -r '.base.ref')
   head_repo=$(echo "$pr" | jq -r '.head.repo.full_name')
+  head_clone_url=$(echo "$pr" | jq -r '.head.repo.clone_url')
   is_draft=$(echo "$pr" | jq -r '.draft')
   pr_title=$(echo "$pr" | jq -r '.title')
   pr_body=$(echo "$pr" | jq -r '.body')
+  maintainer_can_modify=$(echo "$pr" | jq -r '.maintainer_can_modify // false')
 
   log ""
   log "=== Processing PR #$number ($head_ref -> $base_ref) ==="
 
   if [ "$is_draft" = "true" ]; then
     log "PR #$number is a draft. Skipping."
-    exit 0
+    return 0
   fi
 
   # Ensure a clean state for each iteration
   git reset --hard HEAD
   git clean -fd
 
-  # Avoid messing with forks if permissions are restricted
-  if [ "$head_repo" != "$REPO" ]; then
-    log "PR #$number is from a fork ($head_repo). Skipping to avoid potential permission issues with GITHUB_TOKEN."
-    exit 0
-  fi
-
   # 2. Check mergeability
+  local mergeable
   mergeable=$(poll_mergeability "$number")
 
   if [ "$mergeable" = "false" ]; then
-    log "PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
+    log "PR #$number has conflicts. Checking if we can attempt autonomous resolution..."
+
+    # Avoid messing with forks if permissions are restricted
+    if [ "$head_repo" != "$REPO" ] && [ "$maintainer_can_modify" != "true" ]; then
+      log "PR #$number is from a fork ($head_repo) and maintainer edits are disabled. Skipping conflict resolution."
+      return 0
+    fi
+
+    log "Attempting autonomous resolution via Gemini CLI for PR #$number..."
     post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
 
+    # Use token in URL for fork pushing
+    local authenticated_head_url
+    authenticated_head_url=$(echo "$head_clone_url" | sed "s|https://|https://x-access-token:${GITHUB_TOKEN}@|")
+
     # Fetch and checkout the PR branch explicitly
-    git fetch origin "$head_ref"
-    git checkout -B "$head_ref" "origin/$head_ref"
+    log "Fetching $head_ref from $head_repo..."
+    if ! git fetch "$authenticated_head_url" "$head_ref"; then
+      log "Error: Failed to fetch PR branch from $head_repo."
+      return 0
+    fi
+    git checkout -B "$head_ref" FETCH_HEAD
 
     # Ensure we have the latest base branch
     git fetch origin "$base_ref"
@@ -161,6 +171,7 @@ while read -r pr; do
     log "Attempting to merge origin/$base_ref into $head_ref..."
     if ! git merge "origin/$base_ref" --no-edit; then
       log "Merge failed with conflicts. Identifying files..."
+      local conflicts
       conflicts=$(git diff --name-only --diff-filter=U)
 
       for file in $conflicts; do
@@ -177,10 +188,11 @@ while read -r pr; do
 
         log "Resolving conflicts in $file..."
         # Calculate checksum before resolution
+        local pre_checksum post_checksum gemini_status
         pre_checksum=$(sha256sum "$file" | awk '{print $1}')
 
         # Use gemini-cli to resolve conflicts autonomously
-        # We use --yolo and --skip-trust as requested for autonomous automatic resolution
+        # We use --approval-mode yolo and --skip-trust for autonomous automatic resolution
 
         # PROMPT GENERATION (Hardened against injection from PR metadata)
         # We use a temporary file to construct the prompt and pass it via stdin.
@@ -204,7 +216,7 @@ while read -r pr; do
         # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
         log "Invoking Gemini CLI for $file..."
         set +e
-        gemini --prompt "" --yolo --approval-mode yolo --skip-trust < .gemini_prompt.txt
+        gemini --prompt "" --approval-mode yolo --skip-trust < .gemini_prompt.txt
         gemini_status=$?
         rm -f .gemini_prompt.txt
         set -e
@@ -233,21 +245,25 @@ while read -r pr; do
       done
 
       # Final check for remaining conflicts
+      local remaining_conflicts
       remaining_conflicts=$(git diff --name-only --diff-filter=U)
       if [ -n "$remaining_conflicts" ]; then
         log "Error: Unresolved conflicts remain in: $remaining_conflicts. Aborting merge for PR #$number."
         git merge --abort
         post_comment "$number" "❌ Failed to autonomously resolve all conflicts. Remaining: $remaining_conflicts"
-        exit 0 # Terminate subshell for this PR
+        return 0
       fi
 
       if [ -n "$(git status --short)" ]; then
         git commit -m "chore: auto-resolve merge conflicts via gemini-cli"
       fi
 
-      if [ $(git rev-list --count "origin/$head_ref..$head_ref") -gt 0 ]; then
-        if git push origin "$head_ref"; then
-          log "Resolved conflicts and pushed to $head_ref."
+      # Check if we have new commits to push
+      # If it's a fork, we compare against FETCH_HEAD which we fetched earlier
+      if [ $(git rev-list --count "FETCH_HEAD..HEAD") -gt 0 ]; then
+        log "Pushing resolved changes to $head_repo ($head_ref)..."
+        if git push "$authenticated_head_url" "HEAD:$head_ref"; then
+          log "Successfully resolved conflicts and pushed to $head_ref."
           post_comment "$number" "✅ Successfully resolved conflicts in $conflicts and pushed to $head_ref."
 
           # Wait a bit for GitHub to re-calculate mergeability after push
@@ -257,21 +273,23 @@ while read -r pr; do
         else
           log "Error: Failed to push resolved changes to $head_ref."
           post_comment "$number" "❌ Failed to push resolved changes to $head_ref. Please check if the branch is protected or if there are concurrent updates."
-          exit 0
+          return 0
         fi
       else
         log "No changes to commit or push after resolution attempt."
       fi
     else
       log "Merge was successful (no conflicts found upon local merge attempt)."
-      if [ $(git rev-list --count "origin/$head_ref..$head_ref") -gt 0 ]; then
-         if git push origin "$head_ref"; then
+      if [ $(git rev-list --count "FETCH_HEAD..HEAD") -gt 0 ]; then
+         log "Pushing merge changes to $head_repo ($head_ref)..."
+         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
+           log "Successfully merged base branch into head and pushed."
            log "Waiting for GitHub to re-calculate mergeability..."
            sleep 15
            mergeable=$(poll_mergeability "$number")
          else
            log "Error: Failed to push merge changes to $head_ref."
-           exit 0
+           return 0
          fi
       fi
     fi
@@ -285,6 +303,7 @@ while read -r pr; do
   if [ "$mergeable" = "true" ]; then
     log "Attempting squash and merge for PR #$number..."
     # Capture HTTP status code and response body
+    local merge_output merge_response http_code merged msg
     merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
                                    -H "Accept: application/vnd.github.v3+json" \
                                    -d '{"merge_method":"squash"}' \
@@ -297,7 +316,7 @@ while read -r pr; do
     if [ "$merged" = "true" ] && [ "$http_code" -eq 200 ]; then
       log "SUCCESS: PR #$number has been squash-merged."
     else
-    msg=$(echo "$merge_response" | jq -r '.message // "Unknown error"' 2>/dev/null || echo "Unknown error")
+      msg=$(echo "$merge_response" | jq -r '.message // "Unknown error"' 2>/dev/null || echo "Unknown error")
       log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
       post_comment "$number" "❌ Failed to squash-merge PR #$number (HTTP $http_code). Reason: $msg"
     fi
@@ -307,5 +326,14 @@ while read -r pr; do
 
   # Return to default branch for next iteration
   git checkout "$base_ref" || true
-  ) || log "Error occurred while processing PR. Continuing to next PR..."
+}
+
+# Loop through each PR using a temporary file to avoid subshell issues with pipe
+pr_list_file=$(mktemp)
+trap 'rm -f "$pr_list_file"' EXIT
+echo "$all_prs" | jq -c '.[]' > "$pr_list_file"
+
+while read -r pr; do
+  # Use a subshell to ensure failures in one PR don't stop the script
+  ( process_pr "$pr" ) || log "Error occurred while processing PR. Continuing to next PR..."
 done < "$pr_list_file"
