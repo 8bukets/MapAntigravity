@@ -25,9 +25,18 @@
     </aside>
 
     <main class="main-content">
-        <header>
+        <header style="display: flex; justify-content: space-between; align-items: center;">
             <h1 id="prompt-title">Select a Prompt</h1>
+            <button id="view-insights-btn" class="secondary-btn" style="padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #d1d5db; background: white; cursor: pointer;">View Agent Insights</button>
         </header>
+
+        <section id="insights-workspace" style="display: none; padding: 2rem;">
+            <h2>Agent Evolution Logs</h2>
+            <p style="color: #6b7280; margin-bottom: 1rem;">View the autonomous agent's continuous evaluations and improvements.</p>
+            <div id="insights-container" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Insights populated here -->
+            </div>
+        </section>
 
         <section class="prompt-workspace" id="prompt-workspace" style="display: none;">
 
