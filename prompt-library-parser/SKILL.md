@@ -23,16 +23,18 @@ Use this skill when:
 
 The main logic is implemented in a Python script located at `scripts/parse_prompts.py`.
 
+See [the reference guide](references/REFERENCE.md) for details on the raw text format.
+
 ### Step-by-step Execution
 
 1. Verify that the raw prompt text file exists (typically `raw_prompts.txt` in the root).
 2. Run the extraction script:
    ```bash
-   python3 scripts/parse_prompts.py <path_to_raw_prompts.txt> <path_to_output.json>
+   scripts/parse_prompts.py <path_to_raw_prompts.txt> <path_to_output.json>
    ```
    Example:
    ```bash
-   python3 prompt-library-parser/scripts/parse_prompts.py raw_prompts.txt prompts.json
+   prompt-library-parser/scripts/parse_prompts.py raw_prompts.txt prompts.json
    ```
 3. Verify the output file was successfully created.
 

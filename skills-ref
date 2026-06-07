@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import argparse
 import os
 import re
-import yaml
 import sys
+import yaml
 
 def validate_skill(skill_dir):
     skill_dir = os.path.normpath(skill_dir)
@@ -21,8 +22,6 @@ def validate_skill(skill_dir):
         content = f.read()
 
     # Extract frontmatter
-    # Frontmatter must start with --- on the first line
-    # and end with ---
     if not content.startswith('---'):
         print("Error: SKILL.md must start with YAML frontmatter bounded by ---")
         return False
@@ -101,15 +100,42 @@ def validate_skill(skill_dir):
             print(f"- {error}")
         return False
 
+    # Check for optional directories and warn about unrecognized files/directories
+    allowed_dirs = {'scripts', 'references', 'assets'}
+    allowed_files = {'SKILL.md'}
+    warnings = []
+
+    for item in os.listdir(skill_dir):
+        item_path = os.path.join(skill_dir, item)
+        if os.path.isdir(item_path):
+            if item not in allowed_dirs:
+                warnings.append(f"Unrecognized directory: '{item}'. Allowed optional directories are {', '.join(allowed_dirs)}.")
+        elif os.path.isfile(item_path):
+            if item not in allowed_files:
+                warnings.append(f"Unrecognized file at skill root: '{item}'. Only 'SKILL.md' is explicitly expected at the root.")
+
+    if warnings:
+        print("Warnings:")
+        for warning in warnings:
+            print(f"- {warning}")
+
     print(f"Success: {skill_md_path} is valid.")
     return True
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Validate Agent Skills directory.')
-    parser.add_argument('skill_dir', type=str, help='Path to the skill directory')
+def main():
+    parser = argparse.ArgumentParser(description='skills-ref CLI tool')
+    subparsers = parser.add_subparsers(dest='command', required=True)
+
+    validate_parser = subparsers.add_parser('validate', help='Validate a skill directory')
+    validate_parser.add_argument('skill_dir', type=str, help='Path to the skill directory')
+
     args = parser.parse_args()
 
-    if validate_skill(args.skill_dir):
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    if args.command == 'validate':
+        if validate_skill(args.skill_dir):
+            sys.exit(0)
+        else:
+            sys.exit(1)
+
+if __name__ == "__main__":
+    main()
