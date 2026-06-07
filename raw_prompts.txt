@@ -872,95 +872,397 @@ Help me think through this by:
 6. Telling me under what circumstances you would change your recommendation
 
 Be direct. I want clarity, not more confusion.
-Part 6: Google Agent Skills (Prompts 51–56)
 
-Prompt 51 — Agent Platform API Setup Guide
-You are a Cloud AI specialist.
 
-Write a complete setup guide for the Agent Platform Gemini API for an enterprise environment.
 
-Technology: Agent Platform (formerly Vertex AI)
-SDK: [SDK_LANGUAGE — e.g., "Python", "JavaScript/TypeScript", "Go", "Java", "C#"]
-Capabilities needed: [CAPABILITIES — e.g., "Text generation, Multimodal understanding, Context caching"]
+Part 6: Google Agent Skills (Prompts 51–80)
 
-Include:
-1. Core directives and library installation instructions for the specified SDK.
-2. Necessary authentication steps.
-3. Code example demonstrating how to initialize the client and make a basic generation request.
-4. An overview of the required capabilities and how to use them with the modern Gen AI SDK.
-5. Best practices for migrating from legacy SDKs (google-cloud-aiplatform, @google-cloud/vertexai, google-generativeai).
+Prompt 51 — Agent Platform Deploy
+You are a Google Cloud and Agent Skills expert.
 
-Prompt 52 — Cloud Run Deployment Architect
-You are a Google Cloud platform architect.
+I need your help utilizing the following skill: agent-platform-deploy
+Skill description: Deploy open models or custom weights from Model Garden to Agent Platform endpoints, check deployment status, verify serving endpoints, or clean up resources by undeploying models and deleting endpoints. Use when asked to deploy models on Agent Platform, list available Model Garden models, check if a model is deployable, query deployment cost, troubleshoot deployment errors (like quota limits), or undeploy/clean up endpoints. Also use when copying and deploying a 1P Tuned Model. Don't use for public Vertex AI deployments (use the `vertex-deploy` skill) or for running model evaluations (use the `agent-platform-eval` skill).
 
-Create a deployment plan for a Cloud Run resource.
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
 
-Resource type: [RESOURCE_TYPE — e.g., "Service (HTTP)", "Job (Batch/Scheduled)", "Worker Pool (Always-on)"]
-Application details: [APP_DETAILS]
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
 
-Provide:
-1. Necessary IAM roles required to deploy.
-2. Prerequisites and API enablement commands.
-3. The exact gcloud CLI command or infrastructure-as-code snippet to deploy the resource from source or container.
-4. Recommendations for autoscaling, concurrency, and memory based on the resource type.
-5. Instructions on testing and handling unauthenticated invocations versus restricted domain policies.
+Provide step-by-step instructions and any necessary code or CLI commands.
 
-Prompt 53 — AlloyDB Configuration Expert
-You are a Google Cloud database expert.
+Prompt 52 — Agent Platform Endpoint Management
+You are a Google Cloud and Agent Skills expert.
 
-Design a configuration plan for a new AlloyDB cluster.
+I need your help utilizing the following skill: agent-platform-endpoint-management
+Skill description: Manages Agent Platform serving endpoints. Use when you need to create, list, describe, update, or delete serving endpoints for model deployment on Agent Platform. Also use when troubleshooting endpoint permission, quota, or resource busy errors. Don't use for deploying models to endpoints or for running model evaluations.
 
-Workload type: [WORKLOAD_TYPE — e.g., "High-transaction OLTP", "Analytical OLAP", "Hybrid HTAP"]
-Scale: [SCALE — e.g., "Small startup", "Enterprise production"]
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
 
-Provide:
-1. Cluster architecture recommendations (Primary, Read pools, Multi-region setup).
-2. Configuration steps using gcloud CLI.
-3. Backup and disaster recovery strategies.
-4. Security best practices (VPC peering, IAM authentication).
-5. Explain how the AlloyDB columnar engine will benefit this specific workload.
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
 
-Prompt 54 — BigQuery Data Engineer
-You are a Senior Data Engineer specializing in Google Cloud BigQuery.
+Provide step-by-step instructions and any necessary code or CLI commands.
 
-Create an execution plan for a BigQuery data warehousing project.
+Prompt 53 — Agent Platform Eval Flywheel
+You are a Google Cloud and Agent Skills expert.
 
-Data sources: [DATA_SOURCES]
-Query patterns: [QUERY_PATTERNS — e.g., "Ad-hoc analysis", "Scheduled dashboards", "Machine learning integration"]
+I need your help utilizing the following skill: agent-platform-eval-flywheel
+Skill description: Measure and improve the quality of AI models and agents on Google Cloud using the Eval Quality Flywheel methodology. Use when evaluating an agent or model, building an eval dataset, picking or writing evaluation metrics, analyzing failures, comparing results before and after a fix, or when guidance is needed on Agent Platform eval methodology — including dataset schema, LLM-as-judge scoring, and common failure causes. For fine-tuning, use agent-platform-tuning. For deployment, use agent-platform-deploy.
 
-Provide:
-1. Schema design recommendations (partitioning, clustering, nested fields).
-2. Data ingestion strategies (batch load vs streaming).
-3. Sample SQL queries optimizing for cost and performance.
-4. IAM roles and dataset access controls.
-5. Recommendations on using BigQuery ML if applicable to the query patterns.
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
 
-Prompt 55 — GKE Kubernetes Administrator
-You are a Google Kubernetes Engine (GKE) Administrator.
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
 
-Draft a cluster creation and workload deployment strategy.
+Provide step-by-step instructions and any necessary code or CLI commands.
 
-Cluster mode: [CLUSTER_MODE — e.g., "Standard", "Autopilot"]
-Workload description: [WORKLOAD_DESCRIPTION]
+Prompt 54 — Agent Platform Inference
+You are a Google Cloud and Agent Skills expert.
 
-Provide:
-1. The gcloud command to create the cluster with security best practices enabled.
-2. Explanations on why the chosen cluster mode fits the workload.
-3. YAML manifests for a Deployment, Service, and Ingress/Gateway.
-4. Node scaling and pod autoscaling (HPA/VPA) configurations.
-5. Logging and monitoring integration setup.
+I need your help utilizing the following skill: agent-platform-inference
+Skill description: Connects to and performs inference with Google Cloud Agent Platform GenAI models, including First-Party Gemini models and Third-Party OpenMaaS models (Llama, DeepSeek, Qwen, etc.). Use when you need to generate code for calling Gemini or OpenMaaS models, authenticate with GenAI SDK, OpenAI SDK, or legacy Agent Platform SDK, configure base URLs and global/regional endpoints, or troubleshoot 429 Resource Exhausted (DSQ), 400 User Validation, or 404 Not Found errors. Don't use for deploying models to endpoints or for running model evaluations.
 
-Prompt 56 — Firebase Integration Guide
-You are a Mobile and Web Developer Advocate.
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
 
-Write an integration guide for Firebase into a frontend application.
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
 
-Framework: [FRAMEWORK — e.g., "React", "Flutter", "iOS Swift", "Android Kotlin"]
-Firebase features: [FIREBASE_FEATURES — e.g., "Authentication, Firestore, Cloud Messaging"]
+Provide step-by-step instructions and any necessary code or CLI commands.
 
-Provide:
-1. Project setup and initialization commands.
-2. Code snippets for initializing the SDK in the specific framework.
-3. Implementation details for each requested Firebase feature.
-4. Security rules configuration for Firestore or Realtime Database.
-5. Best practices for performance and offline capabilities.
+Prompt 55 — Agent Platform Migrate From Ai Studio
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: agent-platform-migrate-from-ai-studio
+Skill description: Guides agents and users through migrating from Gemini API in Google AI Studio to Gemini Enterprise Agent Platform (formerly Vertex AI). Use this skill when moving applications to Google Cloud, to leverage Cloud credits, or to unify inferencing with other Cloud infrastructure (IAM, billing, telemetry).
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 56 — Agent Platform Model Registry
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: agent-platform-model-registry
+Skill description: Agent Platform Model Registry Management. Use when you need to upload, list, describe, update, or delete machine learning models (and their versions) in the Agent Platform Model Registry. Don't use for model training, model deployment to endpoints, or managing non-Agent Platform models.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 57 — Agent Platform Prompt Management
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: agent-platform-prompt-management
+Skill description: Manages and orchestrates prompts in Agent Platform. Use when you need to create, list, retrieve, version, or delete managed prompts in Agent Platform. Don't use for model training, model deployment to endpoints, or managing non-Agent Platform prompts.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 58 — Agent Platform Rag Engine Management
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: agent-platform-rag-engine-management
+Skill description: Manage and query Agent Platform RAG Engine Corpora and retrieve grounded contexts using the Google GenAI SDK. Use when listing RAG corpora or files, inspecting a corpus, retrieving contexts, or generating content grounded in a RAG corpus. Do not use for standard database queries (use SQL/Spanner skills), Google Workspace RAG, or other RAG products like gRAG.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 59 — Agent Platform Skill Registry
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: agent-platform-skill-registry
+Skill description: Interact with the Gemini Enterprise Agent Platform Skill Registry to create and search for available skills. Use this skill to enable agents to register functionality or discover new capabilities.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 60 — Agent Platform Tuning
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: agent-platform-tuning
+Skill description: Agent Platform Model Tuning. Use when you need to fine-tune open models or Gemini models using Agent Platform infrastructure. Don't use for model training outside Agent Platform, model deployment to endpoints (use `agent-platform-deploy`), or managing serving endpoints (use `agent-platform-endpoint-management`).
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 61 — Agent Platform Tuning Management
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: agent-platform-tuning-management
+Skill description: Manages GenAI tuning jobs in Agent Platform. Use this to list, get, or cancel ongoing model tuning jobs. Don't use for fine-tuning models (use `agent-platform-tuning`), deploying models to endpoints (use `agent-platform-deploy`), or managing serving endpoints (use `agent-platform-endpoint-management`).
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 62 — Alloydb Basics
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: alloydb-basics
+Skill description: Manages clusters, instances, and backups for AlloyDB for PostgreSQL, and integrates with AlloyDB model context protocol (MCP) tools for automated database operations.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 63 — Bigquery Basics
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: bigquery-basics
+Skill description: Manages datasets, tables, and jobs in BigQuery, and integrates with BigQuery ML and Gemini for advanced data analytics and AI-driven insights. Use when you need to interact with BigQuery, run SQL queries, manage BigQuery resources, or leverage BigQuery's built-in ML capabilities. Also use when performing data analysis, ingesting data into BigQuery, or developing AI applications on BigQuery.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 64 — Cloud Run Basics
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: cloud-run-basics
+Skill description: Manages Cloud Run services, jobs, and worker pools. Use when you need to deploy applications responding to HTTP requests (services), run event-triggered or scheduled tasks (jobs), or handle always-on pull-based background processing (worker pools).
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 65 — Cloud Sql Basics
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: cloud-sql-basics
+Skill description: This file generates or explains Cloud SQL resources. Use this file when the user asks to create a Cloud SQL instance or database for MySQL, PostgreSQL, or SQL Server. Cloud SQL manages third-party MySQL, PostgreSQL, and SQL Server instances as resources in Cloud SQL. For example, when Cloud SQL creates an open-source MySQL instance, the resulting resource is a Cloud SQL for MySQL instance that Google Cloud manages. Cloud SQL handles backups, high availability, and secure connectivity for relational database workloads.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 66 — Firebase Basics
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: firebase-basics
+Skill description: Use this skill whenever you are working on a project that uses Firebase products or services, especially for mobile or web apps.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 67 — Gcloud
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: gcloud
+Skill description: Interacts with Google Cloud services using the gcloud CLI safely and efficiently. Covers command validation, data reduction, safety guardrails with a denylist, and workflows for discovery and investigation. You MUST read this skill before invoking any gcloud command. Use when managing cloud resources, querying configurations, or troubleshooting issues via gcloud. Don't use when writing or debugging Google Cloud client library code or raw REST/gRPC API interactions.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 68 — Gemini Agents Api
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: gemini-agents-api
+Skill description: Manages custom Agent resources on Gemini Enterprise Agent Platform. Use when the user wants to programmatically create, configure, list, update, or delete stateful, server-managed Agent resources (including mounting files, skills, and tools) before executing conversations.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 69 — Gemini Api
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: gemini-api
+Skill description: Use when the user asks about using Gemini in an enterprise environment or explicitly mentions Vertex AI, Google Cloud, or Agent Platform. Guides the usage of the Gemini API on Agent Platform with the Google Gen AI SDK. Covers SDK usage (Python, JS/TS, Go, Java, C#), capabilities like multimodal inputs, tools, media generation, caching, batch prediction, and Live API.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 70 — Gemini Interactions Api
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: gemini-interactions-api
+Skill description: Guides the usage of Gemini Interactions API on Gemini Enterprise Agent Platform. Use when the user wants to use the stateful, server-managed Interactions API for multi-turn conversations, background execution, streaming, structured output, and function calling on the Agent Platform.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 71 — Gke Basics
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: gke-basics
+Skill description: Plan, create, and configure production-ready Google Kubernetes Engine (GKE) clusters using the golden path Autopilot configuration. Covers Day-0 checklist, Autopilot vs Standard, networking (private clusters, VPC-native, Gateway API), security (Workload Identity, Secret Manager, RBAC hardening), observability, scaling, cost optimization, and AI/ML inference. WHEN: create GKE cluster, provision GKE environment, design GKE networking, secure GKE, optimize GKE cost, GKE autoscaling, GKE inference, GKE upgrade, GKE observability, GKE multi-tenancy, GKE batch, GKE HPC, GKE compute class.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 72 — Google Cloud Networking Observability
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-networking-observability
+Skill description: Investigates Google Cloud networking issues by analyzing logs, metrics, and diagnostics. Use when investigating VPC Flow Logs, NAT, firewall, or threat logs, querying latency and throughput metrics, or running Connectivity Tests for path diagnostics.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 73 — Google Cloud Recipe Auth
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-recipe-auth
+Skill description: Provides expert guidance on authenticating and authorizing to Google Cloud services and APIs, covering human users, service identities, Application Default Credentials (ADC), and best practices for secure access.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 74 — Google Cloud Recipe Onboarding
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-recipe-onboarding
+Skill description: Guides a developer's first steps on Google Cloud, covering account creation, billing setup, project management, and deploying a first resource. Use when a new developer wants to initialize their first Google Cloud project, configure billing, and verify deployment. Don't use for enterprise organization setup (use Google Cloud Setup guided flow for that instead). Don't use for complex multi-project architectures.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 75 — Google Cloud Waf Cost Optimization
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-waf-cost-optimization
+Skill description: Generates cost optimization guidance for Google Cloud workloads based on the Google Cloud Well-Architected Framework (WAF). Use this skill to evaluate a workload, identify cost requirements and constraints, and provide actionable recommendations for build, deploy, and manage the workload cost-efficiently in Google Cloud.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 76 — Google Cloud Waf Operational Excellence
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-waf-operational-excellence
+Skill description: Generates operations-focused guidance for Google Cloud workloads based on the design principles and recommendations in the Operational Excellence pillar of the Google Cloud Well-Architected Framework (WAF). Use this skill to evaluate a workload, identify operational requirements, and provide actionable recommendations for deployment, monitoring, and incident management.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 77 — Google Cloud Waf Performance Optimization
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-waf-performance-optimization
+Skill description: Generates performance-focused guidance for Google Cloud workloads based on the design principles and recommendations in the Performance Optimization pillar of the Google Cloud Well-Architected Framework (WAF). Use this skill to evaluate a workload, identify performance requirements, and provide actionable recommendations for resource allocation, modular design, and elasticity.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 78 — Google Cloud Waf Reliability
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-waf-reliability
+Skill description: Generates reliability-focused guidance for Google Cloud workloads based on the design principles and recommendations in the Google Cloud Well-Architected Framework. Use this skill to evaluate a workload, identify reliability requirements, and provide actionable recommendations for build, deploy, and manage the workload reliably in Google Cloud.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 79 — Google Cloud Waf Security
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-waf-security
+Skill description: Generates security-focused guidance for Google Cloud workloads based on the design principles and recommendations in the Google Cloud Well-Architected Framework (WAF). Use this skill to evaluate a workload, identify security requirements, and provide actionable recommendations for IAM, network security, data protection, and operational security.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
+
+Prompt 80 — Google Cloud Waf Sustainability
+You are a Google Cloud and Agent Skills expert.
+
+I need your help utilizing the following skill: google-cloud-waf-sustainability
+Skill description: Generates sustainability-focused guidance for Google Cloud workloads based on the design principles and recommendations in the Google Cloud Well-Architected Framework (WAF). Use this skill to evaluate a workload, identify environmental impact requirements, and provide actionable recommendations to build, deploy, and manage the workload sustainably in Google Cloud.
+
+Please provide a detailed guide, execution plan, or code snippet based on my requirements.
+
+My specific task: [SPECIFIC_TASK]
+Environment details: [ENVIRONMENT_DETAILS — e.g., "Python SDK", "Google Kubernetes Engine", "Production environment"]
+
+Provide step-by-step instructions and any necessary code or CLI commands.
