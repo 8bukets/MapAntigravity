@@ -44,10 +44,10 @@
         "title": "Content Calendar Builder",
         "text": "You are a content strategist managing a creator's content calendar.\n\nBuild a 30-day content calendar for [PLATFORM].\n\nMy niche: [YOUR NICHE]\nPosting frequency: [HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\"]\nContent types I want to rotate: [e.g., \"threads, single posts, articles, polls, engagement posts\"]\n\nFor each day provide:\n- Content type\n- Topic\n- Hook (first line)\n- Key angle or unique perspective\n- Estimated production time\n\nGroup content into weekly themes. Include 2 \"tentpole\" pieces per month that are designed for maximum reach. The rest should be supporting content that builds authority in the same topic areas.",
         "variables": [
-            "e.g., \"threads, single posts, articles, polls, engagement posts\"",
             "YOUR NICHE",
             "PLATFORM",
-            "HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\""
+            "HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\"",
+            "e.g., \"threads, single posts, articles, polls, engagement posts\""
         ]
     },
     {
@@ -63,8 +63,8 @@
         "title": "SEO Article Optimizer",
         "text": "You are an SEO content specialist.\n\nAnalyze this article and optimize it for the keyword: [TARGET KEYWORD]\n\nProvide:\n1. Optimized title tag (under 60 characters, keyword near the front)\n2. Meta description (under 155 characters, includes keyword naturally)\n3. H2 and H3 header suggestions that include semantic variations of the keyword\n4. 5 internal linking suggestions (topics I should link to)\n5. 3 sections I should add to improve topical coverage\n6. Any paragraphs that should be rewritten for better keyword integration (without sounding forced)\n\nArticle:\n[PASTE ARTICLE]",
         "variables": [
-            "PASTE ARTICLE",
-            "TARGET KEYWORD"
+            "TARGET KEYWORD",
+            "PASTE ARTICLE"
         ]
     },
     {
@@ -251,8 +251,8 @@
         "title": "API Endpoint Designer",
         "text": "You are a backend engineer designing a REST API.\n\nDesign the API endpoints for [FEATURE/APPLICATION].\n\nFor each endpoint provide:\n- Method and path\n- Request body (if applicable)\n- Response format (JSON)\n- Authentication requirements\n- Error responses (400, 401, 403, 404, 500)\n- Rate limiting recommendations\n\nThen implement the top 3 most important endpoints in [LANGUAGE/FRAMEWORK].\n\nInclude input validation and error handling.",
         "variables": [
-            "LANGUAGE/FRAMEWORK",
-            "FEATURE/APPLICATION"
+            "FEATURE/APPLICATION",
+            "LANGUAGE/FRAMEWORK"
         ]
     },
     {
@@ -343,8 +343,8 @@
         "title": "Survey Designer",
         "text": "You are a research methodologist.\n\nDesign a survey to understand [RESEARCH QUESTION].\n\nTarget respondents: [WHO]\nSurvey goal: [WHAT DECISION THIS DATA WILL INFORM]\n\nProvide:\n1. 15-20 questions organized by topic\n2. Question type for each (multiple choice, scale, open-ended)\n3. Answer options for each closed question\n4. The logic flow (skip logic, conditional questions)\n5. An estimated completion time\n6. 3 potential biases in the survey and how to mitigate them\n\nKeep questions neutral. Avoid leading language. Include at least 2 open-ended questions for unexpected insights.",
         "variables": [
-            "WHO",
             "RESEARCH QUESTION",
+            "WHO",
             "WHAT DECISION THIS DATA WILL INFORM"
         ]
     },
@@ -383,6 +383,7 @@
         "title": "Interview Question Generator",
         "text": "You are a hiring manager building an interview process.\n\nCreate interview questions for a [ROLE] position.\n\nRequirements:\n- Experience level: [JUNIOR/MID/SENIOR]\n- Key skills: [LIST SKILLS]\n- Team culture: [DESCRIBE YOUR TEAM]\n\nProvide:\n1. 5 technical questions (with expected good answers)\n2. 5 behavioral questions (with what a strong answer looks like)\n3. 2 scenario-based questions (with evaluation criteria)\n4. 1 \"red flag\" question (designed to surface deal-breakers)\n\nFor each question, explain what you are actually evaluating and how to score responses.",
         "variables": [
+            "LIST SKILLS",
             "ROLE",
             "LIST SKILLS",
             "JUNIOR/MID/SENIOR",
@@ -410,9 +411,9 @@
         "title": "Daily Task Prioritizer",
         "text": "You are a productivity coach.\n\nHere are my tasks for today:\n[LIST YOUR TASKS]\n\nMy top goal this week: [YOUR MAIN GOAL]\nAvailable hours: [HOW MANY HOURS]\n\nOrganize these tasks into:\n1. Must do today (non-negotiable)\n2. Should do today (high impact but can slide to tomorrow)\n3. Can wait (nice to do but not urgent)\n\nFor the \"must do\" items, suggest the optimal order and estimated time for each. Flag any task that could be delegated or eliminated entirely.",
         "variables": [
-            "HOW MANY HOURS",
+            "LIST YOUR TASKS",
             "YOUR MAIN GOAL",
-            "LIST YOUR TASKS"
+            "HOW MANY HOURS"
         ]
     },
     {
@@ -552,6 +553,15 @@
         "variables": [
             "FRAMEWORK \u2014 e.g., \"React\", \"Flutter\", \"iOS Swift\", \"Android Kotlin\"",
             "FIREBASE_FEATURES \u2014 e.g., \"Authentication, Firestore, Cloud Messaging\""
+        ]
+    },
+    {
+        "category": "Agent Workflows (Prompts 51\u201360)",
+        "title": "Agent Skill Creator",
+        "text": "You are an expert AI agent instructor.\n\nCreate an Agent Skill directory named [SKILL_NAME].\n\nAgent Skills are a lightweight, open format for extending AI agent capabilities with specialized knowledge and workflows.\nAt its core, a skill is a folder containing a SKILL.md file. This file includes metadata (name and description, at minimum) and instructions that tell an agent how to perform a specific task. Skills can also bundle scripts, reference materials, templates, and other resources.\n\nmy-skill/\n\u251c\u2500\u2500 SKILL.md          # Required: metadata + instructions\n\u251c\u2500\u2500 scripts/          # Optional: executable code\n\u251c\u2500\u2500 references/       # Optional: documentation\n\u251c\u2500\u2500 assets/           # Optional: templates, resources\n\u2514\u2500\u2500 ...               # Any additional files or directories\n\nWhy Agent Skills?\nAgents are increasingly capable, but often don\u2019t have the context they need to do real work reliably. Skills solve this by packaging procedural knowledge and company-, team-, and user-specific context into portable, version-controlled folders that agents load on demand. This gives agents:\nDomain expertise: Capture specialized knowledge \u2014 from legal review processes to data analysis pipelines to presentation formatting \u2014 as reusable instructions and resources.\nRepeatable workflows: Turn multi-step tasks into consistent, auditable procedures.\nCross-product reuse: Build a skill once and use it across any skills-compatible agent.\n\nHow do Agent Skills work?\nAgents load skills through progressive disclosure, in three stages:\nDiscovery: At startup, agents load only the name and description of each available skill, just enough to know when it might be relevant.\nActivation: When a task matches a skill\u2019s description, the agent reads the full SKILL.md instructions into context.\nExecution: The agent follows the instructions, optionally executing bundled code or loading referenced files as needed.\nFull instructions load only when a task calls for them, so agents can keep many skills on hand with only a small context footprint.\n\nBased on the [SKILL_DESCRIPTION], generate the content for the SKILL.md file and any necessary supporting scripts.\n",
+        "variables": [
+            "SKILL_NAME",
+            "SKILL_DESCRIPTION"
         ]
     }
 ]
