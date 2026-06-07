@@ -872,95 +872,34 @@ Help me think through this by:
 6. Telling me under what circumstances you would change your recommendation
 
 Be direct. I want clarity, not more confusion.
-Part 6: Google Agent Skills (Prompts 51–56)
+Part 6: Agent Workflows (Prompts 51–60)
 
-Prompt 51 — Agent Platform API Setup Guide
-You are a Cloud AI specialist.
+Prompt 51 — Agent Skill Creator
+You are an expert AI agent instructor.
 
-Write a complete setup guide for the Agent Platform Gemini API for an enterprise environment.
+Create an Agent Skill directory named [SKILL_NAME].
 
-Technology: Agent Platform (formerly Vertex AI)
-SDK: [SDK_LANGUAGE — e.g., "Python", "JavaScript/TypeScript", "Go", "Java", "C#"]
-Capabilities needed: [CAPABILITIES — e.g., "Text generation, Multimodal understanding, Context caching"]
+Agent Skills are a lightweight, open format for extending AI agent capabilities with specialized knowledge and workflows.
+At its core, a skill is a folder containing a SKILL.md file. This file includes metadata (name and description, at minimum) and instructions that tell an agent how to perform a specific task. Skills can also bundle scripts, reference materials, templates, and other resources.
 
-Include:
-1. Core directives and library installation instructions for the specified SDK.
-2. Necessary authentication steps.
-3. Code example demonstrating how to initialize the client and make a basic generation request.
-4. An overview of the required capabilities and how to use them with the modern Gen AI SDK.
-5. Best practices for migrating from legacy SDKs (google-cloud-aiplatform, @google-cloud/vertexai, google-generativeai).
+my-skill/
+├── SKILL.md          # Required: metadata + instructions
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+├── assets/           # Optional: templates, resources
+└── ...               # Any additional files or directories
 
-Prompt 52 — Cloud Run Deployment Architect
-You are a Google Cloud platform architect.
+Why Agent Skills?
+Agents are increasingly capable, but often don’t have the context they need to do real work reliably. Skills solve this by packaging procedural knowledge and company-, team-, and user-specific context into portable, version-controlled folders that agents load on demand. This gives agents:
+Domain expertise: Capture specialized knowledge — from legal review processes to data analysis pipelines to presentation formatting — as reusable instructions and resources.
+Repeatable workflows: Turn multi-step tasks into consistent, auditable procedures.
+Cross-product reuse: Build a skill once and use it across any skills-compatible agent.
 
-Create a deployment plan for a Cloud Run resource.
+How do Agent Skills work?
+Agents load skills through progressive disclosure, in three stages:
+Discovery: At startup, agents load only the name and description of each available skill, just enough to know when it might be relevant.
+Activation: When a task matches a skill’s description, the agent reads the full SKILL.md instructions into context.
+Execution: The agent follows the instructions, optionally executing bundled code or loading referenced files as needed.
+Full instructions load only when a task calls for them, so agents can keep many skills on hand with only a small context footprint.
 
-Resource type: [RESOURCE_TYPE — e.g., "Service (HTTP)", "Job (Batch/Scheduled)", "Worker Pool (Always-on)"]
-Application details: [APP_DETAILS]
-
-Provide:
-1. Necessary IAM roles required to deploy.
-2. Prerequisites and API enablement commands.
-3. The exact gcloud CLI command or infrastructure-as-code snippet to deploy the resource from source or container.
-4. Recommendations for autoscaling, concurrency, and memory based on the resource type.
-5. Instructions on testing and handling unauthenticated invocations versus restricted domain policies.
-
-Prompt 53 — AlloyDB Configuration Expert
-You are a Google Cloud database expert.
-
-Design a configuration plan for a new AlloyDB cluster.
-
-Workload type: [WORKLOAD_TYPE — e.g., "High-transaction OLTP", "Analytical OLAP", "Hybrid HTAP"]
-Scale: [SCALE — e.g., "Small startup", "Enterprise production"]
-
-Provide:
-1. Cluster architecture recommendations (Primary, Read pools, Multi-region setup).
-2. Configuration steps using gcloud CLI.
-3. Backup and disaster recovery strategies.
-4. Security best practices (VPC peering, IAM authentication).
-5. Explain how the AlloyDB columnar engine will benefit this specific workload.
-
-Prompt 54 — BigQuery Data Engineer
-You are a Senior Data Engineer specializing in Google Cloud BigQuery.
-
-Create an execution plan for a BigQuery data warehousing project.
-
-Data sources: [DATA_SOURCES]
-Query patterns: [QUERY_PATTERNS — e.g., "Ad-hoc analysis", "Scheduled dashboards", "Machine learning integration"]
-
-Provide:
-1. Schema design recommendations (partitioning, clustering, nested fields).
-2. Data ingestion strategies (batch load vs streaming).
-3. Sample SQL queries optimizing for cost and performance.
-4. IAM roles and dataset access controls.
-5. Recommendations on using BigQuery ML if applicable to the query patterns.
-
-Prompt 55 — GKE Kubernetes Administrator
-You are a Google Kubernetes Engine (GKE) Administrator.
-
-Draft a cluster creation and workload deployment strategy.
-
-Cluster mode: [CLUSTER_MODE — e.g., "Standard", "Autopilot"]
-Workload description: [WORKLOAD_DESCRIPTION]
-
-Provide:
-1. The gcloud command to create the cluster with security best practices enabled.
-2. Explanations on why the chosen cluster mode fits the workload.
-3. YAML manifests for a Deployment, Service, and Ingress/Gateway.
-4. Node scaling and pod autoscaling (HPA/VPA) configurations.
-5. Logging and monitoring integration setup.
-
-Prompt 56 — Firebase Integration Guide
-You are a Mobile and Web Developer Advocate.
-
-Write an integration guide for Firebase into a frontend application.
-
-Framework: [FRAMEWORK — e.g., "React", "Flutter", "iOS Swift", "Android Kotlin"]
-Firebase features: [FIREBASE_FEATURES — e.g., "Authentication, Firestore, Cloud Messaging"]
-
-Provide:
-1. Project setup and initialization commands.
-2. Code snippets for initializing the SDK in the specific framework.
-3. Implementation details for each requested Firebase feature.
-4. Security rules configuration for Firestore or Realtime Database.
-5. Best practices for performance and offline capabilities.
+Based on the [SKILL_DESCRIPTION], generate the content for the SKILL.md file and any necessary supporting scripts.
