@@ -136,167 +136,161 @@ process_pr() {
   git reset --hard HEAD
   git clean -fd
 
-  # 2. Check mergeability
+  # Use token in URL for fork pushing
+  local authenticated_head_url
+  authenticated_head_url=$(echo "$head_clone_url" | sed "s|https://|https://x-access-token:${GITHUB_TOKEN}@|")
+
+  # Fetch the PR branch
+  log "Fetching $head_ref from $head_repo..."
+  if ! git fetch "$authenticated_head_url" "$head_ref"; then
+    log "Error: Failed to fetch PR branch from $head_repo."
+    return 0
+  fi
+  local pr_head_commit
+  pr_head_commit=$(git rev-parse FETCH_HEAD)
+
+  # Fetch the base branch
+  log "Fetching origin/$base_ref..."
+  git fetch origin "$base_ref"
+
+  # Check if PR is behind base
+  local behind_count
+  behind_count=$(git rev-list --count "$pr_head_commit..origin/$base_ref")
+
+  # Check mergeability via API
   local mergeable
   mergeable=$(poll_mergeability "$number")
 
-  if [ "$mergeable" = "false" ]; then
-    log "PR #$number has conflicts. Checking if we can attempt autonomous resolution..."
+  if [ "$mergeable" = "false" ] || [ "$behind_count" -gt 0 ]; then
+    log "PR #$number needs update (conflicted: $mergeable, behind: $behind_count)."
 
     # Avoid messing with forks if permissions are restricted
     if [ "$head_repo" != "$REPO" ] && [ "$maintainer_can_modify" != "true" ]; then
-      log "PR #$number is from a fork ($head_repo) and maintainer edits are disabled. Skipping conflict resolution."
-      return 0
-    fi
+      log "PR #$number is from a fork ($head_repo) and maintainer edits are disabled. Skipping automated update."
+    else
+      log "Attempting automated update/resolution for PR #$number..."
 
-    log "Attempting autonomous resolution via Gemini CLI for PR #$number..."
-    post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
+      # Use a unique local branch name to avoid collisions
+      local local_branch="auto-resolve-pr-$number"
+      git checkout -B "$local_branch" "$pr_head_commit"
 
-    # Use token in URL for fork pushing
-    local authenticated_head_url
-    authenticated_head_url=$(echo "$head_clone_url" | sed "s|https://|https://x-access-token:${GITHUB_TOKEN}@|")
+      log "Attempting to merge origin/$base_ref into $local_branch..."
+      if ! git merge "origin/$base_ref" --no-edit; then
+        log "Merge failed with conflicts. Identifying files..."
+        local conflicts
+        conflicts=$(git diff --name-only --diff-filter=U)
 
-    # Fetch and checkout the PR branch explicitly
-    log "Fetching $head_ref from $head_repo..."
-    if ! git fetch "$authenticated_head_url" "$head_ref"; then
-      log "Error: Failed to fetch PR branch from $head_repo."
-      return 0
-    fi
-    git checkout -B "$head_ref" FETCH_HEAD
+        post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
 
-    # Ensure we have the latest base branch
-    git fetch origin "$base_ref"
-
-    # Attempt to merge the base branch into the head branch
-    log "Attempting to merge origin/$base_ref into $head_ref..."
-    if ! git merge "origin/$base_ref" --no-edit; then
-      log "Merge failed with conflicts. Identifying files..."
-      local conflicts
-      conflicts=$(git diff --name-only --diff-filter=U)
-
-      for file in $conflicts; do
-        if [ ! -f "$file" ]; then
-           log "File $file no longer exists. Skipping."
-           continue
-        fi
-
-        # Skip binary files
-        if file --mime "$file" | grep -q "binary"; then
-          log "Skipping binary file: $file"
-          continue
-        fi
-
-        log "Resolving conflicts in $file..."
-        # Calculate checksum before resolution
-        local pre_checksum post_checksum gemini_status
-        pre_checksum=$(sha256sum "$file" | awk '{print $1}')
-
-        # Use gemini-cli to resolve conflicts autonomously
-        # We use --approval-mode yolo and --skip-trust for autonomous automatic resolution
-
-        # PROMPT GENERATION (Hardened against injection from PR metadata)
-        # We use a temporary file to construct the prompt and pass it via stdin.
-        {
-          printf "You are an autonomous AI engineer working in a GitHub Actions CI environment.\n"
-          printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
-          printf "### CONTEXT\n"
-          printf "PR Title: %s\n" "$pr_title"
-          printf "PR Description: %s\n\n" "$pr_body"
-          printf "### OBJECTIVE\n"
-          printf "Use your tools to:\n"
-          printf "1. Read the file '%s' to identify the conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
-          printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
-          printf "3. MANDATORY: Write the fully resolved, clean content back to '%s' using your file-writing tools. You must overwrite the file with the resolved version.\n" "$file"
-          printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-          printf "5. Ensure the resulting code is syntactically correct and functional.\n"
-          printf "6. If you need to see other files in the repository to understand context or imports, use your tools to list and read them.\n\n"
-          printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
-          printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
-        } > .gemini_prompt.txt
-        # We pass the prompt via stdin and use --prompt "" to trigger headless mode safely
-        log "Invoking Gemini CLI for $file..."
-        set +e
-        gemini --prompt "" --approval-mode yolo --skip-trust < .gemini_prompt.txt
-        gemini_status=$?
-        rm -f .gemini_prompt.txt
-        set -e
-
-        if [ $gemini_status -eq 0 ]; then
-          log "Gemini CLI finished processing $file."
-          post_checksum=$(sha256sum "$file" | awk '{print $1}')
-          if [ "$pre_checksum" = "$post_checksum" ]; then
-            log "Error: File $file was not modified by Gemini CLI. Aborting resolution for this file."
-            continue
-          else
-            log "File $file was modified and supposedly resolved."
+        for file in $conflicts; do
+          if [ ! -f "$file" ]; then
+             log "File $file no longer exists. Skipping."
+             continue
           fi
-        else
-          log "Error: Gemini CLI failed while processing $file."
-          continue
+
+          # Skip binary files
+          if file --mime "$file" | grep -q "binary"; then
+            log "Skipping binary file: $file"
+            continue
+          fi
+
+          log "Resolving conflicts in $file..."
+          # Calculate checksum before resolution
+          local pre_checksum post_checksum gemini_status
+          pre_checksum=$(sha256sum "$file" | awk '{print $1}')
+
+          # Use gemini-cli to resolve conflicts autonomously
+          # We use --approval-mode yolo and --skip-trust for autonomous automatic resolution
+
+          # PROMPT GENERATION (Hardened against injection from PR metadata)
+          # We use a temporary file to construct the prompt and pass it via stdin.
+          {
+            printf "You are an autonomous AI engineer working in a GitHub Actions CI environment.\n"
+            printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
+            printf "### CONTEXT\n"
+            printf "PR Title: %s\n" "$pr_title"
+            printf "PR Description: %s\n\n" "$pr_body"
+            printf "### OBJECTIVE\n"
+            printf "Use your tools to:\n"
+            printf "1. Read the file '%s' to identify the conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
+            printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
+            printf "3. MANDATORY: Write the fully resolved, clean content back to '%s' using your file-writing tools. You must overwrite the file with the resolved version.\n" "$file"
+            printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
+            printf "5. Ensure the resulting code is syntactically correct and functional.\n"
+            printf "6. Use your tools like 'ls -R' or 'find' to explore the repository if you need to understand imports or context in other files.\n\n"
+            printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
+            printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
+          } > .gemini_prompt.txt
+
+          log "Invoking Gemini CLI for $file..."
+          set +e
+          gemini --prompt "" --approval-mode yolo --skip-trust < .gemini_prompt.txt
+          gemini_status=$?
+          rm -f .gemini_prompt.txt
+          set -e
+
+          if [ $gemini_status -eq 0 ]; then
+            log "Gemini CLI finished processing $file."
+            post_checksum=$(sha256sum "$file" | awk '{print $1}')
+            if [ "$pre_checksum" = "$post_checksum" ]; then
+              log "Error: File $file was not modified by Gemini CLI."
+              continue
+            else
+              log "File $file was modified and supposedly resolved."
+            fi
+          else
+            log "Error: Gemini CLI failed while processing $file."
+            continue
+          fi
+
+          # Verify that conflict markers are gone
+          if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
+            log "WARNING: Conflict markers still present in $file after Gemini attempt."
+          else
+            log "Conflict markers successfully removed from $file."
+            git add "$file"
+          fi
+        done
+
+        # Final check for remaining conflicts
+        local remaining_conflicts
+        remaining_conflicts=$(git diff --name-only --diff-filter=U)
+        if [ -n "$remaining_conflicts" ]; then
+          log "Error: Unresolved conflicts remain in: $remaining_conflicts. Aborting merge for PR #$number."
+          git merge --abort
+          post_comment "$number" "❌ Failed to autonomously resolve all conflicts. Remaining: $remaining_conflicts"
+          return 0
         fi
 
-        # Verify that conflict markers are gone
-        if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
-          log "WARNING: Conflict markers still present in $file after Gemini attempt. Skipping this file."
-        else
-          log "Conflict markers successfully removed from $file."
-          git add "$file"
+        if [ -n "$(git status --short)" ]; then
+          git commit -m "chore: auto-resolve merge conflicts via gemini-cli"
         fi
-      done
-
-      # Final check for remaining conflicts
-      local remaining_conflicts
-      remaining_conflicts=$(git diff --name-only --diff-filter=U)
-      if [ -n "$remaining_conflicts" ]; then
-        log "Error: Unresolved conflicts remain in: $remaining_conflicts. Aborting merge for PR #$number."
-        git merge --abort
-        post_comment "$number" "❌ Failed to autonomously resolve all conflicts. Remaining: $remaining_conflicts"
-        return 0
-      fi
-
-      if [ -n "$(git status --short)" ]; then
-        git commit -m "chore: auto-resolve merge conflicts via gemini-cli"
+      else
+        log "Merge was successful (no conflicts found)."
       fi
 
       # Check if we have new commits to push
-      # If it's a fork, we compare against FETCH_HEAD which we fetched earlier
-      if [ $(git rev-list --count "FETCH_HEAD..HEAD") -gt 0 ]; then
-        log "Pushing resolved changes to $head_repo ($head_ref)..."
+      if [ $(git rev-list --count "$pr_head_commit..HEAD") -gt 0 ]; then
+        log "Pushing updated changes to $head_repo ($head_ref)..."
         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
-          log "Successfully resolved conflicts and pushed to $head_ref."
-          post_comment "$number" "✅ Successfully resolved conflicts in $conflicts and pushed to $head_ref."
+          log "Successfully updated PR #$number and pushed to $head_ref."
+          post_comment "$number" "✅ Successfully updated PR #$number with latest changes from $base_ref and resolved any conflicts."
 
           # Wait a bit for GitHub to re-calculate mergeability after push
           log "Waiting for GitHub to re-calculate mergeability..."
           sleep 15
           mergeable=$(poll_mergeability "$number")
         else
-          log "Error: Failed to push resolved changes to $head_ref."
-          post_comment "$number" "❌ Failed to push resolved changes to $head_ref. Please check if the branch is protected or if there are concurrent updates."
+          log "Error: Failed to push updated changes to $head_ref."
+          post_comment "$number" "❌ Failed to push updated changes to $head_ref. Please check if the branch is protected."
           return 0
         fi
       else
-        log "No changes to commit or push after resolution attempt."
-      fi
-    else
-      log "Merge was successful (no conflicts found upon local merge attempt)."
-      if [ $(git rev-list --count "FETCH_HEAD..HEAD") -gt 0 ]; then
-         log "Pushing merge changes to $head_repo ($head_ref)..."
-         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
-           log "Successfully merged base branch into head and pushed."
-           log "Waiting for GitHub to re-calculate mergeability..."
-           sleep 15
-           mergeable=$(poll_mergeability "$number")
-         else
-           log "Error: Failed to push merge changes to $head_ref."
-           return 0
-         fi
+        log "No changes to commit or push for PR #$number."
       fi
     fi
   elif [ "$mergeable" = "true" ]; then
-    log "PR #$number is mergeable."
-  else
-    log "PR #$number mergeability is unknown or still calculating ($mergeable). Skipping resolution."
+    log "PR #$number is mergeable and up to date."
   fi
 
   # 3. Squash and Merge
@@ -324,7 +318,7 @@ process_pr() {
     log "PR #$number is not mergeable ($mergeable). Skipping merge."
   fi
 
-  # Return to default branch for next iteration
+  # Return to base branch (clean up)
   git checkout "$base_ref" || true
 }
 
