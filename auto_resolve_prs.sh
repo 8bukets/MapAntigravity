@@ -72,7 +72,7 @@ poll_mergeability() {
     pr_detail=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "$API_BASE/pulls/$pr_number")
-    status=$(echo "$pr_detail" | jq -r '.mergeable // "null"')
+    status=$(printf '%s\n' "$pr_detail" | jq -r 'if .mergeable == null then "null" else .mergeable end')
     if [ "$status" = "null" ]; then
       log "Mergeability status for PR #$pr_number is null (calculating). Waiting..."
       sleep 10
@@ -85,28 +85,35 @@ poll_mergeability() {
 # 1. Fetch all open pull requests (handling pagination)
 log "Fetching all open pull requests for $REPO..."
 page=1
-all_prs="[]"
+all_prs_file=$(mktemp)
+echo "[]" > "$all_prs_file"
+
 while : ; do
   prs_page=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                     -H "Accept: application/vnd.github.v3+json" \
                     "$API_BASE/pulls?state=open&per_page=100&page=$page&sort=created&direction=asc")
 
   # Check if we got an error message instead of an array
-  if echo "$prs_page" | jq -e '.message' >/dev/null 2>&1; then
-    log "Error from GitHub API: $(echo "$prs_page" | jq -r '.message')"
+  if printf '%s\n' "$prs_page" | jq -e '.message' >/dev/null 2>&1; then
+    log "Error from GitHub API: $(printf '%s\n' "$prs_page" | jq -r '.message')"
+    rm -f "$all_prs_file"
     exit 1
   fi
 
-  count=$(echo "$prs_page" | jq '. | length')
+  count=$(printf '%s\n' "$prs_page" | jq '. | length')
   if [ "$count" -eq 0 ]; then
     break
   fi
 
-  all_prs=$(echo "$all_prs" "$prs_page" | jq -s 'add')
+  # Merge current page into total list
+  temp_all_prs=$(mktemp)
+  jq -s 'add' "$all_prs_file" <(printf '%s\n' "$prs_page") > "$temp_all_prs"
+  mv "$temp_all_prs" "$all_prs_file"
+
   page=$((page+1))
 done
 
-total_count=$(echo "$all_prs" | jq '. | length')
+total_count=$(jq '. | length' "$all_prs_file")
 log "Found $total_count open pull requests."
 
 # Function to process a single PR
@@ -114,15 +121,15 @@ process_pr() {
   local pr="$1"
   local number head_ref base_ref head_repo head_clone_url is_draft pr_title pr_body maintainer_can_modify
 
-  number=$(echo "$pr" | jq -r '.number')
-  head_ref=$(echo "$pr" | jq -r '.head.ref')
-  base_ref=$(echo "$pr" | jq -r '.base.ref')
-  head_repo=$(echo "$pr" | jq -r '.head.repo.full_name')
-  head_clone_url=$(echo "$pr" | jq -r '.head.repo.clone_url')
-  is_draft=$(echo "$pr" | jq -r '.draft')
-  pr_title=$(echo "$pr" | jq -r '.title')
-  pr_body=$(echo "$pr" | jq -r '.body')
-  maintainer_can_modify=$(echo "$pr" | jq -r '.maintainer_can_modify // false')
+  number=$(printf '%s\n' "$pr" | jq -r '.number')
+  head_ref=$(printf '%s\n' "$pr" | jq -r '.head.ref')
+  base_ref=$(printf '%s\n' "$pr" | jq -r '.base.ref')
+  head_repo=$(printf '%s\n' "$pr" | jq -r '.head.repo.full_name')
+  head_clone_url=$(printf '%s\n' "$pr" | jq -r '.head.repo.clone_url')
+  is_draft=$(printf '%s\n' "$pr" | jq -r '.draft')
+  pr_title=$(printf '%s\n' "$pr" | jq -r '.title')
+  pr_body=$(printf '%s\n' "$pr" | jq -r '.body')
+  maintainer_can_modify=$(printf '%s\n' "$pr" | jq -r '.maintainer_can_modify // false')
 
   log ""
   log "=== Processing PR #$number ($head_ref -> $base_ref) ==="
@@ -138,7 +145,7 @@ process_pr() {
 
   # Use token in URL for fork pushing
   local authenticated_head_url
-  authenticated_head_url=$(echo "$head_clone_url" | sed "s|https://|https://x-access-token:${GITHUB_TOKEN}@|")
+  authenticated_head_url=$(printf '%s\n' "$head_clone_url" | sed "s|https://|https://x-access-token:${GITHUB_TOKEN}@|")
 
   # Fetch the PR branch
   log "Fetching $head_ref from $head_repo..."
@@ -151,7 +158,10 @@ process_pr() {
 
   # Fetch the base branch
   log "Fetching origin/$base_ref..."
-  git fetch origin "$base_ref"
+  if ! git fetch origin "$base_ref"; then
+    log "Error: Failed to fetch base branch origin/$base_ref."
+    return 0
+  fi
 
   # Check if PR is behind base
   local behind_count
@@ -172,6 +182,7 @@ process_pr() {
 
       # Use a unique local branch name to avoid collisions
       local local_branch="auto-resolve-pr-$number"
+      log "Checking out local branch $local_branch from $pr_head_commit..."
       git checkout -B "$local_branch" "$pr_head_commit"
 
       log "Attempting to merge origin/$base_ref into $local_branch..."
@@ -204,6 +215,8 @@ process_pr() {
 
           # PROMPT GENERATION (Hardened against injection from PR metadata)
           # We use a temporary file to construct the prompt and pass it via stdin.
+          local prompt_file
+          prompt_file=$(mktemp)
           {
             printf "You are an autonomous AI engineer working in a GitHub Actions CI environment.\n"
             printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
@@ -220,13 +233,13 @@ process_pr() {
             printf "6. Use your tools like 'ls -R' or 'find' to explore the repository if you need to understand imports or context in other files.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
             printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
-          } > .gemini_prompt.txt
+          } > "$prompt_file"
 
           log "Invoking Gemini CLI for $file..."
           set +e
-          gemini --prompt "" --approval-mode yolo --skip-trust < .gemini_prompt.txt
+          gemini --prompt "" --approval-mode yolo --skip-trust < "$prompt_file"
           gemini_status=$?
-          rm -f .gemini_prompt.txt
+          rm -f "$prompt_file"
           set -e
 
           if [ $gemini_status -eq 0 ]; then
@@ -263,7 +276,10 @@ process_pr() {
         fi
 
         if [ -n "$(git status --short)" ]; then
+          log "Committing resolved conflicts..."
           git commit -m "chore: auto-resolve merge conflicts via gemini-cli"
+        else
+          log "No changes to commit after conflict resolution attempt."
         fi
       else
         log "Merge was successful (no conflicts found)."
@@ -295,7 +311,7 @@ process_pr() {
 
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
-    log "Attempting squash and merge for PR #$number..."
+    log "Attempting squash and merge for PR #$number via GitHub API..."
     # Capture HTTP status code and response body
     local merge_output merge_response http_code merged msg
     merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -303,14 +319,14 @@ process_pr() {
                                    -d '{"merge_method":"squash"}' \
                                    "$API_BASE/pulls/$number/merge")
 
-    merge_response=$(echo "$merge_output" | head -n -1)
-    http_code=$(echo "$merge_output" | tail -n 1)
+    merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
+    http_code=$(printf '%s\n' "$merge_output" | tail -n 1)
 
-    merged=$(echo "$merge_response" | jq -r '.merged // false' 2>/dev/null || echo "false")
+    merged=$(printf '%s\n' "$merge_response" | jq -r 'if .merged == null then false else .merged end' 2>/dev/null || printf "false")
     if [ "$merged" = "true" ] && [ "$http_code" -eq 200 ]; then
       log "SUCCESS: PR #$number has been squash-merged."
     else
-      msg=$(echo "$merge_response" | jq -r '.message // "Unknown error"' 2>/dev/null || echo "Unknown error")
+      msg=$(printf '%s\n' "$merge_response" | jq -r 'if .message == null then "Unknown error" else .message end' 2>/dev/null || printf "Unknown error")
       log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
       post_comment "$number" "❌ Failed to squash-merge PR #$number (HTTP $http_code). Reason: $msg"
     fi
@@ -324,8 +340,9 @@ process_pr() {
 
 # Loop through each PR using a temporary file to avoid subshell issues with pipe
 pr_list_file=$(mktemp)
-trap 'rm -f "$pr_list_file"' EXIT
-echo "$all_prs" | jq -c '.[]' > "$pr_list_file"
+# Cleanup both all_prs_file and pr_list_file
+trap 'rm -f "$pr_list_file" "$all_prs_file"' EXIT
+jq -c '.[]' "$all_prs_file" > "$pr_list_file"
 
 while read -r pr; do
   # Use a subshell to ensure failures in one PR don't stop the script
