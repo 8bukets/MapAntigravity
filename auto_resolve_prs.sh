@@ -249,7 +249,8 @@ process_pr() {
             printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
             printf "5. MANDATORY: Verify the resulting code is syntactically correct by running a syntax check if a tool is available (e.g., 'node --check' for JS, 'python3 -m py_compile' for Python).\n"
             printf "6. Ensure the resulting code is functional and preserves the intended logic.\n"
-            printf "7. Use your tools like 'ls -R' or 'find' to explore the repository if you need to understand imports or context in other files.\n\n"
+            printf "7. Use your tools like 'ls -R', 'find', or 'grep' to explore the repository if you need to understand imports, dependencies, or context in other files.\n"
+            printf "8. If the conflict is in a configuration file (like package.json), ensure the resulting JSON is valid.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
             printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
           } > "$PROMPT_FILE"
@@ -296,8 +297,8 @@ process_pr() {
         fi
 
         if [ -n "$(git status --short)" ]; then
-          log "Committing resolved conflicts..."
-          git commit -m "chore: auto-resolve merge conflicts via gemini-cli"
+          log "Committing resolved conflicts for PR #$number..."
+          git commit -m "chore: auto-resolve merge conflicts for PR #$number via gemini-cli"
         else
           log "No changes to commit after conflict resolution attempt."
         fi
@@ -345,6 +346,7 @@ process_pr() {
     merged=$(printf '%s\n' "$merge_response" | jq -r 'if .merged == null then false else .merged end' 2>/dev/null || printf "false")
     if [ "$merged" = "true" ] && [ "$http_code" -eq 200 ]; then
       log "SUCCESS: PR #$number has been squash-merged."
+      post_comment "$number" "✅ PR #$number has been successfully squash-merged after autonomous verification."
     else
       msg=$(printf '%s\n' "$merge_response" | jq -r 'if .message == null then "Unknown error" else .message end' 2>/dev/null || printf "Unknown error")
       log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
