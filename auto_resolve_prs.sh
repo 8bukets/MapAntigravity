@@ -3,40 +3,54 @@
 
 set -euo pipefail
 
-# Use GITHUB_REPOSITORY if available, otherwise fallback to the current repo
-if [ -z "${GITHUB_REPOSITORY:-}" ]; then
-  REPO=$(git remote get-url origin | sed -E 's/.*github.com[:\/]//; s/\.git$//')
-else
-  REPO="$GITHUB_REPOSITORY"
-fi
-REPO="${REPO:-8bukets/MapAntigravity}"
-API_BASE="https://api.github.com/repos/$REPO"
-
 # Helper function for logging with timestamps
 log() {
   echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"
 }
 
-if [ -z "$GITHUB_TOKEN" ]; then
+# Global variables for cleanup
+ALL_PRS_FILE=""
+PR_LIST_FILE=""
+PROMPT_FILE=""
+
+cleanup() {
+  log "Performing final cleanup of temporary files..."
+  rm -f "$ALL_PRS_FILE" "$PR_LIST_FILE" "$PROMPT_FILE"
+}
+trap cleanup EXIT
+
+# Use GITHUB_REPOSITORY if available, otherwise fallback to parsing origin remote
+if [ -z "${GITHUB_REPOSITORY:-}" ]; then
+  REPO=$(git remote get-url origin | sed -E 's/.*github.com[:\/]//; s/\.git$//')
+else
+  REPO="$GITHUB_REPOSITORY"
+fi
+# Final fallback if both fail
+REPO="${REPO:-8bukets/MapAntigravity}"
+API_BASE="https://api.github.com/repos/$REPO"
+
+log "Target Repository: $REPO"
+
+if [ -z "${GITHUB_TOKEN:-}" ]; then
   log "Error: GITHUB_TOKEN is not set."
   exit 1
 fi
 
-if [ -z "$GEMINI_API_KEY" ]; then
+if [ -z "${GEMINI_API_KEY:-}" ]; then
   log "Error: GEMINI_API_KEY is not set."
   exit 1
 fi
 
-# Check for required tools
-if ! command -v jq &> /dev/null; then
-    log "Error: jq is not installed or not in PATH."
-    exit 1
-fi
+GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.0-flash}"
+log "Using Gemini Model: $GEMINI_MODEL"
 
-if ! command -v gemini &> /dev/null; then
-    log "Error: gemini is not installed or not in PATH."
+# Check for required tools
+for tool in jq gemini curl git file sha256sum; do
+  if ! command -v "$tool" &> /dev/null; then
+    log "Error: $tool is not installed or not in PATH."
     exit 1
-fi
+  fi
+done
 
 # Configure git
 git config user.name "github-actions[bot]"
@@ -83,12 +97,13 @@ poll_mergeability() {
 }
 
 # 1. Fetch all open pull requests (handling pagination)
-log "Fetching all open pull requests for $REPO..."
+log "Step 1: Fetching all open pull requests for $REPO..."
 page=1
-all_prs_file=$(mktemp)
-echo "[]" > "$all_prs_file"
+ALL_PRS_FILE=$(mktemp)
+echo "[]" > "$ALL_PRS_FILE"
 
 while : ; do
+  log "Fetching page $page of PRs..."
   prs_page=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                     -H "Accept: application/vnd.github.v3+json" \
                     "$API_BASE/pulls?state=open&per_page=100&page=$page&sort=created&direction=asc")
@@ -96,7 +111,6 @@ while : ; do
   # Check if we got an error message instead of an array
   if printf '%s\n' "$prs_page" | jq -e '.message' >/dev/null 2>&1; then
     log "Error from GitHub API: $(printf '%s\n' "$prs_page" | jq -r '.message')"
-    rm -f "$all_prs_file"
     exit 1
   fi
 
@@ -107,14 +121,19 @@ while : ; do
 
   # Merge current page into total list
   temp_all_prs=$(mktemp)
-  jq -s 'add' "$all_prs_file" <(printf '%s\n' "$prs_page") > "$temp_all_prs"
-  mv "$temp_all_prs" "$all_prs_file"
+  if jq -s 'add' "$ALL_PRS_FILE" <(printf '%s\n' "$prs_page") > "$temp_all_prs"; then
+    mv "$temp_all_prs" "$ALL_PRS_FILE"
+  else
+    log "Error: Failed to process PR JSON on page $page."
+    rm -f "$temp_all_prs"
+    exit 1
+  fi
 
   page=$((page+1))
 done
 
-total_count=$(jq '. | length' "$all_prs_file")
-log "Found $total_count open pull requests."
+total_count=$(jq '. | length' "$ALL_PRS_FILE")
+log "Found $total_count open pull requests in total."
 
 # Function to process a single PR
 process_pr() {
@@ -177,6 +196,7 @@ process_pr() {
     # Avoid messing with forks if permissions are restricted
     if [ "$head_repo" != "$REPO" ] && [ "$maintainer_can_modify" != "true" ]; then
       log "PR #$number is from a fork ($head_repo) and maintainer edits are disabled. Skipping automated update."
+      post_comment "$number" "🤖 This PR is from a fork and 'Allow edits from maintainers' is disabled. To enable autonomous conflict resolution and automatic updates, please check the 'Allow edits from maintainers' box on your PR."
     else
       log "Attempting automated update/resolution for PR #$number..."
 
@@ -191,7 +211,7 @@ process_pr() {
         local conflicts
         conflicts=$(git diff --name-only --diff-filter=U)
 
-        post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI..."
+        post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI ($GEMINI_MODEL)..."
 
         for file in $conflicts; do
           if [ ! -f "$file" ]; then
@@ -214,9 +234,7 @@ process_pr() {
           # We use --approval-mode yolo and --skip-trust for autonomous automatic resolution
 
           # PROMPT GENERATION (Hardened against injection from PR metadata)
-          # We use a temporary file to construct the prompt and pass it via stdin.
-          local prompt_file
-          prompt_file=$(mktemp)
+          PROMPT_FILE=$(mktemp)
           {
             printf "You are an autonomous AI engineer working in a GitHub Actions CI environment.\n"
             printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
@@ -229,17 +247,19 @@ process_pr() {
             printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
             printf "3. MANDATORY: Write the fully resolved, clean content back to '%s' using your file-writing tools. You must overwrite the file with the resolved version.\n" "$file"
             printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-            printf "5. Ensure the resulting code is syntactically correct and functional.\n"
-            printf "6. Use your tools like 'ls -R' or 'find' to explore the repository if you need to understand imports or context in other files.\n\n"
+            printf "5. MANDATORY: Verify the resulting code is syntactically correct by running a syntax check if a tool is available (e.g., 'node --check' for JS, 'python3 -m py_compile' for Python).\n"
+            printf "6. Ensure the resulting code is functional and preserves the intended logic.\n"
+            printf "7. Use your tools like 'ls -R' or 'find' to explore the repository if you need to understand imports or context in other files.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
             printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
-          } > "$prompt_file"
+          } > "$PROMPT_FILE"
 
-          log "Invoking Gemini CLI for $file..."
+          log "Invoking Gemini CLI ($GEMINI_MODEL) for $file..."
           set +e
-          gemini --prompt "" --approval-mode yolo --skip-trust < "$prompt_file"
+          gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
           gemini_status=$?
-          rm -f "$prompt_file"
+          rm -f "$PROMPT_FILE"
+          PROMPT_FILE=""
           set -e
 
           if [ $gemini_status -eq 0 ]; then
@@ -339,12 +359,13 @@ process_pr() {
 }
 
 # Loop through each PR using a temporary file to avoid subshell issues with pipe
-pr_list_file=$(mktemp)
-# Cleanup both all_prs_file and pr_list_file
-trap 'rm -f "$pr_list_file" "$all_prs_file"' EXIT
-jq -c '.[]' "$all_prs_file" > "$pr_list_file"
+log "Step 2: Processing pull requests one by one..."
+PR_LIST_FILE=$(mktemp)
+jq -c '.[]' "$ALL_PRS_FILE" > "$PR_LIST_FILE"
 
 while read -r pr; do
   # Use a subshell to ensure failures in one PR don't stop the script
   ( process_pr "$pr" ) || log "Error occurred while processing PR. Continuing to next PR..."
-done < "$pr_list_file"
+done < "$PR_LIST_FILE"
+
+log "Finished processing all pull requests."
