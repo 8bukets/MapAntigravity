@@ -7,8 +7,8 @@ description: "Expert prompt for: API Endpoint Designer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[LANGUAGE/FRAMEWORK]`
 - `[FEATURE/APPLICATION]`
+- `[LANGUAGE/FRAMEWORK]`
 
 ## Instructions
 

@@ -7,11 +7,11 @@ description: "Expert prompt for: Learning Plan Builder"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[HOW LONG — e.g., "3 months"]`
-- `[e.g., "hands-on projects, not lectures"]`
-- `[BEGINNER / INTERMEDIATE / ADVANCED]`
 - `[HOURS PER WEEK]`
+- `[HOW LONG — e.g., "3 months"]`
+- `[BEGINNER / INTERMEDIATE / ADVANCED]`
 - `[SKILL I WANT TO LEARN]`
+- `[e.g., "hands-on projects, not lectures"]`
 
 ## Instructions
 

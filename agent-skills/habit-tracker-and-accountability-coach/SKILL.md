@@ -8,11 +8,11 @@ description: "Expert prompt for: Habit Tracker and Accountability Coach"
 ## Variables
 This prompt requires the following variables to be filled in:
 - `[CUE]`
-- `[LOCATION]`
-- `[DESCRIBE YOUR TYPICAL DAY]`
-- `[LIST YOUR DESIRED HABITS]`
-- `[HABIT]`
 - `[WHAT STOPS YOU]`
+- `[HABIT]`
+- `[DESCRIBE YOUR TYPICAL DAY]`
+- `[LOCATION]`
+- `[LIST YOUR DESIRED HABITS]`
 
 ## Instructions
 

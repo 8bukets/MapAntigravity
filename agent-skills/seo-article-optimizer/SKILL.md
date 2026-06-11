@@ -7,8 +7,8 @@ description: "Expert prompt for: SEO Article Optimizer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[PASTE ARTICLE]`
 - `[TARGET KEYWORD]`
+- `[PASTE ARTICLE]`
 
 ## Instructions
 

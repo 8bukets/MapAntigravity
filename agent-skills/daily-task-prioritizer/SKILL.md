@@ -7,9 +7,9 @@ description: "Expert prompt for: Daily Task Prioritizer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[HOW MANY HOURS]`
-- `[YOUR MAIN GOAL]`
 - `[LIST YOUR TASKS]`
+- `[YOUR MAIN GOAL]`
+- `[HOW MANY HOURS]`
 
 ## Instructions
 

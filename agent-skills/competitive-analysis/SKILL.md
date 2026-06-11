@@ -7,8 +7,8 @@ description: "Expert prompt for: Competitive Analysis"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[LIST COMPETITORS]`
 - `[AXIS 1]`
+- `[LIST COMPETITORS]`
 - `[YOUR PRODUCT/COMPANY]`
 - `[AXIS 2]`
 
