@@ -4,11 +4,11 @@
         "title": "Full Article Writer",
         "text": "You are an expert content strategist and writer specializing in [NICHE].\n\nWrite a long-form article on [TOPIC].\n\nAudience: [DESCRIBE YOUR AUDIENCE \u2014 e.g., \"tech-savvy 25-40 year olds who build with AI tools\"]\nTone: [SPECIFIC TONE \u2014 e.g., \"direct, punchy, slightly irreverent. No corporate speak.\"]\nLength: [WORD COUNT \u2014 e.g., \"2,500-3,000 words\"]\n\nStructure requirements:\n- Open with a bold claim or counterintuitive insight that hooks immediately\n- Use short paragraphs \u2014 maximum 3 sentences each\n- Include specific numbers, examples, and actionable takeaways\n- Bold key phrases for scannability\n- End with a clear call to action\n\nDoes NOT sound like: generic AI content, LinkedIn fluff, corporate blog post, \"in today's fast-paced world\"\n\nSuccess means: a reader finishes the article and immediately wants to implement something from it.",
         "variables": [
-            "SPECIFIC TONE \u2014 e.g., \"direct, punchy, slightly irreverent. No corporate speak.\"",
-            "DESCRIBE YOUR AUDIENCE \u2014 e.g., \"tech-savvy 25-40 year olds who build with AI tools\"",
-            "WORD COUNT \u2014 e.g., \"2,500-3,000 words\"",
+            "NICHE",
             "TOPIC",
-            "NICHE"
+            "SPECIFIC TONE \u2014 e.g., \"direct, punchy, slightly irreverent. No corporate speak.\"",
+            "WORD COUNT \u2014 e.g., \"2,500-3,000 words\"",
+            "DESCRIBE YOUR AUDIENCE \u2014 e.g., \"tech-savvy 25-40 year olds who build with AI tools\""
         ]
     },
     {
@@ -34,8 +34,8 @@
         "title": "Headline Generator",
         "text": "You are a headline specialist who has studied the top-performing content on X/Twitter.\n\nGenerate 20 headline options for an article about [TOPIC].\n\nEach headline must include:\n- A specific number (preferably between 15 and 50)\n- An exclusion or curiosity hook (\"Most users don't know,\" \"Nobody talks about,\" \"You're missing\")\n- A completeness signal (\"Complete List,\" \"Full Guide,\" \"Full Course\")\n\nRank your top 5 by predicted viral potential and explain why each one works.\n\nMy audience: [DESCRIBE AUDIENCE]\nMy niche: [YOUR NICHE]",
         "variables": [
-            "DESCRIBE AUDIENCE",
             "YOUR NICHE",
+            "DESCRIBE AUDIENCE",
             "TOPIC"
         ]
     },
@@ -44,9 +44,9 @@
         "title": "Content Calendar Builder",
         "text": "You are a content strategist managing a creator's content calendar.\n\nBuild a 30-day content calendar for [PLATFORM].\n\nMy niche: [YOUR NICHE]\nPosting frequency: [HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\"]\nContent types I want to rotate: [e.g., \"threads, single posts, articles, polls, engagement posts\"]\n\nFor each day provide:\n- Content type\n- Topic\n- Hook (first line)\n- Key angle or unique perspective\n- Estimated production time\n\nGroup content into weekly themes. Include 2 \"tentpole\" pieces per month that are designed for maximum reach. The rest should be supporting content that builds authority in the same topic areas.",
         "variables": [
-            "HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\"",
             "YOUR NICHE",
             "e.g., \"threads, single posts, articles, polls, engagement posts\"",
+            "HOW OFTEN \u2014 e.g., \"daily\" or \"5x per week\"",
             "PLATFORM"
         ]
     },
@@ -72,9 +72,9 @@
         "title": "Case Study Writer",
         "text": "You are a business writer who specializes in compelling case studies.\n\nWrite a case study based on these details:\n\nClient/Subject: [WHO]\nProblem: [WHAT THEY WERE STRUGGLING WITH]\nSolution: [WHAT WAS IMPLEMENTED]\nResults: [SPECIFIC OUTCOMES \u2014 use numbers]\n\nStructure:\n1. The situation (2-3 sentences, set the scene)\n2. The challenge (what made this hard, why previous attempts failed)\n3. The approach (step by step what was done)\n4. The results (specific numbers, before vs after)\n5. Key takeaway (one sentence the reader remembers)\n\nTone: professional but not boring. Make it read like a story, not a report.\nLength: 500-800 words.",
         "variables": [
-            "WHAT THEY WERE STRUGGLING WITH",
-            "SPECIFIC OUTCOMES \u2014 use numbers",
             "WHO",
+            "SPECIFIC OUTCOMES \u2014 use numbers",
+            "WHAT THEY WERE STRUGGLING WITH",
             "WHAT WAS IMPLEMENTED"
         ]
     },
@@ -85,8 +85,8 @@
         "variables": [
             "TONE \u2014 e.g., \"conversational like talking to a smart friend, not like a lecture\"",
             "B-ROLL: description",
-            "LENGTH \u2014 e.g., \"10-minute\"",
-            "TOPIC"
+            "TOPIC",
+            "LENGTH \u2014 e.g., \"10-minute\""
         ]
     },
     {
@@ -95,9 +95,9 @@
         "text": "You are a personal branding specialist.\n\nWrite 5 bio options for my [PLATFORM] profile.\n\nAbout me: [DESCRIBE YOURSELF \u2014 role, expertise, achievements]\nTarget audience: [WHO DO YOU WANT TO ATTRACT]\nTone: [e.g., \"confident but not arrogant, slightly witty\"]\n\nEach bio must:\n- Be under [CHARACTER LIMIT] characters\n- Lead with what I do, not who I am\n- Include a specific credibility marker (number, result, achievement)\n- End with what the reader gets by following\n\nRank them by impact and explain which audience each one appeals to most.",
         "variables": [
             "e.g., \"confident but not arrogant, slightly witty\"",
-            "DESCRIBE YOURSELF \u2014 role, expertise, achievements",
-            "PLATFORM",
             "WHO DO YOU WANT TO ATTRACT",
+            "PLATFORM",
+            "DESCRIBE YOURSELF \u2014 role, expertise, achievements",
             "CHARACTER LIMIT"
         ]
     },
@@ -106,10 +106,10 @@
         "title": "Competitive Analysis",
         "text": "You are a senior market analyst.\n\nConduct a competitive analysis for [YOUR PRODUCT/COMPANY] against these competitors: [LIST COMPETITORS]\n\nFor each competitor provide:\n1. Core value proposition (1 sentence)\n2. Target audience\n3. Pricing model\n4. Key strengths (top 3)\n5. Key weaknesses (top 3)\n6. What they do better than us\n7. What we do better than them\n\nThen provide:\n- A positioning matrix showing where each competitor sits on [AXIS 1] vs [AXIS 2]\n- The biggest gap in the market that nobody is filling\n- 3 strategic recommendations for how we should differentiate\n\nBe specific. Use real observations, not generic strategy language.",
         "variables": [
-            "AXIS 1",
-            "LIST COMPETITORS",
+            "AXIS 2",
             "YOUR PRODUCT/COMPANY",
-            "AXIS 2"
+            "LIST COMPETITORS",
+            "AXIS 1"
         ]
     },
     {
@@ -117,10 +117,10 @@
         "title": "Business Model Evaluator",
         "text": "You are a startup advisor who has evaluated hundreds of business models.\n\nEvaluate this business idea:\n\nIdea: [DESCRIBE YOUR IDEA]\nTarget market: [WHO IT IS FOR]\nRevenue model: [HOW IT MAKES MONEY]\nCurrent stage: [IDEA / MVP / LAUNCHED]\n\nProvide:\n1. Score from 1-10 on: market size, defensibility, monetization clarity, execution complexity, and timing\n2. The single biggest risk to this business\n3. The single biggest opportunity most founders in this space miss\n4. 3 things I should validate before investing more time\n5. A \"red team\" analysis \u2014 argue why this business will fail\n6. A \"blue team\" response \u2014 argue why it will succeed despite the risks\n\nBe direct. Do not hedge. I want honest analysis, not encouragement.",
         "variables": [
+            "HOW IT MAKES MONEY",
             "DESCRIBE YOUR IDEA",
-            "WHO IT IS FOR",
             "IDEA / MVP / LAUNCHED",
-            "HOW IT MAKES MONEY"
+            "WHO IT IS FOR"
         ]
     },
     {
@@ -130,10 +130,10 @@
         "variables": [
             "COST PER UNIT/USER",
             "WHAT COMPETITORS CHARGE",
-            "WHO",
-            "PRODUCT/SERVICE",
             "CURRENT PRICE",
-            "DESCRIPTION"
+            "WHO",
+            "DESCRIPTION",
+            "PRODUCT/SERVICE"
         ]
     },
     {
@@ -149,14 +149,14 @@
         "title": "Investor Pitch Deck Outline",
         "text": "You are a pitch deck consultant who has helped raise over $50M in funding.\n\nCreate a pitch deck outline for [COMPANY NAME].\n\nDetails:\n- Problem we solve: [PROBLEM]\n- Our solution: [SOLUTION]\n- Target market: [MARKET]\n- Business model: [REVENUE MODEL]\n- Traction (if any): [METRICS]\n- Team: [TEAM BACKGROUND]\n- Ask: [HOW MUCH AND WHAT FOR]\n\nStructure it as a 12-slide deck:\n1. Cover\n2. Problem\n3. Solution\n4. Market size\n5. Product/demo\n6. Business model\n7. Traction\n8. Competition\n9. Team\n10. Financials\n11. The ask\n12. Vision/closing\n\nFor each slide, write the headline and 3-4 bullet points. The headline should tell the story even if the bullets are never read.",
         "variables": [
-            "REVENUE MODEL",
+            "TEAM BACKGROUND",
             "METRICS",
             "PROBLEM",
-            "MARKET",
-            "COMPANY NAME",
-            "TEAM BACKGROUND",
+            "REVENUE MODEL",
             "HOW MUCH AND WHAT FOR",
-            "SOLUTION"
+            "MARKET",
+            "SOLUTION",
+            "COMPANY NAME"
         ]
     },
     {
@@ -181,10 +181,10 @@
         "title": "Partnership Outreach Drafter",
         "text": "You are a business development specialist.\n\nDraft 3 versions of an outreach message to [POTENTIAL PARTNER].\n\nContext:\n- Who I am: [YOUR COMPANY/ROLE]\n- Who they are: [THEIR COMPANY/ROLE]\n- Why the partnership makes sense: [MUTUAL BENEFIT]\n- What I am proposing: [SPECIFIC ASK]\n\nVersion 1: Formal and professional\nVersion 2: Casual and relationship-first\nVersion 3: Value-forward (lead with what they get)\n\nEach version: under 150 words, one clear CTA, no corporate jargon.",
         "variables": [
-            "YOUR COMPANY/ROLE",
-            "MUTUAL BENEFIT",
             "SPECIFIC ASK",
             "POTENTIAL PARTNER",
+            "MUTUAL BENEFIT",
+            "YOUR COMPANY/ROLE",
             "THEIR COMPANY/ROLE"
         ]
     },
@@ -193,11 +193,11 @@
         "title": "Product Roadmap Builder",
         "text": "You are a product manager building a quarterly roadmap.\n\nCreate a 90-day product roadmap for [PRODUCT].\n\nCurrent state: [WHERE THE PRODUCT IS NOW]\nTop user complaints: [LIST THEM]\nBusiness goals this quarter: [LIST THEM]\nAvailable resources: [TEAM SIZE/CONSTRAINTS]\n\nStructure:\n- Month 1: [Theme] \u2014 list features/improvements with effort estimate (S/M/L)\n- Month 2: [Theme] \u2014 list features/improvements with effort estimate\n- Month 3: [Theme] \u2014 list features/improvements with effort estimate\n\nFor each item mark priority (P0/P1/P2) and expected impact (High/Medium/Low).\n\nInclude one \"bold bet\" feature that could be a game-changer but carries risk. Explain why it is worth considering.",
         "variables": [
-            "WHERE THE PRODUCT IS NOW",
-            "LIST THEM",
             "PRODUCT",
+            "Theme",
             "TEAM SIZE/CONSTRAINTS",
-            "Theme"
+            "WHERE THE PRODUCT IS NOW",
+            "LIST THEM"
         ]
     },
     {
@@ -207,8 +207,8 @@
         "variables": [
             "WHO",
             "WHAT DECISION OR OUTCOME",
-            "LENGTH",
-            "TOPIC"
+            "TOPIC",
+            "LENGTH"
         ]
     },
     {
@@ -216,14 +216,14 @@
         "title": "Full Feature Builder",
         "text": "You are a senior full-stack developer.\n\nBuild [FEATURE DESCRIPTION] for my application.\n\nTech stack: [YOUR STACK \u2014 e.g., \"Next.js, TypeScript, Supabase, Tailwind\"]\nCurrent architecture: [BRIEF DESCRIPTION]\n\nRequirements:\n- [REQUIREMENT 1]\n- [REQUIREMENT 2]\n- [REQUIREMENT 3]\n\nConstraints:\n- [CONSTRAINT \u2014 e.g., \"Must work on mobile\"]\n- [CONSTRAINT \u2014 e.g., \"Under 200ms response time\"]\n\nBefore writing any code, outline your approach in 5 steps.\nThen implement each step with clean, production-ready code.\nInclude error handling and edge cases.\nAdd inline comments only where the logic is non-obvious.",
         "variables": [
-            "REQUIREMENT 2",
-            "CONSTRAINT \u2014 e.g., \"Under 200ms response time\"",
             "REQUIREMENT 3",
-            "REQUIREMENT 1",
             "BRIEF DESCRIPTION",
-            "FEATURE DESCRIPTION",
+            "CONSTRAINT \u2014 e.g., \"Must work on mobile\"",
             "YOUR STACK \u2014 e.g., \"Next.js, TypeScript, Supabase, Tailwind\"",
-            "CONSTRAINT \u2014 e.g., \"Must work on mobile\""
+            "CONSTRAINT \u2014 e.g., \"Under 200ms response time\"",
+            "FEATURE DESCRIPTION",
+            "REQUIREMENT 1",
+            "REQUIREMENT 2"
         ]
     },
     {
@@ -239,11 +239,11 @@
         "title": "Database Schema Designer",
         "text": "You are a database architect.\n\nDesign a database schema for [APPLICATION DESCRIPTION].\n\nRequirements:\n- [DATA REQUIREMENT 1]\n- [DATA REQUIREMENT 2]\n- [DATA REQUIREMENT 3]\n\nProvide:\n1. Table definitions with columns, types, and constraints\n2. Relationships (foreign keys, junction tables)\n3. Indexes for expected query patterns\n4. The reasoning behind each design decision\n5. One thing this schema handles well and one thing it might struggle with at scale\n\nUse [DATABASE \u2014 e.g., \"PostgreSQL\"] syntax.",
         "variables": [
-            "DATA REQUIREMENT 1",
             "DATABASE \u2014 e.g., \"PostgreSQL\"",
             "DATA REQUIREMENT 3",
-            "DATA REQUIREMENT 2",
-            "APPLICATION DESCRIPTION"
+            "DATA REQUIREMENT 1",
+            "APPLICATION DESCRIPTION",
+            "DATA REQUIREMENT 2"
         ]
     },
     {
@@ -251,8 +251,8 @@
         "title": "API Endpoint Designer",
         "text": "You are a backend engineer designing a REST API.\n\nDesign the API endpoints for [FEATURE/APPLICATION].\n\nFor each endpoint provide:\n- Method and path\n- Request body (if applicable)\n- Response format (JSON)\n- Authentication requirements\n- Error responses (400, 401, 403, 404, 500)\n- Rate limiting recommendations\n\nThen implement the top 3 most important endpoints in [LANGUAGE/FRAMEWORK].\n\nInclude input validation and error handling.",
         "variables": [
-            "FEATURE/APPLICATION",
-            "LANGUAGE/FRAMEWORK"
+            "LANGUAGE/FRAMEWORK",
+            "FEATURE/APPLICATION"
         ]
     },
     {
@@ -261,10 +261,10 @@
         "text": "You are a debugging specialist.\n\nThis code produces the following error:\n\nError message: [PASTE ERROR]\nExpected behavior: [WHAT SHOULD HAPPEN]\nActual behavior: [WHAT ACTUALLY HAPPENS]\nSteps to reproduce: [HOW TO TRIGGER THE BUG]\n\nCode:\n[PASTE CODE]\n\nDiagnose the root cause step by step. Do not jump to the fix.\n1. What is the error telling us?\n2. Where in the code does this originate?\n3. What is the root cause (not the symptom)?\n4. What is the fix?\n5. How do we prevent this class of bug in the future?\n\nThen provide the corrected code.",
         "variables": [
             "PASTE CODE",
-            "WHAT ACTUALLY HAPPENS",
             "HOW TO TRIGGER THE BUG",
+            "WHAT SHOULD HAPPEN",
             "PASTE ERROR",
-            "WHAT SHOULD HAPPEN"
+            "WHAT ACTUALLY HAPPENS"
         ]
     },
     {
@@ -272,9 +272,9 @@
         "title": "Test Suite Generator",
         "text": "You are a QA engineer who writes comprehensive test suites.\n\nWrite tests for [FUNCTION/COMPONENT/MODULE].\n\nCode to test:\n[PASTE CODE]\n\nInclude:\n1. Unit tests for every public function\n2. Edge cases (null inputs, empty arrays, boundary values, invalid types)\n3. Integration tests for any external dependencies\n4. At least one test that verifies error handling works correctly\n\nUse [TESTING FRAMEWORK \u2014 e.g., \"Jest\", \"pytest\"].\nEach test should have a clear, descriptive name that explains what it verifies.",
         "variables": [
-            "TESTING FRAMEWORK \u2014 e.g., \"Jest\", \"pytest\"",
+            "PASTE CODE",
             "FUNCTION/COMPONENT/MODULE",
-            "PASTE CODE"
+            "TESTING FRAMEWORK \u2014 e.g., \"Jest\", \"pytest\""
         ]
     },
     {
@@ -299,10 +299,10 @@
         "title": "DevOps Pipeline Builder",
         "text": "You are a DevOps engineer building a CI/CD pipeline.\n\nCreate a deployment pipeline for [APPLICATION].\n\nStack: [YOUR STACK]\nHosting: [WHERE \u2014 e.g., \"Vercel\", \"AWS\", \"Railway\"]\nRepository: [PLATFORM \u2014 e.g., \"GitHub\"]\n\nProvide:\n1. GitHub Actions workflow file (or equivalent)\n2. Environment variable management strategy\n3. Testing stage configuration\n4. Deployment stage configuration\n5. Rollback procedure\n6. Monitoring and alerting recommendations\n\nInclude the actual YAML/config files, not just descriptions.",
         "variables": [
-            "WHERE \u2014 e.g., \"Vercel\", \"AWS\", \"Railway\"",
-            "APPLICATION",
             "PLATFORM \u2014 e.g., \"GitHub\"",
-            "YOUR STACK"
+            "YOUR STACK",
+            "WHERE \u2014 e.g., \"Vercel\", \"AWS\", \"Railway\"",
+            "APPLICATION"
         ]
     },
     {
@@ -310,8 +310,8 @@
         "title": "Performance Optimizer",
         "text": "You are a performance engineer.\n\nAnalyze this code/page for performance issues.\n\nContext: [WHAT THE CODE DOES AND WHERE IT RUNS]\n\nCode:\n[PASTE CODE]\n\nIdentify:\n1. What is slow and why (be specific \u2014 measure, don't guess)\n2. Quick wins (changes that take under 30 minutes and have immediate impact)\n3. Medium-term improvements (changes that require some refactoring)\n4. Architecture-level optimizations (if applicable)\n\nFor each optimization:\n- Current code\n- Optimized code\n- Expected improvement (estimate)\n\nPrioritize by effort-to-impact ratio.",
         "variables": [
-            "WHAT THE CODE DOES AND WHERE IT RUNS",
-            "PASTE CODE"
+            "PASTE CODE",
+            "WHAT THE CODE DOES AND WHERE IT RUNS"
         ]
     },
     {
@@ -343,9 +343,9 @@
         "title": "Survey Designer",
         "text": "You are a research methodologist.\n\nDesign a survey to understand [RESEARCH QUESTION].\n\nTarget respondents: [WHO]\nSurvey goal: [WHAT DECISION THIS DATA WILL INFORM]\n\nProvide:\n1. 15-20 questions organized by topic\n2. Question type for each (multiple choice, scale, open-ended)\n3. Answer options for each closed question\n4. The logic flow (skip logic, conditional questions)\n5. An estimated completion time\n6. 3 potential biases in the survey and how to mitigate them\n\nKeep questions neutral. Avoid leading language. Include at least 2 open-ended questions for unexpected insights.",
         "variables": [
-            "RESEARCH QUESTION",
             "WHO",
-            "WHAT DECISION THIS DATA WILL INFORM"
+            "WHAT DECISION THIS DATA WILL INFORM",
+            "RESEARCH QUESTION"
         ]
     },
     {
@@ -361,13 +361,13 @@
         "title": "Decision Matrix Builder",
         "text": "You are a decision analyst.\n\nBuild a decision matrix for [DECISION TO MAKE].\n\nOptions: [LIST YOUR OPTIONS]\n\nFor each option, evaluate against these criteria:\n[CRITERION 1] \u2014 weight: [1-5]\n[CRITERION 2] \u2014 weight: [1-5]\n[CRITERION 3] \u2014 weight: [1-5]\n[CRITERION 4] \u2014 weight: [1-5]\n\nScore each option 1-10 on each criterion. Calculate weighted totals.\n\nThen provide:\n- The recommended option with reasoning\n- The biggest risk of the recommended option\n- Under what conditions a different option would be better",
         "variables": [
-            "DECISION TO MAKE",
             "CRITERION 3",
+            "CRITERION 4",
+            "DECISION TO MAKE",
             "1-5",
-            "CRITERION 2",
-            "CRITERION 1",
             "LIST YOUR OPTIONS",
-            "CRITERION 4"
+            "CRITERION 2",
+            "CRITERION 1"
         ]
     },
     {
@@ -383,10 +383,10 @@
         "title": "Interview Question Generator",
         "text": "You are a hiring manager building an interview process.\n\nCreate interview questions for a [ROLE] position.\n\nRequirements:\n- Experience level: [JUNIOR/MID/SENIOR]\n- Key skills: [LIST SKILLS]\n- Team culture: [DESCRIBE YOUR TEAM]\n\nProvide:\n1. 5 technical questions (with expected good answers)\n2. 5 behavioral questions (with what a strong answer looks like)\n3. 2 scenario-based questions (with evaluation criteria)\n4. 1 \"red flag\" question (designed to surface deal-breakers)\n\nFor each question, explain what you are actually evaluating and how to score responses.",
         "variables": [
-            "JUNIOR/MID/SENIOR",
             "LIST SKILLS",
+            "ROLE",
             "DESCRIBE YOUR TEAM",
-            "ROLE"
+            "JUNIOR/MID/SENIOR"
         ]
     },
     {
@@ -410,9 +410,9 @@
         "title": "Daily Task Prioritizer",
         "text": "You are a productivity coach.\n\nHere are my tasks for today:\n[LIST YOUR TASKS]\n\nMy top goal this week: [YOUR MAIN GOAL]\nAvailable hours: [HOW MANY HOURS]\n\nOrganize these tasks into:\n1. Must do today (non-negotiable)\n2. Should do today (high impact but can slide to tomorrow)\n3. Can wait (nice to do but not urgent)\n\nFor the \"must do\" items, suggest the optimal order and estimated time for each. Flag any task that could be delegated or eliminated entirely.",
         "variables": [
-            "LIST YOUR TASKS",
             "YOUR MAIN GOAL",
-            "HOW MANY HOURS"
+            "HOW MANY HOURS",
+            "LIST YOUR TASKS"
         ]
     },
     {
@@ -436,11 +436,11 @@
         "title": "Learning Plan Builder",
         "text": "You are an education strategist.\n\nBuild a learning plan for [SKILL I WANT TO LEARN].\n\nMy current level: [BEGINNER / INTERMEDIATE / ADVANCED]\nTime available: [HOURS PER WEEK]\nTimeline: [HOW LONG \u2014 e.g., \"3 months\"]\nLearning style: [e.g., \"hands-on projects, not lectures\"]\n\nProvide:\n1. A week-by-week curriculum\n2. Specific resources for each week (free preferred, paid if genuinely superior)\n3. A project to build at the end of each month to validate learning\n4. How to measure progress (specific milestones)\n5. Common mistakes beginners make and how to avoid them\n\nBe specific about resources \u2014 link names and platforms, not vague categories.",
         "variables": [
-            "HOURS PER WEEK",
-            "HOW LONG \u2014 e.g., \"3 months\"",
             "BEGINNER / INTERMEDIATE / ADVANCED",
             "SKILL I WANT TO LEARN",
-            "e.g., \"hands-on projects, not lectures\""
+            "e.g., \"hands-on projects, not lectures\"",
+            "HOW LONG \u2014 e.g., \"3 months\"",
+            "HOURS PER WEEK"
         ]
     },
     {
@@ -448,8 +448,8 @@
         "title": "SOP Writer",
         "text": "You are an operations manager writing SOPs (Standard Operating Procedures).\n\nWrite an SOP for [PROCESS].\n\nContext: [WHO PERFORMS THIS PROCESS AND WHY]\n\nInclude:\n1. Purpose (why this SOP exists)\n2. Scope (what it covers and what it does not)\n3. Prerequisites (what must be in place before starting)\n4. Step-by-step procedure (numbered, detailed enough that a new hire can follow without asking questions)\n5. Decision points (where judgment is needed, with guidelines for each decision)\n6. Common mistakes and how to avoid them\n7. Quality check (how to verify the process was done correctly)\n\nWrite for someone doing this for the first time. Assume nothing.",
         "variables": [
-            "PROCESS",
-            "WHO PERFORMS THIS PROCESS AND WHY"
+            "WHO PERFORMS THIS PROCESS AND WHY",
+            "PROCESS"
         ]
     },
     {
@@ -465,12 +465,12 @@
         "title": "Habit Tracker and Accountability Coach",
         "text": "You are a behavioral psychologist specializing in habit formation.\n\nI want to build these habits:\n[LIST YOUR DESIRED HABITS]\n\nMy current routine: [DESCRIBE YOUR TYPICAL DAY]\nMy biggest challenge: [WHAT STOPS YOU]\n\nProvide:\n1. A habit stacking strategy (attach new habits to existing ones)\n2. Specific implementation intentions for each habit (\"When [CUE], I will [HABIT] in [LOCATION]\")\n3. A minimum viable version of each habit for days when motivation is low\n4. A tracking system I can use daily\n5. What to do when I miss a day (specific recovery protocol)\n\nMake it realistic. I am a human, not a robot.",
         "variables": [
-            "CUE",
-            "WHAT STOPS YOU",
-            "HABIT",
-            "DESCRIBE YOUR TYPICAL DAY",
             "LOCATION",
-            "LIST YOUR DESIRED HABITS"
+            "CUE",
+            "DESCRIBE YOUR TYPICAL DAY",
+            "WHAT STOPS YOU",
+            "LIST YOUR DESIRED HABITS",
+            "HABIT"
         ]
     },
     {
@@ -478,10 +478,10 @@
         "title": "Negotiation Prep",
         "text": "You are a negotiation strategist.\n\nHelp me prepare for a negotiation about [WHAT YOU ARE NEGOTIATING].\n\nMy position: [WHAT I WANT]\nTheir likely position: [WHAT THEY PROBABLY WANT]\nMy BATNA (best alternative): [MY BACKUP PLAN]\nRelationship importance: [HIGH / MEDIUM / LOW]\n\nProvide:\n1. My opening position (where to start)\n2. My target (realistic best outcome)\n3. My walk-away point (minimum acceptable)\n4. 3 concessions I can offer that cost me little but have high perceived value\n5. 3 likely objections and how to respond to each\n6. The single most important thing to say in the first 2 minutes\n7. Red flags that mean I should walk away",
         "variables": [
-            "WHAT THEY PROBABLY WANT",
+            "WHAT YOU ARE NEGOTIATING",
             "MY BACKUP PLAN",
             "WHAT I WANT",
-            "WHAT YOU ARE NEGOTIATING",
+            "WHAT THEY PROBABLY WANT",
             "HIGH / MEDIUM / LOW"
         ]
     },
@@ -496,8 +496,8 @@
         "title": "Life Decision Framework",
         "text": "You are a decision-making consultant.\n\nI am trying to decide: [YOUR DECISION]\n\nOption A: [DESCRIBE]\nOption B: [DESCRIBE]\n\nHelp me think through this by:\n\n1. Listing the top 5 factors that should influence this decision\n2. Scoring each option on each factor (1-10)\n3. Identifying what I would regret more \u2014 choosing A and it failing, or choosing B and it failing\n4. Asking me 3 questions I probably have not considered\n5. Giving me a clear recommendation with reasoning\n6. Telling me under what circumstances you would change your recommendation\n\nBe direct. I want clarity, not more confusion.",
         "variables": [
-            "DESCRIBE",
-            "YOUR DECISION"
+            "YOUR DECISION",
+            "DESCRIBE"
         ]
     },
     {
@@ -505,8 +505,8 @@
         "title": "Agent Platform API Setup Guide",
         "text": "You are a Cloud AI specialist.\n\nWrite a complete setup guide for the Agent Platform Gemini API for an enterprise environment.\n\nTechnology: Agent Platform (formerly Vertex AI)\nSDK: [SDK_LANGUAGE \u2014 e.g., \"Python\", \"JavaScript/TypeScript\", \"Go\", \"Java\", \"C#\"]\nCapabilities needed: [CAPABILITIES \u2014 e.g., \"Text generation, Multimodal understanding, Context caching\"]\n\nInclude:\n1. Core directives and library installation instructions for the specified SDK.\n2. Necessary authentication steps.\n3. Code example demonstrating how to initialize the client and make a basic generation request.\n4. An overview of the required capabilities and how to use them with the modern Gen AI SDK.\n5. Best practices for migrating from legacy SDKs (google-cloud-aiplatform, @google-cloud/vertexai, google-generativeai).",
         "variables": [
-            "CAPABILITIES \u2014 e.g., \"Text generation, Multimodal understanding, Context caching\"",
-            "SDK_LANGUAGE \u2014 e.g., \"Python\", \"JavaScript/TypeScript\", \"Go\", \"Java\", \"C#\""
+            "SDK_LANGUAGE \u2014 e.g., \"Python\", \"JavaScript/TypeScript\", \"Go\", \"Java\", \"C#\"",
+            "CAPABILITIES \u2014 e.g., \"Text generation, Multimodal understanding, Context caching\""
         ]
     },
     {
@@ -523,8 +523,8 @@
         "title": "AlloyDB Configuration Expert",
         "text": "You are a Google Cloud database expert.\n\nDesign a configuration plan for a new AlloyDB cluster.\n\nWorkload type: [WORKLOAD_TYPE \u2014 e.g., \"High-transaction OLTP\", \"Analytical OLAP\", \"Hybrid HTAP\"]\nScale: [SCALE \u2014 e.g., \"Small startup\", \"Enterprise production\"]\n\nProvide:\n1. Cluster architecture recommendations (Primary, Read pools, Multi-region setup).\n2. Configuration steps using gcloud CLI.\n3. Backup and disaster recovery strategies.\n4. Security best practices (VPC peering, IAM authentication).\n5. Explain how the AlloyDB columnar engine will benefit this specific workload.",
         "variables": [
-            "WORKLOAD_TYPE \u2014 e.g., \"High-transaction OLTP\", \"Analytical OLAP\", \"Hybrid HTAP\"",
-            "SCALE \u2014 e.g., \"Small startup\", \"Enterprise production\""
+            "SCALE \u2014 e.g., \"Small startup\", \"Enterprise production\"",
+            "WORKLOAD_TYPE \u2014 e.g., \"High-transaction OLTP\", \"Analytical OLAP\", \"Hybrid HTAP\""
         ]
     },
     {
@@ -532,8 +532,8 @@
         "title": "BigQuery Data Engineer",
         "text": "You are a Senior Data Engineer specializing in Google Cloud BigQuery.\n\nCreate an execution plan for a BigQuery data warehousing project.\n\nData sources: [DATA_SOURCES]\nQuery patterns: [QUERY_PATTERNS \u2014 e.g., \"Ad-hoc analysis\", \"Scheduled dashboards\", \"Machine learning integration\"]\n\nProvide:\n1. Schema design recommendations (partitioning, clustering, nested fields).\n2. Data ingestion strategies (batch load vs streaming).\n3. Sample SQL queries optimizing for cost and performance.\n4. IAM roles and dataset access controls.\n5. Recommendations on using BigQuery ML if applicable to the query patterns.",
         "variables": [
-            "DATA_SOURCES",
-            "QUERY_PATTERNS \u2014 e.g., \"Ad-hoc analysis\", \"Scheduled dashboards\", \"Machine learning integration\""
+            "QUERY_PATTERNS \u2014 e.g., \"Ad-hoc analysis\", \"Scheduled dashboards\", \"Machine learning integration\"",
+            "DATA_SOURCES"
         ]
     },
     {
@@ -541,8 +541,8 @@
         "title": "GKE Kubernetes Administrator",
         "text": "You are a Google Kubernetes Engine (GKE) Administrator.\n\nDraft a cluster creation and workload deployment strategy.\n\nCluster mode: [CLUSTER_MODE \u2014 e.g., \"Standard\", \"Autopilot\"]\nWorkload description: [WORKLOAD_DESCRIPTION]\n\nProvide:\n1. The gcloud command to create the cluster with security best practices enabled.\n2. Explanations on why the chosen cluster mode fits the workload.\n3. YAML manifests for a Deployment, Service, and Ingress/Gateway.\n4. Node scaling and pod autoscaling (HPA/VPA) configurations.\n5. Logging and monitoring integration setup.",
         "variables": [
-            "CLUSTER_MODE \u2014 e.g., \"Standard\", \"Autopilot\"",
-            "WORKLOAD_DESCRIPTION"
+            "WORKLOAD_DESCRIPTION",
+            "CLUSTER_MODE \u2014 e.g., \"Standard\", \"Autopilot\""
         ]
     },
     {
@@ -557,18 +557,17 @@
     {
         "category": "Stripe Agent Skills",
         "title": "Stripe Link CLI Expert",
-        "text": "You are a Stripe Payment integration agent specializing in the `stripe/link-cli`.\n\nProvide instructions, guidance, or commands using the Link CLI.\n\nTask: [TASK_DESCRIPTION]\n\nKey Information about Link CLI:\n- It lets agents get secure, one-time-use payment credentials from a Link wallet to complete purchases without storing real card details.\n- Produces virtual cards (PAN) for standard web checkouts, or Shared Payment Tokens (SPT) for Machine Payment Protocols (MPP).\n- Default install: `npm i -g @stripe/link-cli` or run with `npx @stripe/link-cli`.\n- For agents, install as a skill with `npx skills add stripe/link-cli`.\n- The CLI outputs compact LLM-friendly text format (toon output) by default in non-TTY, but accepts `--format [json|yaml|md|jsonl]`.\n- Login: `link-cli auth login --client-name \"[AGENT_NAME]\"`. This provides a code to verify.\n- List payment methods: `link-cli payment-methods list`.\n- Create a spend request: `link-cli spend-request create --payment-method-id [ID] --merchant-name \"[MERCHANT]\" --merchant-url \"[URL]\" --context \"[CONTEXT]\" --amount [AMOUNT_IN_CENTS] --request-approval`.\n- Check status/Retrieve credentials: `link-cli spend-request retrieve [REQUEST_ID]`. Pass `--include card` to see unmasked card details. Use `--output-file` to write the card to a secure local file securely.\n- Execute payment for MPP: `link-cli mpp pay [URL] --spend-request-id [REQUEST_ID] --method POST --data '[DATA]'`.\n\nWhen generating a solution:\n1. Identify if the task is a standard purchase (needs virtual card) or MPP (needs SPT).\n2. Write out the explicit link-cli commands required.\n3. If requesting a spend, ensure the `context` is at least 100 characters and amount does not exceed 500000 cents.\n4. Provide instructions on how to parse the credentials and submit them.",
+        "text": "You are a Stripe Payment integration agent specializing in the `stripe/link-cli`.\n\nProvide instructions, guidance, or commands using the Link CLI.\n\nTask: [TASK_DESCRIPTION]\n\nKey Information about Link CLI:\n- It provides a wallet for agents that the user controls. It lets agents spend on the user's behalf without exposing real card details.\n- The user receives real-time notifications and must approve every purchase (transaction approvals) via the Link app.\n- Produces virtual cards (PAN) for standard web checkouts, or Shared Payment Tokens (SPT) for Machine Payment Protocols (MPP).\n- Default install: `npm install -g @stripe/link-cli` or run with `npx @stripe/link-cli`.\n- Alternatively, agents can read `link.com/skill.md` and get set up with Link.\n- For agents, install as a skill with `npx skills add stripe/link-cli`.\n- The CLI outputs compact LLM-friendly text format (toon output) by default in non-TTY, but accepts `--format <json|yaml|md|jsonl>`.\n- Login: `link-cli auth login --client-name \"[AGENT_NAME]\"`. This provides a code to verify.\n- List payment methods: `link-cli payment-methods list`.\n- Create a spend request: `link-cli spend-request create --payment-method-id [ID] --merchant-name \"[MERCHANT]\" --merchant-url \"[URL]\" --context \"[CONTEXT]\" --amount [AMOUNT_IN_CENTS] --request-approval`.\n- Check status/Retrieve credentials: `link-cli spend-request retrieve [REQUEST_ID]`. Pass `--include card` to see unmasked card details. Use `--output-file` to write the card to a secure local file securely.\n- Execute payment for MPP: `link-cli mpp pay [URL] --spend-request-id [REQUEST_ID] --method POST --data '[DATA]'`.\n\nWhen generating a solution:\n1. Identify if the task is a standard purchase (needs virtual card) or MPP (needs SPT).\n2. Write out the explicit link-cli commands required.\n3. If requesting a spend, ensure the `context` is at least 100 characters and amount does not exceed 500000 cents.\n4. Provide instructions on how to parse the credentials and submit them.\n5. Remind the user that they stay in control of agent spending and will need to confirm requests in the Link app.",
         "variables": [
-            "AGENT_NAME",
+            "MERCHANT",
             "CONTEXT",
+            "DATA",
+            "AMOUNT_IN_CENTS",
             "ID",
             "URL",
-            "AMOUNT_IN_CENTS",
-            "DATA",
-            "MERCHANT",
+            "REQUEST_ID",
             "TASK_DESCRIPTION",
-            "json|yaml|md|jsonl",
-            "REQUEST_ID"
+            "AGENT_NAME"
         ]
     }
 ]

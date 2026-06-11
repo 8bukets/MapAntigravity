@@ -7,8 +7,8 @@ description: "Expert prompt for: AlloyDB Configuration Expert"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[WORKLOAD_TYPE — e.g., "High-transaction OLTP", "Analytical OLAP", "Hybrid HTAP"]`
 - `[SCALE — e.g., "Small startup", "Enterprise production"]`
+- `[WORKLOAD_TYPE — e.g., "High-transaction OLTP", "Analytical OLAP", "Hybrid HTAP"]`
 
 ## Instructions
 

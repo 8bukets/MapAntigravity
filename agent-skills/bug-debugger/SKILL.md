@@ -8,10 +8,10 @@ description: "Expert prompt for: Bug Debugger"
 ## Variables
 This prompt requires the following variables to be filled in:
 - `[PASTE CODE]`
-- `[WHAT ACTUALLY HAPPENS]`
 - `[HOW TO TRIGGER THE BUG]`
-- `[PASTE ERROR]`
 - `[WHAT SHOULD HAPPEN]`
+- `[PASTE ERROR]`
+- `[WHAT ACTUALLY HAPPENS]`
 
 ## Instructions
 

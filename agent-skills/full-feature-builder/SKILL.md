@@ -7,14 +7,14 @@ description: "Expert prompt for: Full Feature Builder"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[REQUIREMENT 2]`
-- `[CONSTRAINT — e.g., "Under 200ms response time"]`
 - `[REQUIREMENT 3]`
-- `[REQUIREMENT 1]`
 - `[BRIEF DESCRIPTION]`
-- `[FEATURE DESCRIPTION]`
-- `[YOUR STACK — e.g., "Next.js, TypeScript, Supabase, Tailwind"]`
 - `[CONSTRAINT — e.g., "Must work on mobile"]`
+- `[YOUR STACK — e.g., "Next.js, TypeScript, Supabase, Tailwind"]`
+- `[CONSTRAINT — e.g., "Under 200ms response time"]`
+- `[FEATURE DESCRIPTION]`
+- `[REQUIREMENT 1]`
+- `[REQUIREMENT 2]`
 
 ## Instructions
 

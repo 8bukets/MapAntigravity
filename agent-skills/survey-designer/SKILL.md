@@ -7,9 +7,9 @@ description: "Expert prompt for: Survey Designer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[RESEARCH QUESTION]`
 - `[WHO]`
 - `[WHAT DECISION THIS DATA WILL INFORM]`
+- `[RESEARCH QUESTION]`
 
 ## Instructions
 

@@ -7,8 +7,8 @@ description: "Expert prompt for: BigQuery Data Engineer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[DATA_SOURCES]`
 - `[QUERY_PATTERNS — e.g., "Ad-hoc analysis", "Scheduled dashboards", "Machine learning integration"]`
+- `[DATA_SOURCES]`
 
 ## Instructions
 

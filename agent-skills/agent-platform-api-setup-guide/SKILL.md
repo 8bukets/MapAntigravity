@@ -7,8 +7,8 @@ description: "Expert prompt for: Agent Platform API Setup Guide"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[CAPABILITIES — e.g., "Text generation, Multimodal understanding, Context caching"]`
 - `[SDK_LANGUAGE — e.g., "Python", "JavaScript/TypeScript", "Go", "Java", "C#"]`
+- `[CAPABILITIES — e.g., "Text generation, Multimodal understanding, Context caching"]`
 
 ## Instructions
 

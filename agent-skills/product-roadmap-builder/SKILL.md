@@ -7,11 +7,11 @@ description: "Expert prompt for: Product Roadmap Builder"
 
 ## Variables
 This prompt requires the following variables to be filled in:
+- `[PRODUCT]`
+- `[Theme]`
+- `[TEAM SIZE/CONSTRAINTS]`
 - `[WHERE THE PRODUCT IS NOW]`
 - `[LIST THEM]`
-- `[PRODUCT]`
-- `[TEAM SIZE/CONSTRAINTS]`
-- `[Theme]`
 
 ## Instructions
 

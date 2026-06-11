@@ -9,8 +9,8 @@ description: "Expert prompt for: Video Script Writer"
 This prompt requires the following variables to be filled in:
 - `[TONE — e.g., "conversational like talking to a smart friend, not like a lecture"]`
 - `[B-ROLL: description]`
-- `[LENGTH — e.g., "10-minute"]`
 - `[TOPIC]`
+- `[LENGTH — e.g., "10-minute"]`
 
 ## Instructions
 

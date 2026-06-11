@@ -7,10 +7,10 @@ description: "Expert prompt for: Interview Question Generator"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[JUNIOR/MID/SENIOR]`
 - `[LIST SKILLS]`
-- `[DESCRIBE YOUR TEAM]`
 - `[ROLE]`
+- `[DESCRIBE YOUR TEAM]`
+- `[JUNIOR/MID/SENIOR]`
 
 ## Instructions
 

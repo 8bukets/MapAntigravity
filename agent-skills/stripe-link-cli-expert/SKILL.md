@@ -7,16 +7,15 @@ description: "Expert prompt for: Stripe Link CLI Expert"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[AGENT_NAME]`
+- `[MERCHANT]`
 - `[CONTEXT]`
+- `[DATA]`
+- `[AMOUNT_IN_CENTS]`
 - `[ID]`
 - `[URL]`
-- `[AMOUNT_IN_CENTS]`
-- `[DATA]`
-- `[MERCHANT]`
-- `[TASK_DESCRIPTION]`
-- `[json|yaml|md|jsonl]`
 - `[REQUEST_ID]`
+- `[TASK_DESCRIPTION]`
+- `[AGENT_NAME]`
 
 ## Instructions
 
@@ -28,11 +27,13 @@ Provide instructions, guidance, or commands using the Link CLI.
 Task: [TASK_DESCRIPTION]
 
 Key Information about Link CLI:
-- It lets agents get secure, one-time-use payment credentials from a Link wallet to complete purchases without storing real card details.
+- It provides a wallet for agents that the user controls. It lets agents spend on the user's behalf without exposing real card details.
+- The user receives real-time notifications and must approve every purchase (transaction approvals) via the Link app.
 - Produces virtual cards (PAN) for standard web checkouts, or Shared Payment Tokens (SPT) for Machine Payment Protocols (MPP).
-- Default install: `npm i -g @stripe/link-cli` or run with `npx @stripe/link-cli`.
+- Default install: `npm install -g @stripe/link-cli` or run with `npx @stripe/link-cli`.
+- Alternatively, agents can read `link.com/skill.md` and get set up with Link.
 - For agents, install as a skill with `npx skills add stripe/link-cli`.
-- The CLI outputs compact LLM-friendly text format (toon output) by default in non-TTY, but accepts `--format [json|yaml|md|jsonl]`.
+- The CLI outputs compact LLM-friendly text format (toon output) by default in non-TTY, but accepts `--format <json|yaml|md|jsonl>`.
 - Login: `link-cli auth login --client-name "[AGENT_NAME]"`. This provides a code to verify.
 - List payment methods: `link-cli payment-methods list`.
 - Create a spend request: `link-cli spend-request create --payment-method-id [ID] --merchant-name "[MERCHANT]" --merchant-url "[URL]" --context "[CONTEXT]" --amount [AMOUNT_IN_CENTS] --request-approval`.
@@ -44,4 +45,5 @@ When generating a solution:
 2. Write out the explicit link-cli commands required.
 3. If requesting a spend, ensure the `context` is at least 100 characters and amount does not exceed 500000 cents.
 4. Provide instructions on how to parse the credentials and submit them.
+5. Remind the user that they stay in control of agent spending and will need to confirm requests in the Link app.
 ```
