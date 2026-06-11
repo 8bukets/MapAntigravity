@@ -8,10 +8,10 @@ description: "Expert prompt for: Product Roadmap Builder"
 ## Variables
 This prompt requires the following variables to be filled in:
 - `[PRODUCT]`
-- `[LIST THEM]`
 - `[Theme]`
 - `[TEAM SIZE/CONSTRAINTS]`
 - `[WHERE THE PRODUCT IS NOW]`
+- `[LIST THEM]`
 
 ## Instructions
 

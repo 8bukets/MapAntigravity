@@ -7,9 +7,9 @@ description: "Expert prompt for: Test Suite Generator"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[TESTING FRAMEWORK — e.g., "Jest", "pytest"]`
-- `[FUNCTION/COMPONENT/MODULE]`
 - `[PASTE CODE]`
+- `[FUNCTION/COMPONENT/MODULE]`
+- `[TESTING FRAMEWORK — e.g., "Jest", "pytest"]`
 
 ## Instructions
 

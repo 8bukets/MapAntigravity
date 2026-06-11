@@ -7,10 +7,10 @@ description: "Expert prompt for: Competitive Analysis"
 
 ## Variables
 This prompt requires the following variables to be filled in:
+- `[AXIS 2]`
+- `[YOUR PRODUCT/COMPANY]`
 - `[LIST COMPETITORS]`
 - `[AXIS 1]`
-- `[YOUR PRODUCT/COMPANY]`
-- `[AXIS 2]`
 
 ## Instructions
 

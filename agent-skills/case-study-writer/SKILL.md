@@ -8,9 +8,9 @@ description: "Expert prompt for: Case Study Writer"
 ## Variables
 This prompt requires the following variables to be filled in:
 - `[WHO]`
-- `[WHAT WAS IMPLEMENTED]`
 - `[SPECIFIC OUTCOMES — use numbers]`
 - `[WHAT THEY WERE STRUGGLING WITH]`
+- `[WHAT WAS IMPLEMENTED]`
 
 ## Instructions
 

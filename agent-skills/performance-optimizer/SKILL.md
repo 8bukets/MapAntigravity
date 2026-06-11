@@ -7,8 +7,8 @@ description: "Expert prompt for: Performance Optimizer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[WHAT THE CODE DOES AND WHERE IT RUNS]`
 - `[PASTE CODE]`
+- `[WHAT THE CODE DOES AND WHERE IT RUNS]`
 
 ## Instructions
 
