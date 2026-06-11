@@ -36,6 +36,19 @@ if [ -z "${GITHUB_TOKEN:-}" ]; then
   exit 1
 fi
 
+# Validate GitHub token and permissions
+log "Validating GITHUB_TOKEN..."
+token_info=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/user")
+if printf '%s\n' "$token_info" | jq -e '.message' >/dev/null 2>&1; then
+  log "Error: GITHUB_TOKEN validation failed: $(printf '%s\n' "$token_info" | jq -r '.message')"
+  # Continue anyway if it's a 403 due to GITHUB_TOKEN limitations in Actions,
+  # but log it. If it's 401, we must stop.
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/user")
+  if [ "$http_code" -eq 401 ]; then
+    exit 1
+  fi
+fi
+
 if [ -z "${GEMINI_API_KEY:-}" ]; then
   log "Error: GEMINI_API_KEY is not set."
   exit 1
@@ -51,6 +64,11 @@ for tool in jq gemini curl git file sha256sum; do
     exit 1
   fi
 done
+
+# Verify gemini-cli is functional
+if ! gemini --version &> /dev/null; then
+  log "Warning: 'gemini --version' failed. gemini-cli might not be correctly configured."
+fi
 
 # Configure git
 git config user.name "github-actions[bot]"
@@ -86,7 +104,14 @@ poll_mergeability() {
     pr_detail=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "$API_BASE/pulls/$pr_number")
-    status=$(printf '%s\n' "$pr_detail" | jq -r 'if .mergeable == null then "null" else .mergeable end')
+
+    if [ -z "$pr_detail" ]; then
+      log "Warning: Received empty response from GitHub API for PR #$pr_number."
+      status="null"
+    else
+      status=$(printf '%s\n' "$pr_detail" | jq -r 'if .mergeable == null then "null" else .mergeable end' 2>/dev/null || echo "null")
+    fi
+
     if [ "$status" = "null" ]; then
       log "Mergeability status for PR #$pr_number is null (calculating). Waiting..."
       sleep 10
@@ -148,10 +173,12 @@ process_pr() {
   is_draft=$(printf '%s\n' "$pr" | jq -r '.draft')
   pr_title=$(printf '%s\n' "$pr" | jq -r '.title')
   pr_body=$(printf '%s\n' "$pr" | jq -r '.body')
+  pr_url=$(printf '%s\n' "$pr" | jq -r '.html_url')
   maintainer_can_modify=$(printf '%s\n' "$pr" | jq -r '.maintainer_can_modify // false')
 
   log ""
   log "=== Processing PR #$number ($head_ref -> $base_ref) ==="
+  log "PR URL: $pr_url"
 
   if [ "$is_draft" = "true" ]; then
     log "PR #$number is a draft. Skipping."
@@ -247,10 +274,10 @@ process_pr() {
             printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
             printf "3. MANDATORY: Write the fully resolved, clean content back to '%s' using your file-writing tools. You must overwrite the file with the resolved version.\n" "$file"
             printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-            printf "5. MANDATORY: Verify the resulting code is syntactically correct by running a syntax check if a tool is available (e.g., 'node --check' for JS, 'python3 -m py_compile' for Python).\n"
-            printf "6. Ensure the resulting code is functional and preserves the intended logic.\n"
+            printf "5. MANDATORY: Verify the resulting code is syntactically correct by running a syntax check if a tool is available (e.g., 'node --check' for JS, 'python3 -m py_compile' for Python, 'shellcheck' for scripts).\n"
+            printf "6. Ensure the resulting code is functional and preserves the intended logic. If you had to change logic, ensure it remains consistent with the rest of the project.\n"
             printf "7. Use your tools like 'ls -R', 'find', or 'grep' to explore the repository if you need to understand imports, dependencies, or context in other files.\n"
-            printf "8. If the conflict is in a configuration file (like package.json), ensure the resulting JSON is valid.\n\n"
+            printf "8. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
             printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
           } > "$PROMPT_FILE"
@@ -343,7 +370,12 @@ process_pr() {
     merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
     http_code=$(printf '%s\n' "$merge_output" | tail -n 1)
 
-    merged=$(printf '%s\n' "$merge_response" | jq -r 'if .merged == null then false else .merged end' 2>/dev/null || printf "false")
+    if [ -z "$merge_response" ]; then
+      merged="false"
+    else
+      merged=$(printf '%s\n' "$merge_response" | jq -r 'if .merged == null then false else .merged end' 2>/dev/null || printf "false")
+    fi
+
     if [ "$merged" = "true" ] && [ "$http_code" -eq 200 ]; then
       log "SUCCESS: PR #$number has been squash-merged."
       post_comment "$number" "✅ PR #$number has been successfully squash-merged after autonomous verification."
