@@ -2,7 +2,7 @@ name: Auto Resolve and Merge PRs
 
 on:
   schedule:
-    - cron: "0 */4 * * *"
+    - cron: "0 */4 * * *" # Run every 4 hours
   workflow_dispatch: # Allow manual trigger
 
 permissions:
