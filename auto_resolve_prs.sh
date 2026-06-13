@@ -307,8 +307,9 @@ process_pr() {
             printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
             printf "   - For JSON: 'jq . %s'\n" "$file"
             printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports or variable definitions in other files) to ensure your resolution is correct and functional.\n"
-            printf "7. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
-            printf "8. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
+            printf "7. After resolving, verify that you haven't introduced any broken references, missing imports, or type mismatches that would affect other files in the project.\n"
+            printf "8. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
+            printf "9. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
             printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
           } > "$PROMPT_FILE"
@@ -414,7 +415,8 @@ process_pr() {
     else
       msg=$(printf '%s\n' "$merge_response" | jq -r 'if .message == null then "Unknown error" else .message end' 2>/dev/null || printf "Unknown error")
       log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
-      post_comment "$number" "❌ Failed to squash-merge PR #$number (HTTP $http_code). Reason: $msg"
+      log "Full API response: $merge_response"
+      post_comment "$number" "❌ Failed to squash-merge PR #$number (HTTP $http_code). Reason: $msg. Full details logged in GitHub Actions."
     fi
   else
     log "PR #$number is not mergeable ($mergeable). Skipping merge."
