@@ -82,6 +82,19 @@ git fetch --all
 post_comment() {
   local pr_number=$1
   local body=$2
+
+  # Check if the last comment is the same to avoid spam
+  local last_comment
+  last_comment=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      "$API_BASE/issues/$pr_number/comments?per_page=1&sort=created&direction=desc" \
+                      | jq -r '.[0].body // ""')
+
+  if [ "$last_comment" = "$body" ]; then
+    log "Skipping duplicate comment on PR #$pr_number."
+    return 0
+  fi
+
   log "Posting comment to PR #$pr_number..."
   local http_code
   http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -90,6 +103,20 @@ post_comment() {
        "$API_BASE/issues/$pr_number/comments")
   if [ "$http_code" -ne 201 ]; then
     log "Warning: Failed to post comment to PR #$pr_number (HTTP $http_code)"
+  fi
+}
+
+# Function to approve a PR
+approve_pr() {
+  local pr_number=$1
+  log "Approving PR #$pr_number..."
+  local http_code
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+       -H "Accept: application/vnd.github.v3+json" \
+       -d '{"event":"APPROVE","body":"🤖 Autonomous approval for automated merge."}' \
+       "$API_BASE/pulls/$pr_number/reviews")
+  if [ "$http_code" -ne 201 ]; then
+    log "Warning: Failed to approve PR #$pr_number (HTTP $http_code)"
   fi
 }
 
@@ -270,13 +297,17 @@ process_pr() {
             printf "PR Description: %s\n\n" "$pr_body"
             printf "### OBJECTIVE\n"
             printf "Use your tools to:\n"
-            printf "1. Read the file '%s' to identify the conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
-            printf "2. Resolve the conflicts accurately, preserving intended logic from both branches where appropriate.\n"
-            printf "3. MANDATORY: Write the fully resolved, clean content back to '%s' using your file-writing tools. You must overwrite the file with the resolved version.\n" "$file"
-            printf "4. Ensure NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-            printf "5. MANDATORY: Verify the resulting code is syntactically correct by running a syntax check if a tool is available (e.g., 'node --check' for JS, 'python3 -m py_compile' for Python, 'shellcheck' for scripts).\n"
-            printf "6. Ensure the resulting code is functional and preserves the intended logic. If you had to change logic, ensure it remains consistent with the rest of the project.\n"
-            printf "7. Use your tools like 'ls -R', 'find', or 'grep' to explore the repository if you need to understand imports, dependencies, or context in other files.\n"
+            printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
+            printf "2. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
+            printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version.\n" "$file"
+            printf "4. Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
+            printf "5. MANDATORY: Verify the resulting code is syntactically correct. Run a syntax check using available tools:\n"
+            printf "   - For JavaScript: 'node --check %s'\n" "$file"
+            printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
+            printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
+            printf "   - For JSON: 'jq . %s'\n" "$file"
+            printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports or variable definitions in other files) to ensure your resolution is correct and functional.\n"
+            printf "7. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
             printf "8. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
             printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
@@ -359,6 +390,7 @@ process_pr() {
 
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
+    approve_pr "$number"
     log "Attempting squash and merge for PR #$number via GitHub API..."
     # Capture HTTP status code and response body
     local merge_output merge_response http_code merged msg
