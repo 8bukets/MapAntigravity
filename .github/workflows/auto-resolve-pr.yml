@@ -2,7 +2,7 @@ name: Auto Resolve and Merge PRs
 
 on:
   schedule:
-    - cron: "0 */4 * * *" # Run every 4 hours
+    - cron: "0 */4 * * *" # Run every 4 hours to autonomously resolve conflicts and squash-merge
   workflow_dispatch: # Allow manual trigger
 
 permissions:
