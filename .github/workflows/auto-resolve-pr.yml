@@ -27,10 +27,19 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq
+          sudo apt-get install -y jq curl git
           npm install -g @google/gemini-cli
 
+      - name: Log environment setup
+        run: |
+          echo "Node.js version: $(node -v)"
+          echo "npm version: $(npm -v)"
+          echo "jq version: $(jq --version)"
+          echo "gemini version: $(gemini --version)"
+          echo "git version: $(git --version)"
+
       - name: Run PR resolution script
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

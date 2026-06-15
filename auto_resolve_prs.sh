@@ -120,6 +120,66 @@ approve_pr() {
   fi
 }
 
+# Function to check CI status (Statuses and Check Runs)
+check_ci_status() {
+  local pr_number=$1
+  local head_sha=$2
+  log "Checking CI status for PR #$pr_number (SHA: $head_sha)..."
+
+  # Check Combined Status
+  local status_resp
+  status_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                       -H "Accept: application/vnd.github.v3+json" \
+                       "$API_BASE/commits/$head_sha/status")
+  local status_state
+  status_state=$(printf '%s\n' "$status_resp" | jq -r '.state // "pending"')
+
+  # Check Check Runs
+  local checks_resp
+  checks_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        "$API_BASE/commits/$head_sha/check-runs")
+
+  local total_checks
+  total_checks=$(printf '%s\n' "$checks_resp" | jq '.total_count // 0')
+
+  # Any failures?
+  local failed_checks
+  failed_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "timed_out")] | length')
+
+  # Any still in progress?
+  local in_progress_checks
+  in_progress_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.status != "completed")] | length')
+
+  log "CI Summary for PR #$pr_number: State=$status_state, TotalChecks=$total_checks, Failed=$failed_checks, InProgress=$in_progress_checks"
+
+  if [ "$status_state" = "failure" ] || [ "$status_state" = "error" ] || [ "$failed_checks" -gt 0 ]; then
+    log "CI status for PR #$pr_number is failing. Skipping merge."
+    return 1
+  fi
+
+  if [ "$in_progress_checks" -gt 0 ]; then
+    log "CI checks are still in progress for PR #$pr_number. Skipping merge."
+    return 1
+  fi
+
+  # If combined status is success
+  if [ "$status_state" = "success" ]; then
+    log "CI status is success. Ready to merge."
+    return 0
+  fi
+
+  # If there are no checks at all, and it's been pending for a while, we might consider it safe,
+  # but it's safer to require at least one successful check or a 'success' state.
+  if [ "$total_checks" -eq 0 ] && [ "$status_state" = "pending" ]; then
+    log "CI status is pending and no check runs found. This might be a race condition. Skipping merge for safety."
+    return 1
+  fi
+
+  log "CI status for PR #$pr_number is $status_state. Skipping merge."
+  return 1
+}
+
 # Function to poll mergeability
 poll_mergeability() {
   local pr_number=$1
@@ -302,12 +362,13 @@ process_pr() {
             printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version.\n" "$file"
             printf "4. Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
             printf "5. MANDATORY: Verify the resulting code is syntactically correct. Run a syntax check using available tools:\n"
-            printf "   - For JavaScript: 'node --check %s'\n" "$file"
+            printf "   - For JavaScript/TypeScript: 'node --check %s' or use an available linter if present.\n" "$file"
             printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
             printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
             printf "   - For JSON: 'jq . %s'\n" "$file"
-            printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports or variable definitions in other files) to ensure your resolution is correct and functional.\n"
-            printf "7. After resolving, verify that you haven't introduced any broken references, missing imports, or type mismatches that would affect other files in the project.\n"
+            printf "   - For HTML/CSS: Use any available linters or basic pattern matching to ensure tag/bracket balance.\n"
+            printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports, variable definitions, or function signatures in other files) to ensure your resolution is correct and functional.\n"
+            printf "7. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
             printf "8. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
             printf "9. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
@@ -391,6 +452,17 @@ process_pr() {
 
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
+    # Get the latest head SHA to check CI status accurately
+    local current_head_sha
+    current_head_sha=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                            -H "Accept: application/vnd.github.v3+json" \
+                            "$API_BASE/pulls/$number" | jq -r '.head.sha')
+
+    if ! check_ci_status "$number" "$current_head_sha"; then
+      log "CI check failed or still in progress for PR #$number. Skipping squash-merge."
+      return 0
+    fi
+
     approve_pr "$number"
     log "Attempting squash and merge for PR #$number via GitHub API..."
     # Capture HTTP status code and response body
