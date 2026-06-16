@@ -7,11 +7,11 @@ description: "Expert prompt for: Social Media Bio Writer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[e.g., "confident but not arrogant, slightly witty"]`
 - `[WHO DO YOU WANT TO ATTRACT]`
-- `[PLATFORM]`
 - `[DESCRIBE YOURSELF — role, expertise, achievements]`
+- `[e.g., "confident but not arrogant, slightly witty"]`
 - `[CHARACTER LIMIT]`
+- `[PLATFORM]`
 
 ## Instructions
 

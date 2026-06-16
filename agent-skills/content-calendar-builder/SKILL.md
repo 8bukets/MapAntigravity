@@ -7,10 +7,10 @@ description: "Expert prompt for: Content Calendar Builder"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[YOUR NICHE]`
-- `[e.g., "threads, single posts, articles, polls, engagement posts"]`
-- `[HOW OFTEN — e.g., "daily" or "5x per week"]`
 - `[PLATFORM]`
+- `[e.g., "threads, single posts, articles, polls, engagement posts"]`
+- `[YOUR NICHE]`
+- `[HOW OFTEN — e.g., "daily" or "5x per week"]`
 
 ## Instructions
 

@@ -8,8 +8,8 @@ description: "Expert prompt for: Headline Generator"
 ## Variables
 This prompt requires the following variables to be filled in:
 - `[YOUR NICHE]`
-- `[DESCRIBE AUDIENCE]`
 - `[TOPIC]`
+- `[DESCRIBE AUDIENCE]`
 
 ## Instructions
 

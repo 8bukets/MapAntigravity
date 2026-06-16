@@ -7,14 +7,14 @@ description: "Expert prompt for: Investor Pitch Deck Outline"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[TEAM BACKGROUND]`
-- `[METRICS]`
 - `[PROBLEM]`
+- `[METRICS]`
+- `[TEAM BACKGROUND]`
+- `[COMPANY NAME]`
 - `[REVENUE MODEL]`
-- `[HOW MUCH AND WHAT FOR]`
 - `[MARKET]`
 - `[SOLUTION]`
-- `[COMPANY NAME]`
+- `[HOW MUCH AND WHAT FOR]`
 
 ## Instructions
 

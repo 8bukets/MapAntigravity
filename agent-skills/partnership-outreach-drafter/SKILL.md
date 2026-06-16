@@ -7,10 +7,10 @@ description: "Expert prompt for: Partnership Outreach Drafter"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[SPECIFIC ASK]`
 - `[POTENTIAL PARTNER]`
 - `[MUTUAL BENEFIT]`
 - `[YOUR COMPANY/ROLE]`
+- `[SPECIFIC ASK]`
 - `[THEIR COMPANY/ROLE]`
 
 ## Instructions
