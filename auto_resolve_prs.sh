@@ -58,7 +58,7 @@ GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.0-flash}"
 log "Using Gemini Model: $GEMINI_MODEL"
 
 # Check for required tools
-for tool in jq gemini curl git file sha256sum; do
+for tool in jq gemini curl git file sha256sum node python3; do
   if ! command -v "$tool" &> /dev/null; then
     log "Error: $tool is not installed or not in PATH."
     exit 1
@@ -131,6 +131,12 @@ check_ci_status() {
   status_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                        -H "Accept: application/vnd.github.v3+json" \
                        "$API_BASE/commits/$head_sha/status")
+
+  if [ -z "$status_resp" ] || ! printf '%s\n' "$status_resp" | jq -e . >/dev/null 2>&1; then
+    log "Warning: Failed to fetch combined status for PR #$pr_number."
+    return 1
+  fi
+
   local status_state
   status_state=$(printf '%s\n' "$status_resp" | jq -r '.state // "pending"')
 
@@ -139,6 +145,11 @@ check_ci_status() {
   checks_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                         -H "Accept: application/vnd.github.v3+json" \
                         "$API_BASE/commits/$head_sha/check-runs")
+
+  if [ -z "$checks_resp" ] || ! printf '%s\n' "$checks_resp" | jq -e . >/dev/null 2>&1; then
+    log "Warning: Failed to fetch check runs for PR #$pr_number."
+    return 1
+  fi
 
   local total_checks
   total_checks=$(printf '%s\n' "$checks_resp" | jq '.total_count // 0')
@@ -185,23 +196,24 @@ poll_mergeability() {
   local pr_number=$1
   local status="null"
   local attempts=0
-  local max_attempts=10
+  local max_attempts=12
 
   while [ "$status" = "null" ] && [ $attempts -lt $max_attempts ]; do
+    local pr_detail
     pr_detail=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "$API_BASE/pulls/$pr_number")
 
-    if [ -z "$pr_detail" ]; then
-      log "Warning: Received empty response from GitHub API for PR #$pr_number."
+    if [ -z "$pr_detail" ] || ! printf '%s\n' "$pr_detail" | jq -e . >/dev/null 2>&1; then
+      log "Warning: Received empty or invalid JSON response from GitHub API for PR #$pr_number."
       status="null"
     else
       status=$(printf '%s\n' "$pr_detail" | jq -r 'if .mergeable == null then "null" else .mergeable end' 2>/dev/null || echo "null")
     fi
 
     if [ "$status" = "null" ]; then
-      log "Mergeability status for PR #$pr_number is null (calculating). Waiting..."
-      sleep 10
+      log "Mergeability status for PR #$pr_number is null (calculating). Attempt $((attempts+1))/$max_attempts. Waiting 15s..."
+      sleep 15
       attempts=$((attempts+1))
     fi
   done
@@ -361,12 +373,13 @@ process_pr() {
             printf "2. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
             printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version.\n" "$file"
             printf "4. Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-            printf "5. MANDATORY: Verify the resulting code is syntactically correct. Run a syntax check using available tools:\n"
-            printf "   - For JavaScript/TypeScript: 'node --check %s' or use an available linter if present.\n" "$file"
+            printf "5. MANDATORY: Verify the resulting code is syntactically correct. Run a syntax check using available tools (via 'run_shell_command' if needed):\n"
+            printf "   - For JavaScript: 'node --check %s'\n" "$file"
+            printf "   - For TypeScript: Use 'tsc --noEmit %s' if available, otherwise 'node --check'.\n" "$file"
             printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
             printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
             printf "   - For JSON: 'jq . %s'\n" "$file"
-            printf "   - For HTML/CSS: Use any available linters or basic pattern matching to ensure tag/bracket balance.\n"
+            printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
             printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports, variable definitions, or function signatures in other files) to ensure your resolution is correct and functional.\n"
             printf "7. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
             printf "8. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
@@ -469,23 +482,24 @@ process_pr() {
     local merge_output merge_response http_code merged msg
     merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
                                    -H "Accept: application/vnd.github.v3+json" \
-                                   -d '{"merge_method":"squash"}' \
+                                   -d '{"merge_method":"squash", "commit_title": "chore: squash merge PR #'$number'"}' \
                                    "$API_BASE/pulls/$number/merge")
 
     merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
     http_code=$(printf '%s\n' "$merge_output" | tail -n 1)
 
-    if [ -z "$merge_response" ]; then
+    if [ -z "$merge_response" ] || ! printf '%s\n' "$merge_response" | jq -e . >/dev/null 2>&1; then
       merged="false"
+      msg="Empty or invalid JSON response from GitHub API"
     else
       merged=$(printf '%s\n' "$merge_response" | jq -r 'if .merged == null then false else .merged end' 2>/dev/null || printf "false")
+      msg=$(printf '%s\n' "$merge_response" | jq -r 'if .message == null then "Unknown error" else .message end' 2>/dev/null || printf "Unknown error")
     fi
 
     if [ "$merged" = "true" ] && [ "$http_code" -eq 200 ]; then
       log "SUCCESS: PR #$number has been squash-merged."
       post_comment "$number" "✅ PR #$number has been successfully squash-merged after autonomous verification."
     else
-      msg=$(printf '%s\n' "$merge_response" | jq -r 'if .message == null then "Unknown error" else .message end' 2>/dev/null || printf "Unknown error")
       log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
       log "Full API response: $merge_response"
       post_comment "$number" "❌ Failed to squash-merge PR #$number (HTTP $http_code). Reason: $msg. Full details logged in GitHub Actions."

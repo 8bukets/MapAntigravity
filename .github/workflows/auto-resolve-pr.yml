@@ -37,6 +37,7 @@ jobs:
           echo "jq version: $(jq --version)"
           echo "gemini version: $(gemini --version)"
           echo "git version: $(git --version)"
+          echo "python version: $(python3 --version)"
 
       - name: Run PR resolution script
         continue-on-error: true
