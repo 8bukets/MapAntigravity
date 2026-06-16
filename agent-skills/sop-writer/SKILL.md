@@ -7,8 +7,8 @@ description: "Expert prompt for: SOP Writer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[WHO PERFORMS THIS PROCESS AND WHY]`
 - `[PROCESS]`
+- `[WHO PERFORMS THIS PROCESS AND WHY]`
 
 ## Instructions
 

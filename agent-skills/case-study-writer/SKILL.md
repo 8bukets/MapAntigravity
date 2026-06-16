@@ -7,10 +7,10 @@ description: "Expert prompt for: Case Study Writer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[WHO]`
 - `[SPECIFIC OUTCOMES — use numbers]`
-- `[WHAT THEY WERE STRUGGLING WITH]`
 - `[WHAT WAS IMPLEMENTED]`
+- `[WHAT THEY WERE STRUGGLING WITH]`
+- `[WHO]`
 
 ## Instructions
 

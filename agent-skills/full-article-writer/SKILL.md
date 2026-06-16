@@ -7,10 +7,10 @@ description: "Expert prompt for: Full Article Writer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[NICHE]`
-- `[TOPIC]`
-- `[SPECIFIC TONE — e.g., "direct, punchy, slightly irreverent. No corporate speak."]`
 - `[WORD COUNT — e.g., "2,500-3,000 words"]`
+- `[NICHE]`
+- `[SPECIFIC TONE — e.g., "direct, punchy, slightly irreverent. No corporate speak."]`
+- `[TOPIC]`
 - `[DESCRIBE YOUR AUDIENCE — e.g., "tech-savvy 25-40 year olds who build with AI tools"]`
 
 ## Instructions

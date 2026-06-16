@@ -9,9 +9,9 @@ description: "Expert prompt for: Product Roadmap Builder"
 This prompt requires the following variables to be filled in:
 - `[PRODUCT]`
 - `[Theme]`
+- `[LIST THEM]`
 - `[TEAM SIZE/CONSTRAINTS]`
 - `[WHERE THE PRODUCT IS NOW]`
-- `[LIST THEM]`
 
 ## Instructions
 
