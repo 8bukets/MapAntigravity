@@ -373,14 +373,14 @@ process_pr() {
             printf "2. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
             printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version.\n" "$file"
             printf "4. Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-            printf "5. MANDATORY: Verify the resulting code is syntactically correct. Run a syntax check using available tools (via 'run_shell_command' if needed):\n"
+            printf "5. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools (via 'run_shell_command' if needed):\n"
             printf "   - For JavaScript: 'node --check %s'\n" "$file"
             printf "   - For TypeScript: Use 'tsc --noEmit %s' if available, otherwise 'node --check'.\n" "$file"
             printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
             printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
             printf "   - For JSON: 'jq . %s'\n" "$file"
             printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
-            printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports, variable definitions, or function signatures in other files) to ensure your resolution is correct and functional.\n"
+            printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports, variable definitions, or function signatures in other files) to ensure your resolution is correct and functional. Pay special attention to changes in dependencies or shared utilities.\n"
             printf "7. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
             printf "8. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
             printf "9. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
@@ -482,7 +482,7 @@ process_pr() {
     local merge_output merge_response http_code merged msg
     merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
                                    -H "Accept: application/vnd.github.v3+json" \
-                                   -d '{"merge_method":"squash", "commit_title": "chore: squash merge PR #'$number'"}' \
+                                   -d "$(jq -n --arg number "$number" '{merge_method: "squash", commit_title: ("chore: squash merge PR #" + $number)}')" \
                                    "$API_BASE/pulls/$number/merge")
 
     merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
