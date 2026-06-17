@@ -217,6 +217,11 @@ poll_mergeability() {
       attempts=$((attempts+1))
     fi
   done
+
+  if [ "$status" = "null" ]; then
+    log "Warning: Mergeability for PR #$number is still null after $max_attempts attempts. GitHub might still be calculating or there's an API issue."
+  fi
+
   echo "$status"
 }
 
@@ -366,14 +371,15 @@ process_pr() {
             printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
             printf "### CONTEXT\n"
             printf "PR Title: %s\n" "$pr_title"
-            printf "PR Description: %s\n\n" "$pr_body"
+            printf "PR Description: %s\n" "$pr_body"
+            printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
             printf "### OBJECTIVE\n"
             printf "Use your tools to:\n"
-            printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>).\n" "$file"
+            printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file.\n" "$file"
             printf "2. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
-            printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version.\n" "$file"
-            printf "4. Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n"
-            printf "5. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools (via 'run_shell_command' if needed):\n"
+            printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version. THE OUTPUT MUST BE ONLY THE FILE CONTENT.\n" "$file"
+            printf "4. MANDATORY: Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file. Triple check for these markers before finalizing.\n"
+            printf "5. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools (via 'run_shell_command' if needed) and FIX any errors found:\n"
             printf "   - For JavaScript: 'node --check %s'\n" "$file"
             printf "   - For TypeScript: Use 'tsc --noEmit %s' if available, otherwise 'node --check'.\n" "$file"
             printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
@@ -477,26 +483,43 @@ process_pr() {
     fi
 
     approve_pr "$number"
-    log "Attempting squash and merge for PR #$number via GitHub API..."
-    # Capture HTTP status code and response body
-    local merge_output merge_response http_code merged msg
-    merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
-                                   -H "Accept: application/vnd.github.v3+json" \
-                                   -d "$(jq -n --arg number "$number" '{merge_method: "squash", commit_title: ("chore: squash merge PR #" + $number)}')" \
-                                   "$API_BASE/pulls/$number/merge")
 
-    merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
-    http_code=$(printf '%s\n' "$merge_output" | tail -n 1)
+    local merged="false"
+    local msg="Unknown error"
+    local http_code=0
 
-    if [ -z "$merge_response" ] || ! printf '%s\n' "$merge_response" | jq -e . >/dev/null 2>&1; then
-      merged="false"
-      msg="Empty or invalid JSON response from GitHub API"
-    else
-      merged=$(printf '%s\n' "$merge_response" | jq -r 'if .merged == null then false else .merged end' 2>/dev/null || printf "false")
-      msg=$(printf '%s\n' "$merge_response" | jq -r 'if .message == null then "Unknown error" else .message end' 2>/dev/null || printf "Unknown error")
+    if command -v gh &> /dev/null; then
+      log "Attempting squash and merge for PR #$number via GitHub CLI (gh)..."
+      if gh pr merge "$number" --squash --body "chore: squash merge PR #$number" --repo "$REPO"; then
+        merged="true"
+        http_code=200
+      else
+        log "GitHub CLI merge failed. Falling back to API."
+      fi
     fi
 
-    if [ "$merged" = "true" ] && [ "$http_code" -eq 200 ]; then
+    if [ "$merged" != "true" ]; then
+      log "Attempting squash and merge for PR #$number via GitHub API..."
+      # Capture HTTP status code and response body
+      local merge_output merge_response
+      merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
+                                     -H "Accept: application/vnd.github.v3+json" \
+                                     -d "$(jq -n --arg number "$number" '{merge_method: "squash", commit_title: ("chore: squash merge PR #" + $number)}')" \
+                                     "$API_BASE/pulls/$number/merge")
+
+      merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
+      http_code=$(printf '%s\n' "$merge_output" | tail -n 1)
+
+      if [ -z "$merge_response" ] || ! printf '%s\n' "$merge_response" | jq -e . >/dev/null 2>&1; then
+        merged="false"
+        msg="Empty or invalid JSON response from GitHub API"
+      else
+        merged=$(printf '%s\n' "$merge_response" | jq -r 'if .merged == null then false else .merged end' 2>/dev/null || printf "false")
+        msg=$(printf '%s\n' "$merge_response" | jq -r 'if .message == null then "Unknown error" else .message end' 2>/dev/null || printf "Unknown error")
+      fi
+    fi
+
+    if [ "$merged" = "true" ] && ([ "$http_code" -eq 200 ] || [ "$http_code" -eq 0 ]); then
       log "SUCCESS: PR #$number has been squash-merged."
       post_comment "$number" "✅ PR #$number has been successfully squash-merged after autonomous verification."
     else
