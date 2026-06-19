@@ -3,6 +3,7 @@ import os
 import re
 import time
 import subprocess
+import tempfile
 from typing import List, Dict, Any
 
 PROMPTS_FILE = 'prompts.json'
@@ -27,22 +28,23 @@ def extract_variables(text: str) -> List[str]:
 
 def run_gemini(prompt: str, expect_json: bool = False) -> str:
     """Runs the gemini CLI with the given prompt and returns the output."""
-    try:
-        # Use a temporary file for the prompt to handle multiline and special characters safely
-        with open(".gemini_agent_prompt.txt", "w") as f:
-            f.write(prompt)
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False) as tf:
+        tf.write(prompt)
+        temp_file_path = tf.name
 
-        cmd = ["gemini", "--prompt", "", "--approval-mode", "yolo", "--skip-trust"]
+    try:
+        model = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+        cmd = ["gemini", "--model", model, "--prompt", "", "--approval-mode", "yolo", "--skip-trust"]
         if expect_json:
             cmd.extend(["--output-format", "json"])
 
-        result = subprocess.run(
-            cmd,
-            input=open(".gemini_agent_prompt.txt", "rb").read(),
-            capture_output=True,
-            check=True
-        )
-        os.remove(".gemini_agent_prompt.txt")
+        with open(temp_file_path, "rb") as f_in:
+            result = subprocess.run(
+                cmd,
+                stdin=f_in,
+                capture_output=True,
+                check=True
+            )
 
         output = result.stdout.decode('utf-8').strip()
 
@@ -51,13 +53,24 @@ def run_gemini(prompt: str, expect_json: bool = False) -> str:
             # Try to extract the JSON block if it exists
             json_match = re.search(r'\{.*\}', output, re.DOTALL)
             if json_match:
-                return json_match.group(0)
+                json_text = json_match.group(0)
+                # Basic validation that it's actually JSON
+                try:
+                    json.loads(json_text)
+                    return json_text
+                except json.JSONDecodeError:
+                    pass
         return output
-    except Exception as e:
-        print(f"Error running gemini: {e}")
-        if os.path.exists(".gemini_agent_prompt.txt"):
-            os.remove(".gemini_agent_prompt.txt")
+    except subprocess.CalledProcessError as e:
+        print(f"Gemini CLI execution failed with exit code {e.returncode}")
+        print(f"Stderr: {e.stderr.decode('utf-8') if e.stderr else 'None'}")
         return ""
+    except Exception as e:
+        print(f"An unexpected error occurred while running gemini: {e}")
+        return ""
+    finally:
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
 
 def generate_dummy_variables(variables: List[str]) -> Dict[str, str]:
     if not variables:

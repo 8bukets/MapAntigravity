@@ -21,7 +21,11 @@ trap cleanup EXIT
 
 # Use GITHUB_REPOSITORY if available, otherwise fallback to parsing origin remote
 if [ -z "${GITHUB_REPOSITORY:-}" ]; then
-  REPO=$(git remote get-url origin | sed -E 's/.*github.com[:\/]//; s/\.git$//')
+  REPO=$(git remote get-url origin 2>/dev/null | sed -E 's/.*github.com[:\/]//; s/\.git$//' || echo "")
+  if [ -z "$REPO" ]; then
+    # Fallback for alternative remote names if 'origin' isn't set
+    REPO=$(git remote -v | head -n 1 | awk '{print $2}' | sed -E 's/.*github.com[:\/]//; s/\.git$//' || echo "")
+  fi
 else
   REPO="$GITHUB_REPOSITORY"
 fi
@@ -312,10 +316,12 @@ process_pr() {
     log "Error: Failed to fetch base branch origin/$base_ref."
     return 0
   fi
+  local base_branch_head
+  base_branch_head=$(git rev-parse FETCH_HEAD)
 
   # Check if PR is behind base
   local behind_count
-  behind_count=$(git rev-list --count "$pr_head_commit..origin/$base_ref")
+  behind_count=$(git rev-list --count "$pr_head_commit..$base_branch_head")
 
   # Check mergeability via API
   local mergeable
@@ -336,15 +342,17 @@ process_pr() {
       log "Checking out local branch $local_branch from $pr_head_commit..."
       git checkout -B "$local_branch" "$pr_head_commit"
 
-      log "Attempting to merge origin/$base_ref into $local_branch..."
-      if ! git merge "origin/$base_ref" --no-edit; then
+      log "Attempting to merge base branch into $local_branch..."
+      if ! git merge "$base_branch_head" --no-edit; then
         log "Merge failed with conflicts. Identifying files..."
-        local conflicts
-        conflicts=$(git diff --name-only --diff-filter=U)
-
         post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI ($GEMINI_MODEL)..."
 
-        for file in $conflicts; do
+        local conflicts_file
+        conflicts_file=$(mktemp)
+        git diff --name-only --diff-filter=U > "$conflicts_file"
+
+        while read -u 3 file; do
+          if [ -z "$file" ]; then continue; fi
           if [ ! -f "$file" ]; then
              log "File $file no longer exists. Skipping."
              continue
@@ -377,7 +385,7 @@ process_pr() {
             printf "Use your tools to:\n"
             printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file.\n" "$file"
             printf "2. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
-            printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version. THE OUTPUT MUST BE ONLY THE FILE CONTENT.\n" "$file"
+            printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version.\n" "$file"
             printf "4. MANDATORY: Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file. Triple check for these markers before finalizing.\n"
             printf "5. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools (via 'run_shell_command' if needed) and FIX any errors found:\n"
             printf "   - For JavaScript: 'node --check %s'\n" "$file"
@@ -390,12 +398,13 @@ process_pr() {
             printf "7. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
             printf "8. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
             printf "9. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
-            printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file.\n"
-            printf "Do not provide any conversational response or explanation. Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
+            printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools to perform the work.\n"
+            printf "Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
           } > "$PROMPT_FILE"
 
           log "Invoking Gemini CLI ($GEMINI_MODEL) for $file..."
           set +e
+          # Redirect stdin from PROMPT_FILE. gemini CLI will read the prompt from here.
           gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
           gemini_status=$?
           rm -f "$PROMPT_FILE"
@@ -420,10 +429,25 @@ process_pr() {
           if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
             log "WARNING: Conflict markers still present in $file after Gemini attempt."
           else
-            log "Conflict markers successfully removed from $file."
-            git add "$file"
+            log "Conflict markers successfully removed from $file. Performing secondary syntax check..."
+
+            local syntax_ok=true
+            case "$file" in
+              *.js) node --check "$file" || syntax_ok=false ;;
+              *.py) python3 -m py_compile "$file" || syntax_ok=false ;;
+              *.sh) bash -n "$file" || syntax_ok=false ;;
+              *.json) jq . "$file" > /dev/null || syntax_ok=false ;;
+            esac
+
+            if [ "$syntax_ok" = "true" ]; then
+              log "Syntax check passed for $file."
+              git add "$file"
+            else
+              log "ERROR: Secondary syntax check failed for $file."
+            fi
           fi
-        done
+        done 3< "$conflicts_file"
+        rm -f "$conflicts_file"
 
         # Final check for remaining conflicts
         local remaining_conflicts
@@ -540,9 +564,9 @@ log "Step 2: Processing pull requests one by one..."
 PR_LIST_FILE=$(mktemp)
 jq -c '.[]' "$ALL_PRS_FILE" > "$PR_LIST_FILE"
 
-while read -r pr; do
+while read -u 3 -r pr; do
   # Use a subshell to ensure failures in one PR don't stop the script
   ( process_pr "$pr" ) || log "Error occurred while processing PR. Continuing to next PR..."
-done < "$PR_LIST_FILE"
+done 3< "$PR_LIST_FILE"
 
 log "Finished processing all pull requests."
