@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Helper function for logging with timestamps
 log() {
-  echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"
+  printf "[%s] %s\n" "$(date +'%Y-%m-%d %H:%M:%S')" "$*"
 }
 
 # Global variables for cleanup
@@ -77,6 +77,10 @@ fi
 # Configure git
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
+
+# Capture original branch to return to it later
+ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+log "Original branch: $ORIGINAL_BRANCH"
 
 # Fetch all remotes and branches to ensure we have context
 log "Fetching all branches..."
@@ -351,7 +355,7 @@ process_pr() {
         conflicts_file=$(mktemp)
         git diff --name-only --diff-filter=U > "$conflicts_file"
 
-        while read -u 3 file; do
+        while read -u 4 file; do
           if [ -z "$file" ]; then continue; fi
           if [ ! -f "$file" ]; then
              log "File $file no longer exists. Skipping."
@@ -394,15 +398,16 @@ process_pr() {
             printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
             printf "   - For JSON: 'jq . %s'\n" "$file"
             printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
-            printf "6. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports, variable definitions, or function signatures in other files) to ensure your resolution is correct and functional. Pay special attention to changes in dependencies or shared utilities.\n"
-            printf "7. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
-            printf "8. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
-            printf "9. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
+            printf "6. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory to understand the project-wide rules and your role as an autonomous agent.\n"
+            printf "7. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports, variable definitions, or function signatures in other files) to ensure your resolution is correct and functional. Pay special attention to changes in dependencies or shared utilities.\n"
+            printf "8. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
+            printf "9. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
+            printf "10. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools to perform the work.\n"
             printf "Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
           } > "$PROMPT_FILE"
 
-          log "Invoking Gemini CLI ($GEMINI_MODEL) for $file..."
+          log "Invoking Gemini CLI ($GEMINI_MODEL) for $file with approval-mode yolo..."
           set +e
           # Redirect stdin from PROMPT_FILE. gemini CLI will read the prompt from here.
           gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
@@ -446,7 +451,7 @@ process_pr() {
               log "ERROR: Secondary syntax check failed for $file."
             fi
           fi
-        done 3< "$conflicts_file"
+        done 4< "$conflicts_file"
         rm -f "$conflicts_file"
 
         # Final check for remaining conflicts
@@ -514,11 +519,12 @@ process_pr() {
 
     if command -v gh &> /dev/null; then
       log "Attempting squash and merge for PR #$number via GitHub CLI (gh)..."
-      if gh pr merge "$number" --squash --body "chore: squash merge PR #$number" --repo "$REPO"; then
+      if gh pr merge "$number" --squash --body "chore: autonomous squash merge PR #$number via gemini-cli" --repo "$REPO"; then
         merged="true"
         http_code=200
+        log "GitHub CLI squash-merge successful for PR #$number."
       else
-        log "GitHub CLI merge failed. Falling back to API."
+        log "GitHub CLI merge failed for PR #$number. Falling back to API."
       fi
     fi
 
@@ -568,5 +574,9 @@ while read -u 3 -r pr; do
   # Use a subshell to ensure failures in one PR don't stop the script
   ( process_pr "$pr" ) || log "Error occurred while processing PR. Continuing to next PR..."
 done 3< "$PR_LIST_FILE"
+
+# Return to the original branch
+log "Returning to original branch: $ORIGINAL_BRANCH"
+git checkout "$ORIGINAL_BRANCH" || log "Warning: Failed to return to original branch $ORIGINAL_BRANCH"
 
 log "Finished processing all pull requests."
