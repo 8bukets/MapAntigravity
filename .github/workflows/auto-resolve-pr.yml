@@ -60,7 +60,12 @@ jobs:
           git add prompts.json evaluation_data.json
           if ! git diff --cached --quiet; then
             git commit -m "chore: autonomous prompt improvements and evaluation data update"
-            git push origin HEAD:${{ github.ref }}
+            # Dynamically determine the default branch
+            DEFAULT_BRANCH=$(git remote show origin | grep "HEAD branch" | cut -d' ' -f5)
+            echo "Default branch is $DEFAULT_BRANCH"
+            # Rebase against the base branch in case any PRs were merged in this run
+            git pull --rebase origin "$DEFAULT_BRANCH"
+            git push origin "HEAD:$DEFAULT_BRANCH"
           else
             echo "No changes to prompts or evaluation data."
           fi
