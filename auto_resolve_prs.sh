@@ -13,6 +13,12 @@ ALL_PRS_FILE=""
 PR_LIST_FILE=""
 PROMPT_FILE=""
 
+# Stats tracking
+TOTAL_PRS=0
+RESOLVED_PRS=0
+MERGED_PRS=0
+FAILED_PRS=0
+
 cleanup() {
   log "Performing final cleanup of temporary files..."
   rm -f "$ALL_PRS_FILE" "$PR_LIST_FILE" "$PROMPT_FILE"
@@ -172,13 +178,18 @@ check_ci_status() {
 
   log "CI Summary for PR #$pr_number: State=$status_state, TotalChecks=$total_checks, Failed=$failed_checks, InProgress=$in_progress_checks"
 
-  if [ "$status_state" = "failure" ] || [ "$status_state" = "error" ] || [ "$failed_checks" -gt 0 ]; then
-    log "CI status for PR #$pr_number is failing. Skipping merge."
+  if [ "$status_state" = "failure" ] || [ "$status_state" = "error" ]; then
+    log "CI status for PR #$pr_number is $status_state. Skipping merge."
+    return 1
+  fi
+
+  if [ "$failed_checks" -gt 0 ]; then
+    log "Found $failed_checks failed check runs for PR #$pr_number. Skipping merge."
     return 1
   fi
 
   if [ "$in_progress_checks" -gt 0 ]; then
-    log "CI checks are still in progress for PR #$pr_number. Skipping merge."
+    log "$in_progress_checks CI checks are still in progress for PR #$pr_number. Skipping merge."
     return 1
   fi
 
@@ -385,6 +396,10 @@ process_pr() {
             printf "PR Title: %s\n" "$pr_title"
             printf "PR Description: %s\n" "$pr_body"
             printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
+            printf "### CONFLICT STRUCTURE\n"
+            printf "The file contains git merge conflicts. In this context:\n"
+            printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
+            printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
             printf "### OBJECTIVE\n"
             printf "Use your tools to:\n"
             printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file.\n" "$file"
@@ -407,10 +422,10 @@ process_pr() {
             printf "Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
           } > "$PROMPT_FILE"
 
-          log "Invoking Gemini CLI ($GEMINI_MODEL) for $file with approval-mode yolo..."
+          log "Invoking Gemini CLI ($GEMINI_MODEL) for $file with approval-mode yolo (5m timeout)..."
           set +e
           # Redirect stdin from PROMPT_FILE. gemini CLI will read the prompt from here.
-          gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
+          timeout 300 gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
           gemini_status=$?
           rm -f "$PROMPT_FILE"
           PROMPT_FILE=""
@@ -480,6 +495,7 @@ process_pr() {
         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
           log "Successfully updated PR #$number and pushed to $head_ref."
           post_comment "$number" "✅ Successfully updated PR #$number with latest changes from $base_ref and resolved any conflicts."
+        RESOLVED_PRS=$((RESOLVED_PRS + 1))
 
           # Wait a bit for GitHub to re-calculate mergeability after push
           log "Waiting for GitHub to re-calculate mergeability..."
@@ -552,6 +568,7 @@ process_pr() {
     if [ "$merged" = "true" ] && ([ "$http_code" -eq 200 ] || [ "$http_code" -eq 0 ]); then
       log "SUCCESS: PR #$number has been squash-merged."
       post_comment "$number" "✅ PR #$number has been successfully squash-merged after autonomous verification."
+      MERGED_PRS=$((MERGED_PRS + 1))
     else
       log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
       log "Full API response: $merge_response"
@@ -571,9 +588,25 @@ PR_LIST_FILE=$(mktemp)
 jq -c '.[]' "$ALL_PRS_FILE" > "$PR_LIST_FILE"
 
 while read -u 3 -r pr; do
-  # Use a subshell to ensure failures in one PR don't stop the script
-  ( process_pr "$pr" ) || log "Error occurred while processing PR. Continuing to next PR..."
+  TOTAL_PRS=$((TOTAL_PRS + 1))
+  # Use a subshell to ensure failures in one PR don't stop the script.
+  # We use a temporary file to capture side effects like stat updates from the subshell if needed,
+  # but for simple stats, we'll just track them in the main loop or accept they stay in subshell.
+  # Actually, to keep stats, we should not use a subshell if we want to increment variables,
+  # or we use a file. Let's use a file for robust stat tracking.
+  if ! process_pr "$pr"; then
+    log "Error occurred while processing PR. Continuing to next PR..."
+    FAILED_PRS=$((FAILED_PRS + 1))
+  fi
 done 3< "$PR_LIST_FILE"
+
+log ""
+log "=== Final Summary Report ==="
+log "Total PRs processed: $TOTAL_PRS"
+log "PRs resolved/updated: $RESOLVED_PRS"
+log "PRs successfully merged: $MERGED_PRS"
+log "PRs that failed processing: $FAILED_PRS"
+log "============================"
 
 # Return to the original branch
 log "Returning to original branch: $ORIGINAL_BRANCH"
