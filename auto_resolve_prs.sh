@@ -170,7 +170,7 @@ check_ci_status() {
 
   # Any failures?
   local failed_checks
-  failed_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "timed_out")] | length')
+  failed_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled" or .conclusion == "action_required")] | length')
 
   # Any still in progress?
   local in_progress_checks
@@ -238,7 +238,7 @@ poll_mergeability() {
   done
 
   if [ "$status" = "null" ]; then
-    log "Warning: Mergeability for PR #$number is still null after $max_attempts attempts. GitHub might still be calculating or there's an API issue."
+    log "Warning: Mergeability for PR #$pr_number is still null after $max_attempts attempts. GitHub might still be calculating or there's an API issue."
   fi
 
   echo "$status"
@@ -320,7 +320,7 @@ process_pr() {
   log "Fetching $head_ref from $head_repo..."
   if ! git fetch "$authenticated_head_url" "$head_ref"; then
     log "Error: Failed to fetch PR branch from $head_repo."
-    return 0
+    return 1
   fi
   local pr_head_commit
   pr_head_commit=$(git rev-parse FETCH_HEAD)
@@ -329,7 +329,7 @@ process_pr() {
   log "Fetching origin/$base_ref..."
   if ! git fetch origin "$base_ref"; then
     log "Error: Failed to fetch base branch origin/$base_ref."
-    return 0
+    return 1
   fi
   local base_branch_head
   base_branch_head=$(git rev-parse FETCH_HEAD)
@@ -402,11 +402,11 @@ process_pr() {
             printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
             printf "### OBJECTIVE\n"
             printf "Use your tools to:\n"
-            printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file.\n" "$file"
+            printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file to ensure you have full context.\n" "$file"
             printf "2. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
-            printf "3. MANDATORY: Use your 'write_file' (or equivalent) tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version.\n" "$file"
+            printf "3. MANDATORY: Use your 'write_file' tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version. DO NOT just output the code in your response; use the tool.\n" "$file"
             printf "4. MANDATORY: Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file. Triple check for these markers before finalizing.\n"
-            printf "5. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools (via 'run_shell_command' if needed) and FIX any errors found:\n"
+            printf "5. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools and FIX any errors found:\n"
             printf "   - For JavaScript: 'node --check %s'\n" "$file"
             printf "   - For TypeScript: Use 'tsc --noEmit %s' if available, otherwise 'node --check'.\n" "$file"
             printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
@@ -418,8 +418,8 @@ process_pr() {
             printf "8. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
             printf "9. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
             printf "10. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
-            printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools to perform the work.\n"
-            printf "Focus entirely on using your tools to resolve and write the file '%s'.\n" "$file"
+            printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools (read_file, write_file, run_shell_command) to perform the work.\n"
+            printf "Focus entirely on using your tools to resolve and write the file '%s'. Do not give a conversational response; just use your tools.\n" "$file"
           } > "$PROMPT_FILE"
 
           log "Invoking Gemini CLI ($GEMINI_MODEL) for $file with approval-mode yolo (5m timeout)..."
@@ -476,7 +476,7 @@ process_pr() {
           log "Error: Unresolved conflicts remain in: $remaining_conflicts. Aborting merge for PR #$number."
           git merge --abort
           post_comment "$number" "❌ Failed to autonomously resolve all conflicts. Remaining: $remaining_conflicts"
-          return 0
+          return 1
         fi
 
         if [ -n "$(git status --short)" ]; then
@@ -495,7 +495,7 @@ process_pr() {
         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
           log "Successfully updated PR #$number and pushed to $head_ref."
           post_comment "$number" "✅ Successfully updated PR #$number with latest changes from $base_ref and resolved any conflicts."
-        RESOLVED_PRS=$((RESOLVED_PRS + 1))
+          RESOLVED_PRS=$((RESOLVED_PRS + 1))
 
           # Wait a bit for GitHub to re-calculate mergeability after push
           log "Waiting for GitHub to re-calculate mergeability..."
@@ -504,7 +504,7 @@ process_pr() {
         else
           log "Error: Failed to push updated changes to $head_ref."
           post_comment "$number" "❌ Failed to push updated changes to $head_ref. Please check if the branch is protected."
-          return 0
+          return 1
         fi
       else
         log "No changes to commit or push for PR #$number."
@@ -524,7 +524,7 @@ process_pr() {
 
     if ! check_ci_status "$number" "$current_head_sha"; then
       log "CI check failed or still in progress for PR #$number. Skipping squash-merge."
-      return 0
+      return 1
     fi
 
     approve_pr "$number"
@@ -573,6 +573,7 @@ process_pr() {
       log "FAILED (HTTP $http_code): Could not merge PR #$number. Reason: $msg"
       log "Full API response: $merge_response"
       post_comment "$number" "❌ Failed to squash-merge PR #$number (HTTP $http_code). Reason: $msg. Full details logged in GitHub Actions."
+      return 1
     fi
   else
     log "PR #$number is not mergeable ($mergeable). Skipping merge."
