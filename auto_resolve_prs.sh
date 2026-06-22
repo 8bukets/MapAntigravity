@@ -19,6 +19,11 @@ RESOLVED_PRS=0
 MERGED_PRS=0
 FAILED_PRS=0
 
+# Start time for global timeout
+START_TIME=$(date +%s)
+# Default timeout: 3 hours and 30 minutes (12600 seconds)
+MAX_RUNTIME=${MAX_RUNTIME:-12600}
+
 cleanup() {
   log "Performing final cleanup of temporary files..."
   rm -f "$ALL_PRS_FILE" "$PR_LIST_FILE" "$PROMPT_FILE"
@@ -210,16 +215,17 @@ check_ci_status() {
   return 1
 }
 
-# Function to poll mergeability
+# Function to poll mergeability with retries
 poll_mergeability() {
   local pr_number=$1
   local status="null"
   local attempts=0
-  local max_attempts=12
+  local max_attempts=15
 
   while [ "$status" = "null" ] && [ $attempts -lt $max_attempts ]; do
     local pr_detail
-    pr_detail=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+    # Use a small retry for the curl call itself
+    pr_detail=$(curl -s --retry 3 --retry-delay 2 -H "Authorization: Bearer $GITHUB_TOKEN" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "$API_BASE/pulls/$pr_number")
 
@@ -231,14 +237,14 @@ poll_mergeability() {
     fi
 
     if [ "$status" = "null" ]; then
-      log "Mergeability status for PR #$pr_number is null (calculating). Attempt $((attempts+1))/$max_attempts. Waiting 15s..."
-      sleep 15
+      log "Mergeability status for PR #$pr_number is null (calculating). Attempt $((attempts+1))/$max_attempts. Waiting 20s..."
+      sleep 20
       attempts=$((attempts+1))
     fi
   done
 
   if [ "$status" = "null" ]; then
-    log "Warning: Mergeability for PR #$pr_number is still null after $max_attempts attempts. GitHub might still be calculating or there's an API issue."
+    log "Warning: Mergeability for PR #$pr_number is still null after $max_attempts attempts."
   fi
 
   echo "$status"
@@ -258,7 +264,13 @@ while : ; do
 
   # Check if we got an error message instead of an array
   if printf '%s\n' "$prs_page" | jq -e '.message' >/dev/null 2>&1; then
-    log "Error from GitHub API: $(printf '%s\n' "$prs_page" | jq -r '.message')"
+    local msg
+    msg=$(printf '%s\n' "$prs_page" | jq -r '.message')
+    log "Error from GitHub API on page $page: $msg"
+    if [[ "$msg" == *"rate limit exceeded"* ]]; then
+      log "Rate limit exceeded. Stopping PR fetching."
+      break
+    fi
     exit 1
   fi
 
@@ -413,11 +425,11 @@ process_pr() {
             printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
             printf "   - For JSON: 'jq . %s'\n" "$file"
             printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
-            printf "6. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory to understand the project-wide rules and your role as an autonomous agent.\n"
-            printf "7. MANDATORY: Use your tools like 'ls -R', 'find', or 'grep' to explore the repository and gather necessary context (e.g., checking imports, variable definitions, or function signatures in other files) to ensure your resolution is correct and functional. Pay special attention to changes in dependencies or shared utilities.\n"
-            printf "8. After resolving, proactively check for side effects. Use 'grep' to see if your changes affect other files that depend on the modified code.\n"
-            printf "9. Ensure the resulting code preserves the intended logic and remains consistent with the rest of the project.\n"
-            printf "10. If the conflict is in a configuration file (like package.json or requirements.txt), ensure the resulting structure is valid and consistent.\n\n"
+            printf "6. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory to understand the project-wide rules and your role.\n"
+            printf "7. MANDATORY: Explore the repository using 'ls -R' or 'grep' to gather context (imports, variable definitions) for a correct resolution. Pay special attention to dependency changes.\n"
+            printf "8. After resolving, proactively check for side effects using 'grep'.\n"
+            printf "9. Ensure the resulting code is syntactically correct and preserves intended logic.\n"
+            printf "10. For configuration files (package.json, requirements.txt), maintain a valid and consistent structure.\n\n"
             printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools (read_file, write_file, run_shell_command) to perform the work.\n"
             printf "Focus entirely on using your tools to resolve and write the file '%s'. Do not give a conversational response; just use your tools.\n" "$file"
           } > "$PROMPT_FILE"
@@ -453,10 +465,13 @@ process_pr() {
 
             local syntax_ok=true
             case "$file" in
-              *.js) node --check "$file" || syntax_ok=false ;;
+              *.js|*.mjs) node --check "$file" || syntax_ok=false ;;
               *.py) python3 -m py_compile "$file" || syntax_ok=false ;;
               *.sh) bash -n "$file" || syntax_ok=false ;;
               *.json) jq . "$file" > /dev/null || syntax_ok=false ;;
+              *.rb) ruby -c "$file" >/dev/null 2>&1 || syntax_ok=false ;;
+              *.php) php -l "$file" >/dev/null 2>&1 || syntax_ok=false ;;
+              *.go) gofmt -e "$file" >/dev/null 2>&1 || syntax_ok=false ;;
             esac
 
             if [ "$syntax_ok" = "true" ]; then
@@ -589,6 +604,14 @@ PR_LIST_FILE=$(mktemp)
 jq -c '.[]' "$ALL_PRS_FILE" > "$PR_LIST_FILE"
 
 while read -u 3 -r pr; do
+  # Check for global timeout
+  CURRENT_TIME=$(date +%s)
+  ELAPSED=$((CURRENT_TIME - START_TIME))
+  if [ $ELAPSED -ge $MAX_RUNTIME ]; then
+    log "Global timeout of ${MAX_RUNTIME}s reached. Skipping remaining PRs."
+    break
+  fi
+
   TOTAL_PRS=$((TOTAL_PRS + 1))
   # Use a subshell to ensure failures in one PR don't stop the script.
   # We use a temporary file to capture side effects like stat updates from the subshell if needed,
