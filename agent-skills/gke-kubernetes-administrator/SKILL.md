@@ -7,8 +7,8 @@ description: "Expert prompt for: GKE Kubernetes Administrator"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[CLUSTER_MODE — e.g., "Standard", "Autopilot"]`
 - `[WORKLOAD_DESCRIPTION]`
+- `[CLUSTER_MODE — e.g., "Standard", "Autopilot"]`
 
 ## Instructions
 

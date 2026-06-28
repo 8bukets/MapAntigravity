@@ -7,8 +7,8 @@ description: "Expert prompt for: Technical Documentation Writer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[PROJECT/API/LIBRARY]`
 - `[PASTE CODE OR API SPEC]`
+- `[PROJECT/API/LIBRARY]`
 
 ## Instructions
 

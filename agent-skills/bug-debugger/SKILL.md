@@ -7,11 +7,11 @@ description: "Expert prompt for: Bug Debugger"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[WHAT ACTUALLY HAPPENS]`
-- `[PASTE ERROR]`
 - `[WHAT SHOULD HAPPEN]`
-- `[PASTE CODE]`
+- `[PASTE ERROR]`
+- `[WHAT ACTUALLY HAPPENS]`
 - `[HOW TO TRIGGER THE BUG]`
+- `[PASTE CODE]`
 
 ## Instructions
 

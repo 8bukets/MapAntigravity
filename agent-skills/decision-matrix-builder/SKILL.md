@@ -7,12 +7,12 @@ description: "Expert prompt for: Decision Matrix Builder"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[1-5]`
-- `[CRITERION 2]`
 - `[CRITERION 1]`
-- `[CRITERION 4]`
-- `[DECISION TO MAKE]`
 - `[CRITERION 3]`
+- `[CRITERION 2]`
+- `[CRITERION 4]`
+- `[1-5]`
+- `[DECISION TO MAKE]`
 - `[LIST YOUR OPTIONS]`
 
 ## Instructions

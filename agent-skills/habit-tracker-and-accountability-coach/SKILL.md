@@ -7,12 +7,12 @@ description: "Expert prompt for: Habit Tracker and Accountability Coach"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[CUE]`
 - `[DESCRIBE YOUR TYPICAL DAY]`
-- `[HABIT]`
-- `[LOCATION]`
 - `[WHAT STOPS YOU]`
+- `[CUE]`
 - `[LIST YOUR DESIRED HABITS]`
+- `[LOCATION]`
+- `[HABIT]`
 
 ## Instructions
 

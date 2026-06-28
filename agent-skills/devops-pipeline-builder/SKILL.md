@@ -7,8 +7,8 @@ description: "Expert prompt for: DevOps Pipeline Builder"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[APPLICATION]`
 - `[PLATFORM — e.g., "GitHub"]`
+- `[APPLICATION]`
 - `[WHERE — e.g., "Vercel", "AWS", "Railway"]`
 - `[YOUR STACK]`
 

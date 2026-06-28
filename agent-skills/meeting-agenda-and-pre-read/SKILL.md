@@ -7,10 +7,10 @@ description: "Expert prompt for: Meeting Agenda and Pre-Read"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[LENGTH]`
 - `[TOPIC]`
-- `[WHO]`
+- `[LENGTH]`
 - `[WHAT DECISION OR OUTCOME]`
+- `[WHO]`
 
 ## Instructions
 

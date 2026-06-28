@@ -7,11 +7,11 @@ description: "Expert prompt for: Database Schema Designer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
+- `[DATA REQUIREMENT 1]`
 - `[DATABASE — e.g., "PostgreSQL"]`
+- `[DATA REQUIREMENT 2]`
 - `[DATA REQUIREMENT 3]`
 - `[APPLICATION DESCRIPTION]`
-- `[DATA REQUIREMENT 2]`
-- `[DATA REQUIREMENT 1]`
 
 ## Instructions
 
