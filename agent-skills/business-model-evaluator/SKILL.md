@@ -7,10 +7,10 @@ description: "Expert prompt for: Business Model Evaluator"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[IDEA / MVP / LAUNCHED]`
-- `[HOW IT MAKES MONEY]`
 - `[DESCRIBE YOUR IDEA]`
+- `[IDEA / MVP / LAUNCHED]`
 - `[WHO IT IS FOR]`
+- `[HOW IT MAKES MONEY]`
 
 ## Instructions
 

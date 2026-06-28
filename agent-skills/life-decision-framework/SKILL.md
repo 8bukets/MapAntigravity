@@ -7,8 +7,8 @@ description: "Expert prompt for: Life Decision Framework"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[YOUR DECISION]`
 - `[DESCRIBE]`
+- `[YOUR DECISION]`
 
 ## Instructions
 

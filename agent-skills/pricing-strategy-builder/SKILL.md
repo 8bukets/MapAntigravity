@@ -8,11 +8,11 @@ description: "Expert prompt for: Pricing Strategy Builder"
 ## Variables
 This prompt requires the following variables to be filled in:
 - `[WHAT COMPETITORS CHARGE]`
-- `[WHO]`
-- `[DESCRIPTION]`
-- `[COST PER UNIT/USER]`
 - `[CURRENT PRICE]`
+- `[DESCRIPTION]`
 - `[PRODUCT/SERVICE]`
+- `[WHO]`
+- `[COST PER UNIT/USER]`
 
 ## Instructions
 

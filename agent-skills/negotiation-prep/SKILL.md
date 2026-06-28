@@ -7,9 +7,9 @@ description: "Expert prompt for: Negotiation Prep"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[WHAT I WANT]`
-- `[MY BACKUP PLAN]`
 - `[HIGH / MEDIUM / LOW]`
+- `[MY BACKUP PLAN]`
+- `[WHAT I WANT]`
 - `[WHAT THEY PROBABLY WANT]`
 - `[WHAT YOU ARE NEGOTIATING]`
 

@@ -7,9 +7,9 @@ description: "Expert prompt for: Twitter/X Thread Writer"
 
 ## Variables
 This prompt requires the following variables to be filled in:
+- `[TOPIC]`
 - `[YOUR TOPIC]`
 - `[YOUR AUDIENCE]`
-- `[TOPIC]`
 
 ## Instructions
 

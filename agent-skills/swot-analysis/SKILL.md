@@ -7,8 +7,8 @@ description: "Expert prompt for: SWOT Analysis"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[PROVIDE RELEVANT CONTEXT]`
 - `[COMPANY/PRODUCT/PROJECT]`
+- `[PROVIDE RELEVANT CONTEXT]`
 
 ## Instructions
 

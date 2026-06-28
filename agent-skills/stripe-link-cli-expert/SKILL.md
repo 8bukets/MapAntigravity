@@ -7,14 +7,14 @@ description: "Expert prompt for: Stripe Link CLI Expert"
 
 ## Variables
 This prompt requires the following variables to be filled in:
-- `[TASK_DESCRIPTION]`
-- `[CONTEXT]`
 - `[REQUEST_ID]`
+- `[CONTEXT]`
+- `[AMOUNT_IN_CENTS]`
+- `[DATA]`
+- `[TASK_DESCRIPTION]`
+- `[URL]`
 - `[AGENT_NAME]`
 - `[ID]`
-- `[URL]`
-- `[DATA]`
-- `[AMOUNT_IN_CENTS]`
 - `[MERCHANT]`
 
 ## Instructions
