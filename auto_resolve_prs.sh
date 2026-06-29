@@ -396,65 +396,83 @@ process_pr() {
           local pre_checksum post_checksum gemini_status
           pre_checksum=$(sha256sum "$file" | awk '{print $1}')
 
-          # Use gemini-cli to resolve conflicts autonomously
-          # We use --approval-mode yolo and --skip-trust for autonomous automatic resolution
+          # Use gemini-cli to resolve conflicts autonomously with retries
+          local attempt=1
+          local max_attempts=3
+          local resolved=false
 
-          # PROMPT GENERATION (Hardened against injection from PR metadata)
-          PROMPT_FILE=$(mktemp)
-          {
-            printf "You are an autonomous AI engineer working in a GitHub Actions CI environment.\n"
-            printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
-            printf "### CONTEXT\n"
-            printf "PR Title: %s\n" "$pr_title"
-            printf "PR Description: %s\n" "$pr_body"
-            printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
-            printf "### CONFLICT STRUCTURE\n"
-            printf "The file contains git merge conflicts. In this context:\n"
-            printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
-            printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
-            printf "### OBJECTIVE\n"
-            printf "Use your tools to:\n"
-            printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file to ensure you have full context.\n" "$file"
-            printf "2. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
-            printf "3. MANDATORY: Use your 'write_file' tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version. DO NOT just output the code in your response; use the tool.\n" "$file"
-            printf "4. MANDATORY: Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file. Triple check for these markers before finalizing.\n"
-            printf "5. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools and FIX any errors found:\n"
-            printf "   - For JavaScript: 'node --check %s'\n" "$file"
-            printf "   - For TypeScript: Use 'tsc --noEmit %s' if available, otherwise 'node --check'.\n" "$file"
-            printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
-            printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
-            printf "   - For JSON: 'jq . %s'\n" "$file"
-            printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
-            printf "6. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory to understand the project-wide rules and your role.\n"
-            printf "7. MANDATORY: Explore the repository using 'ls -R' or 'grep' to gather context (imports, variable definitions) for a correct resolution. Pay special attention to dependency changes.\n"
-            printf "8. After resolving, proactively check for side effects using 'grep'.\n"
-            printf "9. Ensure the resulting code is syntactically correct and preserves intended logic.\n"
-            printf "10. For configuration files (package.json, requirements.txt), maintain a valid and consistent structure.\n\n"
-            printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools (read_file, write_file, run_shell_command) to perform the work.\n"
-            printf "Focus entirely on using your tools to resolve and write the file '%s'. Do not give a conversational response; just use your tools.\n" "$file"
-          } > "$PROMPT_FILE"
+          while [ $attempt -le $max_attempts ]; do
+            log "Resolution attempt $attempt of $max_attempts for $file..."
 
-          log "Invoking Gemini CLI ($GEMINI_MODEL) for $file with approval-mode yolo (5m timeout)..."
-          set +e
-          # Redirect stdin from PROMPT_FILE. gemini CLI will read the prompt from here.
-          timeout 300 gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
-          gemini_status=$?
-          rm -f "$PROMPT_FILE"
-          PROMPT_FILE=""
-          set -e
+            # PROMPT GENERATION (Hardened against injection from PR metadata)
+            PROMPT_FILE=$(mktemp)
+            {
+              printf "You are an autonomous AI engineer working in a GitHub Actions CI environment.\n"
+              printf "Your task is to resolve git merge conflicts in the file '%s' for Pull Request #%s.\n\n" "$file" "$number"
+              printf "### CONTEXT\n"
+              printf "PR Title: %s\n" "$pr_title"
+              printf "PR Description: %s\n" "$pr_body"
+              printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
+              printf "### CONFLICT STRUCTURE\n"
+              printf "The file contains git merge conflicts. In this context:\n"
+              printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
+              printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
+              printf "### OBJECTIVE\n"
+              printf "Use your tools to:\n"
+              printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file to ensure you have full context.\n" "$file"
+              printf "2. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory to understand the project-wide rules and your role.\n"
+              printf "3. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
+              printf "4. MANDATORY: Use your 'write_file' tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version. DO NOT just output the code in your response; use the tool.\n" "$file"
+              printf "5. MANDATORY: Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file. Triple check for these markers before finalizing.\n"
+              printf "6. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools and FIX any errors found:\n"
+              printf "   - For JavaScript: 'node --check %s'\n" "$file"
+              printf "   - For TypeScript: Use 'tsc --noEmit %s' if available, otherwise 'node --check'.\n" "$file"
+              printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
+              printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
+              printf "   - For JSON: 'jq . %s'\n" "$file"
+              printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
+              printf "7. MANDATORY: Explore the repository using 'ls -R' or 'grep' to gather context (imports, variable definitions) for a correct resolution. Pay special attention to dependency changes.\n"
+              printf "8. After resolving, proactively check for side effects using 'grep'.\n"
+              printf "9. Ensure the resulting code is syntactically correct and preserves intended logic.\n"
+              printf "10. For configuration files (package.json, requirements.txt), maintain a valid and consistent structure.\n\n"
+              printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools (read_file, write_file, run_shell_command) to perform the work.\n"
+              printf "Focus entirely on using your tools to resolve and write the file '%s'. Do not give a conversational response; just use your tools.\n" "$file"
+            } > "$PROMPT_FILE"
 
-          if [ $gemini_status -eq 0 ]; then
-            log "Gemini CLI finished processing $file."
-            post_checksum=$(sha256sum "$file" | awk '{print $1}')
-            if [ "$pre_checksum" = "$post_checksum" ]; then
-              log "Error: File $file was not modified by Gemini CLI."
-              continue
+            log "Invoking Gemini CLI ($GEMINI_MODEL) for $file with approval-mode yolo (5m timeout)..."
+            set +e
+            # Redirect stdin from PROMPT_FILE. gemini CLI will read the prompt from here.
+            timeout 300 gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
+            gemini_status=$?
+            rm -f "$PROMPT_FILE"
+            PROMPT_FILE=""
+            set -e
+
+            if [ $gemini_status -eq 0 ]; then
+              log "Gemini CLI finished processing $file."
+              post_checksum=$(sha256sum "$file" | awk '{print $1}')
+              if [ "$pre_checksum" = "$post_checksum" ]; then
+                log "Warning: File $file was not modified by Gemini CLI in attempt $attempt."
+              else
+                if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
+                   log "Warning: Conflict markers still present in $file after attempt $attempt."
+                else
+                   resolved=true
+                   break
+                fi
+              fi
             else
-              log "File $file was modified and supposedly resolved."
+              log "Error: Gemini CLI failed while processing $file in attempt $attempt."
             fi
-          else
-            log "Error: Gemini CLI failed while processing $file."
+            attempt=$((attempt + 1))
+            [ $attempt -le $max_attempts ] && sleep 10
+          done
+
+          if [ "$resolved" = "false" ]; then
+            log "Error: Failed to resolve $file after $max_attempts attempts."
             continue
+          else
+            log "File $file was successfully resolved."
           fi
 
           # Verify that conflict markers are gone
@@ -531,6 +549,13 @@ process_pr() {
 
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
+    # Final poll to ensure PR state is fresh before merge
+    mergeable=$(poll_mergeability "$number")
+    if [ "$mergeable" != "true" ]; then
+      log "PR #$number is no longer mergeable ($mergeable) after final poll. Skipping merge."
+      return 1
+    fi
+
     # Get the latest head SHA to check CI status accurately
     local current_head_sha
     current_head_sha=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \

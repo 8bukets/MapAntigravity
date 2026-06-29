@@ -41,6 +41,15 @@ jobs:
           echo "git version: $(git --version)"
           echo "python version: $(python3 --version)"
 
+      - name: Gemini CLI Health Check
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if ! gemini --version; then
+            echo "Error: Gemini CLI is not operational."
+            exit 1
+          fi
+
       - name: Run PR resolution script
         continue-on-error: true
         env:
