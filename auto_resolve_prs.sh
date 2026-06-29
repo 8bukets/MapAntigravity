@@ -550,7 +550,7 @@ process_pr() {
 
     if command -v gh &> /dev/null; then
       log "Attempting squash and merge for PR #$number via GitHub CLI (gh)..."
-      if gh pr merge "$number" --squash --body "chore: autonomous squash merge PR #$number via gemini-cli" --repo "$REPO"; then
+      if gh pr merge "$number" --squash --subject "chore: squash merge PR #$number ($pr_title)" --body "chore: autonomous squash merge PR #$number via gemini-cli" --repo "$REPO"; then
         merged="true"
         http_code=200
         log "GitHub CLI squash-merge successful for PR #$number."
@@ -565,7 +565,7 @@ process_pr() {
       local merge_output merge_response
       merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
                                      -H "Accept: application/vnd.github.v3+json" \
-                                     -d "$(jq -n --arg number "$number" '{merge_method: "squash", commit_title: ("chore: squash merge PR #" + $number)}')" \
+                                     -d "$(jq -n --arg number "$number" --arg title "$pr_title" '{merge_method: "squash", commit_title: ("chore: squash merge PR #" + $number + " (" + $title + ")")}')" \
                                      "$API_BASE/pulls/$number/merge")
 
       merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
