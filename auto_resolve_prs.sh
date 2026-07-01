@@ -292,6 +292,16 @@ while : ; do
   page=$((page+1))
 done
 
+# Log remaining rate limit
+rate_limit_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/rate_limit")
+if printf '%s\n' "$rate_limit_resp" | jq -e . >/dev/null 2>&1; then
+  remaining=$(printf '%s\n' "$rate_limit_resp" | jq -r '.resources.core.remaining')
+  limit=$(printf '%s\n' "$rate_limit_resp" | jq -r '.resources.core.limit')
+  reset=$(printf '%s\n' "$rate_limit_resp" | jq -r '.resources.core.reset')
+  reset_date=$(date -d "@$reset" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$reset")
+  log "GitHub API Rate Limit: $remaining/$limit (Resets at: $reset_date)"
+fi
+
 total_count=$(jq '. | length' "$ALL_PRS_FILE")
 log "Found $total_count open pull requests in total."
 
@@ -430,9 +440,11 @@ process_pr() {
               printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
               printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
               printf "   - For JSON: 'jq . %s'\n" "$file"
+              printf "   - For YAML: 'python3 -c \"import yaml, sys; yaml.safe_load(sys.stdin)\" < %s'\n" "$file"
+              printf "   - For SQL: 'sqlite3 :memory: \".read '\''%s'\''\"'\n" "$file"
               printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
-              printf "7. MANDATORY: Explore the repository using 'ls -R' or 'grep' to gather context (imports, variable definitions) for a correct resolution. Pay special attention to dependency changes.\n"
-              printf "8. After resolving, proactively check for side effects using 'grep'.\n"
+              printf "7. MANDATORY: Explore the repository using 'ls -R' to gather context (imports, variable definitions) for a correct resolution. Pay special attention to dependency changes.\n"
+              printf "8. MANDATORY: After resolving, proactively check for side effects using 'grep' to ensure no logic was broken elsewhere.\n"
               printf "9. Ensure the resulting code is syntactically correct and preserves intended logic.\n"
               printf "10. For configuration files (package.json, requirements.txt), maintain a valid and consistent structure.\n\n"
               printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools (read_file, write_file, run_shell_command) to perform the work.\n"
@@ -487,6 +499,8 @@ process_pr() {
               *.py) python3 -m py_compile "$file" || syntax_ok=false ;;
               *.sh) bash -n "$file" || syntax_ok=false ;;
               *.json) jq . "$file" > /dev/null || syntax_ok=false ;;
+              *.yml|*.yaml) python3 -c "import yaml, sys; yaml.safe_load(sys.stdin)" < "$file" >/dev/null 2>&1 || syntax_ok=false ;;
+              *.sql) sqlite3 :memory: ".read '$file'" >/dev/null 2>&1 || syntax_ok=false ;;
               *.rb) ruby -c "$file" >/dev/null 2>&1 || syntax_ok=false ;;
               *.php) php -l "$file" >/dev/null 2>&1 || syntax_ok=false ;;
               *.go) gofmt -e "$file" >/dev/null 2>&1 || syntax_ok=false ;;
