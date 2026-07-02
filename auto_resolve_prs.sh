@@ -308,7 +308,7 @@ log "Found $total_count open pull requests in total."
 # Function to process a single PR
 process_pr() {
   local pr="$1"
-  local number head_ref base_ref head_repo head_clone_url is_draft pr_title pr_body maintainer_can_modify
+  local number head_ref base_ref head_repo head_clone_url is_draft pr_title pr_body maintainer_can_modify pr_url file
 
   number=$(printf '%s\n' "$pr" | jq -r '.number')
   head_ref=$(printf '%s\n' "$pr" | jq -r '.head.ref')
@@ -436,12 +436,15 @@ process_pr() {
               printf "5. MANDATORY: Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file. Triple check for these markers before finalizing.\n"
               printf "6. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools and FIX any errors found:\n"
               printf "   - For JavaScript: 'node --check %s'\n" "$file"
-              printf "   - For TypeScript: Use 'tsc --noEmit %s' if available, otherwise 'node --check'.\n" "$file"
+              printf "   - For TypeScript: Use 'tsc --noEmit %s' if available.\n" "$file"
               printf "   - For Python: 'python3 -m py_compile %s'\n" "$file"
               printf "   - For Shell scripts: 'bash -n %s'\n" "$file"
               printf "   - For JSON: 'jq . %s'\n" "$file"
               printf "   - For YAML: 'python3 -c \"import yaml, sys; yaml.safe_load(sys.stdin)\" < %s'\n" "$file"
               printf "   - For SQL: 'sqlite3 :memory: \".read '\''%s'\''\"'\n" "$file"
+              printf "   - For Ruby: 'ruby -c %s'\n" "$file"
+              printf "   - For PHP: 'php -l %s'\n" "$file"
+              printf "   - For Go: 'gofmt -e %s'\n" "$file"
               printf "   - For HTML/CSS: Use basic pattern matching or available linters to ensure tag/bracket balance.\n"
               printf "7. MANDATORY: Explore the repository using 'ls -R' to gather context (imports, variable definitions) for a correct resolution. Pay special attention to dependency changes.\n"
               printf "8. MANDATORY: After resolving, proactively check for side effects using 'grep' to ensure no logic was broken elsewhere.\n"
