@@ -23,6 +23,10 @@ FAILED_PRS=0
 START_TIME=$(date +%s)
 # Default timeout: 3 hours and 30 minutes (12600 seconds)
 MAX_RUNTIME=${MAX_RUNTIME:-12600}
+# Optional continuous mode for running as a daemon
+CONTINUOUS_MODE=${CONTINUOUS_MODE:-false}
+# Interval between runs in continuous mode (default 4 hours)
+LOOP_INTERVAL=${LOOP_INTERVAL:-14400}
 
 cleanup() {
   log "Performing final cleanup of temporary files..."
@@ -30,18 +34,24 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Use GITHUB_REPOSITORY if available, otherwise fallback to parsing origin remote
-if [ -z "${GITHUB_REPOSITORY:-}" ]; then
+# Determine the target repository: prioritize GITHUB_REPOSITORY env var,
+# then try to parse it from 'git remote', with a final fallback.
+if [ -n "${GITHUB_REPOSITORY:-}" ]; then
+  REPO="$GITHUB_REPOSITORY"
+  log "Using repository from GITHUB_REPOSITORY: $REPO"
+else
+  # Try 'origin' first, then any remote that looks like a GitHub URL
   REPO=$(git remote get-url origin 2>/dev/null | sed -E 's/.*github.com[:\/]//; s/\.git$//' || echo "")
   if [ -z "$REPO" ]; then
-    # Fallback for alternative remote names if 'origin' isn't set
-    REPO=$(git remote -v | head -n 1 | awk '{print $2}' | sed -E 's/.*github.com[:\/]//; s/\.git$//' || echo "")
+    REPO=$(git remote -v | grep "github.com" | head -n 1 | awk '{print $2}' | sed -E 's/.*github.com[:\/]//; s/\.git$//' || echo "")
   fi
-else
-  REPO="$GITHUB_REPOSITORY"
+  if [ -n "$REPO" ]; then
+    log "Detected repository from git remote: $REPO"
+  else
+    log "Error: Could not determine repository from environment or git remotes."
+    exit 1
+  fi
 fi
-# Final fallback if both fail
-REPO="${REPO:-8bukets/MapAntigravity}"
 API_BASE="https://api.github.com/repos/$REPO"
 
 log "Target Repository: $REPO"
@@ -339,33 +349,36 @@ process_pr() {
   authenticated_head_url=$(printf '%s\n' "$head_clone_url" | sed "s|https://|https://x-access-token:${GITHUB_TOKEN}@|")
 
   # Fetch the PR branch
-  log "Fetching $head_ref from $head_repo..."
+  log "[Fetch] Fetching $head_ref from $head_repo..."
   if ! git fetch "$authenticated_head_url" "$head_ref"; then
-    log "Error: Failed to fetch PR branch from $head_repo."
+    log "[Fetch Error] Failed to fetch PR branch from $head_repo."
     return 1
   fi
   local pr_head_commit
   pr_head_commit=$(git rev-parse FETCH_HEAD)
+  log "[Fetch] Successfully fetched head at $pr_head_commit"
 
   # Fetch the base branch
-  log "Fetching origin/$base_ref..."
+  log "[Fetch] Fetching origin/$base_ref..."
   if ! git fetch origin "$base_ref"; then
-    log "Error: Failed to fetch base branch origin/$base_ref."
+    log "[Fetch Error] Failed to fetch base branch origin/$base_ref."
     return 1
   fi
   local base_branch_head
   base_branch_head=$(git rev-parse FETCH_HEAD)
+  log "[Fetch] Successfully fetched base at $base_branch_head"
 
   # Check if PR is behind base
   local behind_count
   behind_count=$(git rev-list --count "$pr_head_commit..$base_branch_head")
 
   # Check mergeability via API
+  log "[API] Polling mergeability for PR #$number..."
   local mergeable
   mergeable=$(poll_mergeability "$number")
 
   if [ "$mergeable" = "false" ] || [ "$behind_count" -gt 0 ]; then
-    log "PR #$number needs update (conflicted: $mergeable, behind: $behind_count)."
+    log "[Analysis] PR #$number needs update (conflicted: $mergeable, behind: $behind_count)."
 
     # Avoid messing with forks if permissions are restricted
     if [ "$head_repo" != "$REPO" ] && [ "$maintainer_can_modify" != "true" ]; then
@@ -379,9 +392,9 @@ process_pr() {
       log "Checking out local branch $local_branch from $pr_head_commit..."
       git checkout -B "$local_branch" "$pr_head_commit"
 
-      log "Attempting to merge base branch into $local_branch..."
+      log "[Merge] Attempting to merge base branch ($base_branch_head) into $local_branch..."
       if ! git merge "$base_branch_head" --no-edit; then
-        log "Merge failed with conflicts. Identifying files..."
+        log "[Merge] Merge failed with conflicts. Identifying files..."
         post_comment "$number" "🤖 PR #$number has conflicts. Attempting autonomous resolution via Gemini CLI ($GEMINI_MODEL)..."
 
         local conflicts_file
@@ -401,7 +414,7 @@ process_pr() {
             continue
           fi
 
-          log "Resolving conflicts in $file..."
+          log "[Resolve] Resolving conflicts in $file..."
           # Calculate checksum before resolution
           local pre_checksum post_checksum gemini_status
           pre_checksum=$(sha256sum "$file" | awk '{print $1}')
@@ -412,7 +425,7 @@ process_pr() {
           local resolved=false
 
           while [ $attempt -le $max_attempts ]; do
-            log "Resolution attempt $attempt of $max_attempts for $file..."
+            log "[Resolve] Resolution attempt $attempt of $max_attempts for $file..."
 
             # PROMPT GENERATION (Hardened against injection from PR metadata)
             PROMPT_FILE=$(mktemp)
@@ -450,11 +463,17 @@ process_pr() {
               printf "8. MANDATORY: After resolving, proactively check for side effects using 'grep' to ensure no logic was broken elsewhere.\n"
               printf "9. Ensure the resulting code is syntactically correct and preserves intended logic.\n"
               printf "10. For configuration files (package.json, requirements.txt), maintain a valid and consistent structure.\n\n"
-              printf "You are in 'YOLO' mode, meaning your actions will be auto-approved. Work efficiently and autonomously to resolve the conflict and finalize the file. Use your tools (read_file, write_file, run_shell_command) to perform the work.\n"
+              printf "### EXECUTION GUIDELINES\n"
+              printf "- You are in 'YOLO' mode; your tool calls are auto-approved. Use them decisively.\n"
+              printf "- MANDATORY: Use 'read_file' for all file reading and 'write_file' for all file writing. DO NOT simply output code blocks in your response.\n"
+              printf "- MANDATORY: Use 'run_shell_command' for syntax checks and repository exploration ('ls -R', 'grep').\n"
+              printf "- DO NOT attempt to use 'git' commands (add, commit, push). The environment script handles git state; your job is strictly file resolution.\n"
+              printf "- If you cannot resolve the conflict or the file is too large/complex, explain why and stop.\n"
+              printf "- Perform a final self-verification by reading the file back after writing to ensure it's correct.\n\n"
               printf "Focus entirely on using your tools to resolve and write the file '%s'. Do not give a conversational response; just use your tools.\n" "$file"
             } > "$PROMPT_FILE"
 
-            log "Invoking Gemini CLI ($GEMINI_MODEL) for $file with approval-mode yolo (5m timeout)..."
+            log "[Gemini] Invoking Gemini CLI ($GEMINI_MODEL) for $file (5m timeout)..."
             set +e
             # Redirect stdin from PROMPT_FILE. gemini CLI will read the prompt from here.
             timeout 300 gemini --model "$GEMINI_MODEL" --prompt "" --approval-mode yolo --skip-trust < "$PROMPT_FILE"
@@ -464,20 +483,21 @@ process_pr() {
             set -e
 
             if [ $gemini_status -eq 0 ]; then
-              log "Gemini CLI finished processing $file."
+              log "[Gemini] Finished processing $file."
               post_checksum=$(sha256sum "$file" | awk '{print $1}')
               if [ "$pre_checksum" = "$post_checksum" ]; then
-                log "Warning: File $file was not modified by Gemini CLI in attempt $attempt."
+                log "[Gemini Warning] File $file was not modified by Gemini CLI in attempt $attempt."
               else
                 if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
-                   log "Warning: Conflict markers still present in $file after attempt $attempt."
+                   log "[Gemini Warning] Conflict markers still present in $file after attempt $attempt."
                 else
+                   log "[Gemini Success] Conflict markers removed from $file"
                    resolved=true
                    break
                 fi
               fi
             else
-              log "Error: Gemini CLI failed while processing $file in attempt $attempt."
+              log "[Gemini Error] Gemini CLI failed with exit code $gemini_status for $file in attempt $attempt."
             fi
             attempt=$((attempt + 1))
             [ $attempt -le $max_attempts ] && sleep 10
@@ -492,28 +512,48 @@ process_pr() {
 
           # Verify that conflict markers are gone
           if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
-            log "WARNING: Conflict markers still present in $file after Gemini attempt."
+            log "[Verify Warning] Conflict markers still present in $file after Gemini attempt."
           else
-            log "Conflict markers successfully removed from $file. Performing secondary syntax check..."
+            log "[Verify] Conflict markers successfully removed from $file. Performing secondary syntax check..."
 
             local syntax_ok=true
+            local syntax_err=""
             case "$file" in
-              *.js|*.mjs) node --check "$file" || syntax_ok=false ;;
-              *.py) python3 -m py_compile "$file" || syntax_ok=false ;;
-              *.sh) bash -n "$file" || syntax_ok=false ;;
-              *.json) jq . "$file" > /dev/null || syntax_ok=false ;;
-              *.yml|*.yaml) python3 -c "import yaml, sys; yaml.safe_load(sys.stdin)" < "$file" >/dev/null 2>&1 || syntax_ok=false ;;
-              *.sql) sqlite3 :memory: ".read '$file'" >/dev/null 2>&1 || syntax_ok=false ;;
-              *.rb) ruby -c "$file" >/dev/null 2>&1 || syntax_ok=false ;;
-              *.php) php -l "$file" >/dev/null 2>&1 || syntax_ok=false ;;
-              *.go) gofmt -e "$file" >/dev/null 2>&1 || syntax_ok=false ;;
+              *.js|*.mjs)
+                syntax_err=$(node --check "$file" 2>&1) || syntax_ok=false
+                ;;
+              *.py)
+                syntax_err=$(python3 -m py_compile "$file" 2>&1) || syntax_ok=false
+                ;;
+              *.sh)
+                syntax_err=$(bash -n "$file" 2>&1) || syntax_ok=false
+                ;;
+              *.json)
+                syntax_err=$(jq . "$file" 2>&1 > /dev/null) || syntax_ok=false
+                ;;
+              *.yml|*.yaml)
+                syntax_err=$(python3 -c "import yaml, sys; yaml.safe_load(sys.stdin)" < "$file" 2>&1) || syntax_ok=false
+                ;;
+              *.sql)
+                syntax_err=$(sqlite3 :memory: ".read '$file'" 2>&1) || syntax_ok=false
+                ;;
+              *.rb)
+                syntax_err=$(ruby -c "$file" 2>&1) || syntax_ok=false
+                ;;
+              *.php)
+                syntax_err=$(php -l "$file" 2>&1) || syntax_ok=false
+                ;;
+              *.go)
+                syntax_err=$(gofmt -e "$file" 2>&1) || syntax_ok=false
+                ;;
             esac
 
             if [ "$syntax_ok" = "true" ]; then
-              log "Syntax check passed for $file."
+              log "[Verify Success] Syntax check passed for $file."
               git add "$file"
             else
-              log "ERROR: Secondary syntax check failed for $file."
+              log "[Verify Error] Secondary syntax check failed for $file:"
+              printf "%s\n" "$syntax_err" | while read -r line; do log "  > $line"; done
             fi
           fi
         done 4< "$conflicts_file"
@@ -541,18 +581,18 @@ process_pr() {
 
       # Check if we have new commits to push
       if [ $(git rev-list --count "$pr_head_commit..HEAD") -gt 0 ]; then
-        log "Pushing updated changes to $head_repo ($head_ref)..."
+        log "[Push] Pushing updated changes to $head_repo ($head_ref)..."
         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
-          log "Successfully updated PR #$number and pushed to $head_ref."
+          log "[Push Success] Successfully updated PR #$number and pushed to $head_ref."
           post_comment "$number" "✅ Successfully updated PR #$number with latest changes from $base_ref and resolved any conflicts."
           RESOLVED_PRS=$((RESOLVED_PRS + 1))
 
           # Wait a bit for GitHub to re-calculate mergeability after push
-          log "Waiting for GitHub to re-calculate mergeability..."
+          log "[API] Waiting for GitHub to re-calculate mergeability..."
           sleep 15
           mergeable=$(poll_mergeability "$number")
         else
-          log "Error: Failed to push updated changes to $head_ref."
+          log "[Push Error] Failed to push updated changes to $head_ref."
           post_comment "$number" "❌ Failed to push updated changes to $head_ref. Please check if the branch is protected."
           return 1
         fi
@@ -566,10 +606,11 @@ process_pr() {
 
   # 3. Squash and Merge
   if [ "$mergeable" = "true" ]; then
+    log "[Merge] PR #$number is mergeable. Proceeding to squash-merge."
     # Final poll to ensure PR state is fresh before merge
     mergeable=$(poll_mergeability "$number")
     if [ "$mergeable" != "true" ]; then
-      log "PR #$number is no longer mergeable ($mergeable) after final poll. Skipping merge."
+      log "[Merge Skip] PR #$number is no longer mergeable ($mergeable) after final poll."
       return 1
     fi
 
@@ -580,7 +621,7 @@ process_pr() {
                             "$API_BASE/pulls/$number" | jq -r '.head.sha')
 
     if ! check_ci_status "$number" "$current_head_sha"; then
-      log "CI check failed or still in progress for PR #$number. Skipping squash-merge."
+      log "[Merge Skip] CI check failed or still in progress for PR #$number."
       return 1
     fi
 
@@ -591,18 +632,18 @@ process_pr() {
     local http_code=0
 
     if command -v gh &> /dev/null; then
-      log "Attempting squash and merge for PR #$number via GitHub CLI (gh)..."
+      log "[Merge] Attempting squash and merge for PR #$number via GitHub CLI (gh)..."
       if gh pr merge "$number" --squash --subject "chore: squash merge PR #$number ($pr_title)" --body "chore: autonomous squash merge PR #$number via gemini-cli" --repo "$REPO"; then
         merged="true"
         http_code=200
-        log "GitHub CLI squash-merge successful for PR #$number."
+        log "[Merge Success] GitHub CLI squash-merge successful for PR #$number."
       else
-        log "GitHub CLI merge failed for PR #$number. Falling back to API."
+        log "[Merge Warning] GitHub CLI merge failed for PR #$number. Falling back to API."
       fi
     fi
 
     if [ "$merged" != "true" ]; then
-      log "Attempting squash and merge for PR #$number via GitHub API..."
+      log "[Merge] Attempting squash and merge for PR #$number via GitHub API..."
       # Capture HTTP status code and response body
       local merge_output merge_response
       merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -679,3 +720,10 @@ log "Returning to original branch: $ORIGINAL_BRANCH"
 git checkout "$ORIGINAL_BRANCH" || log "Warning: Failed to return to original branch $ORIGINAL_BRANCH"
 
 log "Finished processing all pull requests."
+
+if [ "$CONTINUOUS_MODE" = "true" ]; then
+  log "Continuous mode enabled. Waiting $((LOOP_INTERVAL / 3600)) hours before next run..."
+  sleep "$LOOP_INTERVAL"
+  # Re-execute the script
+  exec "$0" "$@"
+fi
