@@ -27,6 +27,24 @@ MAX_RUNTIME=${MAX_RUNTIME:-12600}
 CONTINUOUS_MODE=${CONTINUOUS_MODE:-false}
 # Interval between runs in continuous mode (default 4 hours)
 LOOP_INTERVAL=${LOOP_INTERVAL:-14400}
+# Dry run mode
+DRY_RUN=false
+
+# Parse arguments without shifting, so we can pass them to exec later
+for arg in "$@"; do
+  case $arg in
+    --dry-run)
+      DRY_RUN=true
+      ;;
+    --continuous)
+      CONTINUOUS_MODE=true
+      ;;
+  esac
+done
+
+if [ "$DRY_RUN" = "true" ]; then
+  log "DRY RUN MODE ENABLED. No changes will be pushed or merged."
+fi
 
 cleanup() {
   log "Performing final cleanup of temporary files..."
@@ -136,6 +154,33 @@ post_comment() {
 }
 
 # Function to approve a PR
+# Function to check for CHANGES_REQUESTED reviews
+check_reviews() {
+  local pr_number=$1
+  log "Checking reviews for PR #$pr_number..."
+
+  local reviews_resp
+  reviews_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        "$API_BASE/pulls/$pr_number/reviews")
+
+  if [ -z "$reviews_resp" ] || ! printf '%s\n' "$reviews_resp" | jq -e . >/dev/null 2>&1; then
+    log "Warning: Failed to fetch reviews for PR #$pr_number."
+    return 0 # Assume okay if we can't fetch reviews
+  fi
+
+  # Check if any review has state CHANGES_REQUESTED. We look at the latest review from each user.
+  local active_changes_requested
+  active_changes_requested=$(printf '%s\n' "$reviews_resp" | jq '[.[] | {user: (.user.login // "unknown"), state: .state}] | group_by(.user) | map(last) | select(. != null) | .[] | select(.state == "CHANGES_REQUESTED")' 2>/dev/null | jq -s 'length')
+
+  if [ "$active_changes_requested" -gt 0 ]; then
+    log "PR #$pr_number has $active_changes_requested active 'CHANGES_REQUESTED' reviews. Skipping."
+    return 1
+  fi
+
+  return 0
+}
+
 approve_pr() {
   local pr_number=$1
   log "Approving PR #$pr_number..."
@@ -520,31 +565,54 @@ process_pr() {
             local syntax_err=""
             case "$file" in
               *.js|*.mjs)
-                syntax_err=$(node --check "$file" 2>&1) || syntax_ok=false
+                if command -v node &>/dev/null; then
+                  syntax_err=$(node --check "$file" 2>&1) || syntax_ok=false
+                fi
+                ;;
+              *.ts|*.tsx)
+                if command -v npx &>/dev/null; then
+                  syntax_err=$(npx -p typescript tsc --noEmit "$file" 2>&1) || syntax_ok=false
+                fi
                 ;;
               *.py)
-                syntax_err=$(python3 -m py_compile "$file" 2>&1) || syntax_ok=false
+                if command -v python3 &>/dev/null; then
+                  syntax_err=$(python3 -m py_compile "$file" 2>&1) || syntax_ok=false
+                fi
                 ;;
               *.sh)
-                syntax_err=$(bash -n "$file" 2>&1) || syntax_ok=false
+                if command -v bash &>/dev/null; then
+                  syntax_err=$(bash -n "$file" 2>&1) || syntax_ok=false
+                fi
                 ;;
               *.json)
-                syntax_err=$(jq . "$file" 2>&1 > /dev/null) || syntax_ok=false
+                if command -v jq &>/dev/null; then
+                  syntax_err=$(jq . "$file" 2>&1 > /dev/null) || syntax_ok=false
+                fi
                 ;;
               *.yml|*.yaml)
-                syntax_err=$(python3 -c "import yaml, sys; yaml.safe_load(sys.stdin)" < "$file" 2>&1) || syntax_ok=false
+                if command -v python3 &>/dev/null && python3 -c "import yaml" &>/dev/null; then
+                  syntax_err=$(python3 -c "import yaml, sys; yaml.safe_load(sys.stdin)" < "$file" 2>&1) || syntax_ok=false
+                fi
                 ;;
               *.sql)
-                syntax_err=$(sqlite3 :memory: ".read '$file'" 2>&1) || syntax_ok=false
+                if command -v sqlite3 &>/dev/null; then
+                  syntax_err=$(sqlite3 :memory: ".read '$file'" 2>&1) || syntax_ok=false
+                fi
                 ;;
               *.rb)
-                syntax_err=$(ruby -c "$file" 2>&1) || syntax_ok=false
+                if command -v ruby &>/dev/null; then
+                  syntax_err=$(ruby -c "$file" 2>&1) || syntax_ok=false
+                fi
                 ;;
               *.php)
-                syntax_err=$(php -l "$file" 2>&1) || syntax_ok=false
+                if command -v php &>/dev/null; then
+                  syntax_err=$(php -l "$file" 2>&1) || syntax_ok=false
+                fi
                 ;;
               *.go)
-                syntax_err=$(gofmt -e "$file" 2>&1) || syntax_ok=false
+                if command -v gofmt &>/dev/null; then
+                  syntax_err=$(gofmt -e "$file" 2>&1) || syntax_ok=false
+                fi
                 ;;
             esac
 
@@ -581,6 +649,12 @@ process_pr() {
 
       # Check if we have new commits to push
       if [ $(git rev-list --count "$pr_head_commit..HEAD") -gt 0 ]; then
+        if [ "$DRY_RUN" = "true" ]; then
+          log "[Push Skip] DRY RUN: Would push updated changes to $head_repo ($head_ref)."
+          RESOLVED_PRS=$((RESOLVED_PRS + 1))
+          return 0
+        fi
+
         log "[Push] Pushing updated changes to $head_repo ($head_ref)..."
         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
           log "[Push Success] Successfully updated PR #$number and pushed to $head_ref."
@@ -623,6 +697,17 @@ process_pr() {
     if ! check_ci_status "$number" "$current_head_sha"; then
       log "[Merge Skip] CI check failed or still in progress for PR #$number."
       return 1
+    fi
+
+    if ! check_reviews "$number"; then
+      log "[Merge Skip] Human reviews require changes for PR #$number."
+      return 1
+    fi
+
+    if [ "$DRY_RUN" = "true" ]; then
+       log "[Merge Skip] DRY RUN: Would approve and squash-merge PR #$number."
+       MERGED_PRS=$((MERGED_PRS + 1))
+       return 0
     fi
 
     approve_pr "$number"
@@ -722,8 +807,17 @@ git checkout "$ORIGINAL_BRANCH" || log "Warning: Failed to return to original br
 log "Finished processing all pull requests."
 
 if [ "$CONTINUOUS_MODE" = "true" ]; then
-  log "Continuous mode enabled. Waiting $((LOOP_INTERVAL / 3600)) hours before next run..."
-  sleep "$LOOP_INTERVAL"
+  CURRENT_TIME=$(date +%s)
+  RUN_DURATION=$((CURRENT_TIME - START_TIME))
+  WAIT_TIME=$((LOOP_INTERVAL - RUN_DURATION))
+
+  if [ $WAIT_TIME -gt 0 ]; then
+    log "Continuous mode enabled. Run took ${RUN_DURATION}s. Waiting ${WAIT_TIME}s ($((WAIT_TIME / 60)) minutes) before next run..."
+    sleep "$WAIT_TIME"
+  else
+    log "Continuous mode enabled. Run took ${RUN_DURATION}s, which exceeds LOOP_INTERVAL (${LOOP_INTERVAL}s). Starting next run immediately."
+  fi
+
   # Re-execute the script
   exec "$0" "$@"
 fi
