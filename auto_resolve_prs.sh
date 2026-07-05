@@ -100,18 +100,37 @@ fi
 GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.0-flash}"
 log "Using Gemini Model: $GEMINI_MODEL"
 
-# Check for required tools
-for tool in jq gemini curl git file sha256sum node python3; do
+# Check for required tools and attempt self-installation of gemini if missing
+for tool in jq curl git file sha256sum node python3; do
   if ! command -v "$tool" &> /dev/null; then
     log "Error: $tool is not installed or not in PATH."
     exit 1
   fi
 done
 
-# Verify gemini-cli is functional
+if ! command -v gemini &> /dev/null; then
+  log "Warning: 'gemini' CLI not found. Attempting to install @google/gemini-cli..."
+  if command -v npm &> /dev/null; then
+    npm install -g @google/gemini-cli || { log "Error: Failed to install gemini-cli."; exit 1; }
+  else
+    log "Error: 'npm' not found. Cannot install gemini-cli autonomously."
+    exit 1
+  fi
+fi
+
+# Verify gemini-cli is functional and API key is valid
+log "Checking Gemini API health..."
 if ! gemini --version &> /dev/null; then
   log "Warning: 'gemini --version' failed. gemini-cli might not be correctly configured."
 fi
+
+# Basic connectivity check/health check using a simple prompt
+if ! timeout 30 gemini --prompt "ping" --model "$GEMINI_MODEL" --approval-mode yolo --skip-trust &> /dev/null; then
+  log "Error: Gemini API health check failed. Please check your GEMINI_API_KEY and network connection."
+  # We exit because the core functionality depends on Gemini
+  exit 1
+fi
+log "Gemini API is healthy."
 
 # Configure git
 git config user.name "github-actions[bot]"
@@ -150,6 +169,27 @@ post_comment() {
        "$API_BASE/issues/$pr_number/comments")
   if [ "$http_code" -ne 201 ]; then
     log "Warning: Failed to post comment to PR #$pr_number (HTTP $http_code)"
+  fi
+}
+
+# Function to add a label to a PR
+add_label() {
+  local pr_number=$1
+  local label=$2
+
+  if [ "$DRY_RUN" = "true" ]; then
+    log "[Label Skip] DRY RUN: Would add label '$label' to PR #$pr_number."
+    return 0
+  fi
+
+  log "Adding label '$label' to PR #$pr_number..."
+  local http_code
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+       -H "Accept: application/vnd.github.v3+json" \
+       -d "$(jq -n --arg label "$label" '{"labels": [$label]}')" \
+       "$API_BASE/issues/$pr_number/labels")
+  if [ "$http_code" -ne 200 ] && [ "$http_code" -ne 201 ]; then
+    log "Warning: Failed to add label to PR #$pr_number (HTTP $http_code)"
   fi
 }
 
@@ -313,13 +353,24 @@ echo "[]" > "$ALL_PRS_FILE"
 
 while : ; do
   log "Fetching page $page of PRs..."
-  prs_page=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-                    -H "Accept: application/vnd.github.v3+json" \
-                    "$API_BASE/pulls?state=open&per_page=100&page=$page&sort=created&direction=asc")
+  # Retry loop for PR fetching
+  fetch_attempt=1
+  max_fetch_attempts=3
+  prs_page=""
+  while [ $fetch_attempt -le $max_fetch_attempts ]; do
+    prs_page=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      "$API_BASE/pulls?state=open&per_page=100&page=$page&sort=created&direction=asc")
+    if [ -n "$prs_page" ] && printf '%s\n' "$prs_page" | jq -e . >/dev/null 2>&1; then
+      break
+    fi
+    log "Warning: Failed to fetch PRs (attempt $fetch_attempt/$max_fetch_attempts). Retrying in 5s..."
+    sleep 5
+    fetch_attempt=$((fetch_attempt + 1))
+  done
 
   # Check if we got an error message instead of an array
   if printf '%s\n' "$prs_page" | jq -e '.message' >/dev/null 2>&1; then
-    local msg
     msg=$(printf '%s\n' "$prs_page" | jq -r '.message')
     log "Error from GitHub API on page $page: $msg"
     if [[ "$msg" == *"rate limit exceeded"* ]]; then
@@ -655,10 +706,17 @@ process_pr() {
           return 0
         fi
 
+        # Get list of changed files for the comment
+        local changed_files
+        changed_files=$(git diff --name-only "$pr_head_commit..HEAD" | sed 's/^/- /' || echo "")
+
         log "[Push] Pushing updated changes to $head_repo ($head_ref)..."
         if git push "$authenticated_head_url" "HEAD:$head_ref"; then
           log "[Push Success] Successfully updated PR #$number and pushed to $head_ref."
-          post_comment "$number" "✅ Successfully updated PR #$number with latest changes from $base_ref and resolved any conflicts."
+          local comment_body
+          comment_body=$(printf "✅ Successfully updated PR #%s with latest changes from %s and resolved conflicts.\n\n**Resolved Files:**\n%s" "$number" "$base_ref" "$changed_files")
+          post_comment "$number" "$comment_body"
+          add_label "$number" "auto-resolved"
           RESOLVED_PRS=$((RESOLVED_PRS + 1))
 
           # Wait a bit for GitHub to re-calculate mergeability after push
@@ -733,7 +791,7 @@ process_pr() {
       local merge_output merge_response
       merge_output=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
                                      -H "Accept: application/vnd.github.v3+json" \
-                                     -d "$(jq -n --arg number "$number" --arg title "$pr_title" '{merge_method: "squash", commit_title: ("chore: squash merge PR #" + $number + " (" + $title + ")")}')" \
+                                     -d "$(jq -n --arg number "$number" --arg title "$pr_title" '{merge_method: "squash", commit_title: ("chore: squash merge PR #" + $number + " (" + $title + ")"), commit_message: ("chore: autonomous squash merge PR #" + $number + " via gemini-cli")}')" \
                                      "$API_BASE/pulls/$number/merge")
 
       merge_response=$(printf '%s\n' "$merge_output" | head -n -1)
@@ -799,6 +857,21 @@ log "PRs resolved/updated: $RESOLVED_PRS"
 log "PRs successfully merged: $MERGED_PRS"
 log "PRs that failed processing: $FAILED_PRS"
 log "============================"
+
+# Write to GitHub Actions Job Summary if available
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  {
+    echo "### 🤖 Autonomous PR Resolution Summary"
+    echo "| Metric | Count |"
+    echo "| :--- | :--- |"
+    echo "| Total PRs Processed | $TOTAL_PRS |"
+    echo "| PRs Resolved/Updated | $RESOLVED_PRS |"
+    echo "| PRs Successfully Merged | $MERGED_PRS |"
+    echo "| PRs Failed Processing | $FAILED_PRS |"
+    echo ""
+    echo "*Run Duration: $(( $(date +%s) - START_TIME )) seconds*"
+  } >> "$GITHUB_STEP_SUMMARY"
+fi
 
 # Return to the original branch
 log "Returning to original branch: $ORIGINAL_BRANCH"
