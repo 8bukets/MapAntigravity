@@ -7,6 +7,10 @@ on:
     - cron: "0 */4 * * *"
   workflow_dispatch: # Allow manual trigger
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write
@@ -44,9 +48,16 @@ jobs:
       - name: Gemini CLI Health Check
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.0-flash
         run: |
           if ! gemini --version; then
             echo "Error: Gemini CLI is not operational."
+            exit 1
+          fi
+          # Proactive connectivity check
+          echo "Verifying Gemini API connectivity..."
+          if ! timeout 30 gemini --prompt "ping" --model "$GEMINI_MODEL" --approval-mode yolo --skip-trust; then
+            echo "Error: Gemini API health check failed."
             exit 1
           fi
 

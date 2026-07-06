@@ -150,15 +150,18 @@ post_comment() {
   local body=$2
 
   # Check if the last comment is the same to avoid spam
-  local last_comment
-  last_comment=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+  local last_comment_resp
+  last_comment_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github.v3+json" \
-                      "$API_BASE/issues/$pr_number/comments?per_page=1&sort=created&direction=desc" \
-                      | jq -r '.[0].body // ""')
+                      "$API_BASE/issues/$pr_number/comments?per_page=1&sort=created&direction=desc")
 
-  if [ "$last_comment" = "$body" ]; then
-    log "Skipping duplicate comment on PR #$pr_number."
-    return 0
+  if printf '%s\n' "$last_comment_resp" | jq -e . >/dev/null 2>&1; then
+    local last_comment
+    last_comment=$(printf '%s\n' "$last_comment_resp" | jq -r '.[0].body // ""')
+    if [ "$last_comment" = "$body" ]; then
+      log "Skipping duplicate comment on PR #$pr_number."
+      return 0
+    fi
   fi
 
   log "Posting comment to PR #$pr_number..."
@@ -169,7 +172,9 @@ post_comment() {
        "$API_BASE/issues/$pr_number/comments")
   if [ "$http_code" -ne 201 ]; then
     log "Warning: Failed to post comment to PR #$pr_number (HTTP $http_code)"
+    return 1
   fi
+  return 0
 }
 
 # Function to add a label to a PR
@@ -229,9 +234,11 @@ approve_pr() {
        -H "Accept: application/vnd.github.v3+json" \
        -d '{"event":"APPROVE","body":"🤖 Autonomous approval for automated merge."}' \
        "$API_BASE/pulls/$pr_number/reviews")
-  if [ "$http_code" -ne 201 ]; then
+  if [ "$http_code" -ne 200 ] && [ "$http_code" -ne 201 ]; then
     log "Warning: Failed to approve PR #$pr_number (HTTP $http_code)"
+    return 1
   fi
+  return 0
 }
 
 # Function to check CI status (Statuses and Check Runs)
@@ -537,12 +544,12 @@ process_pr() {
               printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
               printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
               printf "### OBJECTIVE\n"
-              printf "Use your tools to:\n"
+              printf "You are the primary decision-maker for this resolution. Use your tools to:\n"
               printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file to ensure you have full context.\n" "$file"
-              printf "2. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory to understand the project-wide rules and your role.\n"
-              printf "3. Resolve the conflicts accurately, preserving the intended logic from both branches where appropriate. Ensure the resolution aligns with the overall project architecture.\n"
+              printf "2. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory and adhere to all project-wide rules and architectural patterns defined there.\n"
+              printf "3. Resolve the conflicts accurately, preserving the intended logic from both branches. If changes are mutually exclusive, prioritize the base branch's architecture unless the PR's intent is clearly superior.\n"
               printf "4. MANDATORY: Use your 'write_file' tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version. DO NOT just output the code in your response; use the tool.\n" "$file"
-              printf "5. MANDATORY: Ensure ABSOLUTELY NO conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file. Triple check for these markers before finalizing.\n"
+              printf "5. MANDATORY: Ensure ABSOLUTELY NO conflict markers remain. Triple check for '<<<<<<<', '=======', and '>>>>>>>' before finalizing.\n"
               printf "6. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools and FIX any errors found:\n"
               printf "   - For JavaScript: 'node --check %s'\n" "$file"
               printf "   - For TypeScript: Use 'tsc --noEmit %s' if available.\n" "$file"
@@ -560,9 +567,10 @@ process_pr() {
               printf "9. Ensure the resulting code is syntactically correct and preserves intended logic.\n"
               printf "10. For configuration files (package.json, requirements.txt), maintain a valid and consistent structure.\n\n"
               printf "### EXECUTION GUIDELINES\n"
-              printf "- You are in 'YOLO' mode; your tool calls are auto-approved. Use them decisively.\n"
+              printf "- You are in 'YOLO' mode; your tool calls are auto-approved. Use them decisively and autonomously.\n"
               printf "- MANDATORY: Use 'read_file' for all file reading and 'write_file' for all file writing. DO NOT simply output code blocks in your response.\n"
               printf "- MANDATORY: Use 'run_shell_command' for syntax checks and repository exploration ('ls -R', 'grep').\n"
+              printf "- Use 'list_directory' or 'glob' to find relevant files if you need more context on imports or dependencies.\n"
               printf "- DO NOT attempt to use 'git' commands (add, commit, push). The environment script handles git state; your job is strictly file resolution.\n"
               printf "- If you cannot resolve the conflict or the file is too large/complex, explain why and stop.\n"
               printf "- Perform a final self-verification by reading the file back after writing to ensure it's correct.\n\n"
@@ -747,10 +755,23 @@ process_pr() {
     fi
 
     # Get the latest head SHA to check CI status accurately
-    local current_head_sha
-    current_head_sha=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+    local current_head_sha_resp
+    current_head_sha_resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                             -H "Accept: application/vnd.github.v3+json" \
-                            "$API_BASE/pulls/$number" | jq -r '.head.sha')
+                            "$API_BASE/pulls/$number")
+
+    if ! printf '%s\n' "$current_head_sha_resp" | jq -e . >/dev/null 2>&1; then
+      log "[Merge Skip] Failed to fetch PR details for #$number to verify head SHA."
+      return 1
+    fi
+
+    local current_head_sha
+    current_head_sha=$(printf '%s\n' "$current_head_sha_resp" | jq -r '.head.sha // empty')
+
+    if [ -z "$current_head_sha" ] || [ "$current_head_sha" = "null" ]; then
+      log "[Merge Skip] Could not determine head SHA for PR #$number."
+      return 1
+    fi
 
     if ! check_ci_status "$number" "$current_head_sha"; then
       log "[Merge Skip] CI check failed or still in progress for PR #$number."
