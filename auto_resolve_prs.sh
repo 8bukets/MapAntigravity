@@ -326,12 +326,12 @@ poll_mergeability() {
   local pr_number=$1
   local status="null"
   local attempts=0
-  local max_attempts=15
+  local max_attempts=20
 
   while [ "$status" = "null" ] && [ $attempts -lt $max_attempts ]; do
     local pr_detail
     # Use a small retry for the curl call itself
-    pr_detail=$(curl -s --retry 3 --retry-delay 2 -H "Authorization: Bearer $GITHUB_TOKEN" \
+    pr_detail=$(curl -s --retry 5 --retry-delay 3 -H "Authorization: Bearer $GITHUB_TOKEN" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "$API_BASE/pulls/$pr_number")
 
@@ -343,8 +343,8 @@ poll_mergeability() {
     fi
 
     if [ "$status" = "null" ]; then
-      log "Mergeability status for PR #$pr_number is null (calculating). Attempt $((attempts+1))/$max_attempts. Waiting 20s..."
-      sleep 20
+      log "Mergeability status for PR #$pr_number is null (calculating). Attempt $((attempts+1))/$max_attempts. Waiting 30s..."
+      sleep 30
       attempts=$((attempts+1))
     fi
   done
@@ -437,13 +437,28 @@ process_pr() {
   pr_body=$(printf '%s\n' "$pr" | jq -r '.body')
   pr_url=$(printf '%s\n' "$pr" | jq -r '.html_url')
   maintainer_can_modify=$(printf '%s\n' "$pr" | jq -r '.maintainer_can_modify // false')
+  local pr_labels
+  pr_labels=$(printf '%s\n' "$pr" | jq -r '.labels[].name' | tr '\n' ',' | sed 's/,$//')
 
   log ""
   log "=== Processing PR #$number ($head_ref -> $base_ref) ==="
   log "PR URL: $pr_url"
+  log "PR Title: $pr_title"
+  log "PR Labels: [$pr_labels]"
 
   if [ "$is_draft" = "true" ]; then
     log "PR #$number is a draft. Skipping."
+    return 0
+  fi
+
+  # Skip PRs with WIP or HOLD in title or labels
+  if echo "$pr_title" | grep -qiE "WIP|HOLD|\[WIP\]|DO NOT MERGE"; then
+    log "PR #$number title suggests it's not ready (WIP/HOLD). Skipping."
+    return 0
+  fi
+
+  if echo "$pr_labels" | grep -qiE "wip|hold|do-not-merge|status: hold"; then
+    log "PR #$number labels suggest it's not ready (wip/hold). Skipping."
     return 0
   fi
 

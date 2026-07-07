@@ -5,9 +5,10 @@ This repository features an autonomous system for managing GitHub Pull Requests 
 ## Features
 
 - **Autonomous PR Conflict Resolution**: Automatically detects conflicts in open PRs and uses the Gemini CLI to resolve them, ensuring branches stay synced with the target.
+- **WIP/HOLD Detection**: Automatically skips PRs marked with "WIP", "HOLD", or specific hold labels to avoid premature merges.
 - **Proactive Merging**: Automatically merges the base branch into PR branches to keep them up to date.
 - **Continuous Prompt Improvement**: An autonomous agent that evaluates and improves a library of prompts based on LLM-generated feedback.
-- **Automated Workflow**: Scheduled execution every 4 hours via GitHub Actions.
+- **Automated Workflow**: Scheduled execution every 4 hours via GitHub Actions to ensure continuous maintenance.
 
 ## Components
 
