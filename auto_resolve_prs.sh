@@ -275,7 +275,11 @@ check_ci_status() {
   local total_checks
   total_checks=$(printf '%s\n' "$checks_resp" | jq '.total_count // 0')
 
-  # Any failures?
+  # Detailed conclusions summary
+  local conclusions_summary
+  conclusions_summary=$(printf '%s\n' "$checks_resp" | jq -r '[.check_runs[] | .conclusion // "null"] | group_by(.) | map({conclusion: .[0], count: length}) | .[] | "\(.conclusion)=\(.count)"' | paste -sd "," -)
+
+  # Any failures? (Strictly fail on these)
   local failed_checks
   failed_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled" or .conclusion == "action_required")] | length')
 
@@ -283,7 +287,7 @@ check_ci_status() {
   local in_progress_checks
   in_progress_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.status != "completed")] | length')
 
-  log "CI Summary for PR #$pr_number: State=$status_state, TotalChecks=$total_checks, Failed=$failed_checks, InProgress=$in_progress_checks"
+  log "CI Summary for PR #$pr_number: State=$status_state, TotalChecks=$total_checks, Failed=$failed_checks, InProgress=$in_progress_checks, Conclusions=[$conclusions_summary]"
 
   if [ "$status_state" = "failure" ] || [ "$status_state" = "error" ]; then
     log "CI status for PR #$pr_number is $status_state. Skipping merge."
@@ -291,7 +295,7 @@ check_ci_status() {
   fi
 
   if [ "$failed_checks" -gt 0 ]; then
-    log "Found $failed_checks failed check runs for PR #$pr_number. Skipping merge."
+    log "Found $failed_checks failed check runs (failure, timed_out, cancelled, or action_required) for PR #$pr_number. Skipping merge."
     return 1
   fi
 
@@ -587,17 +591,105 @@ process_pr() {
             set -e
 
             if [ $gemini_status -eq 0 ]; then
-              log "[Gemini] Finished processing $file."
+              log "[Gemini] Finished processing $file. Verifying results..."
               post_checksum=$(sha256sum "$file" | awk '{print $1}')
               if [ "$pre_checksum" = "$post_checksum" ]; then
                 log "[Gemini Warning] File $file was not modified by Gemini CLI in attempt $attempt."
+              elif grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
+                log "[Gemini Warning] Conflict markers still present in $file after attempt $attempt."
               else
-                if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
-                   log "[Gemini Warning] Conflict markers still present in $file after attempt $attempt."
+                log "[Verify] Conflict markers successfully removed from $file. Performing secondary syntax check..."
+                local syntax_ok=true
+                local syntax_err=""
+                local tool_found=true
+                case "$file" in
+                  *.js|*.mjs)
+                    if command -v node &>/dev/null; then
+                      syntax_err=$(node --check "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.ts|*.tsx)
+                    if command -v npx &>/dev/null; then
+                      # TypeScript verification in isolation is tricky due to dependencies.
+                      # We use a more relaxed check that focuses on syntax.
+                      syntax_err=$(npx -p typescript tsc "$file" --noEmit --target esnext --module esnext --esModuleInterop --skipLibCheck 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.py)
+                    if command -v python3 &>/dev/null; then
+                      syntax_err=$(python3 -m py_compile "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.sh)
+                    if command -v bash &>/dev/null; then
+                      syntax_err=$(bash -n "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.json)
+                    if command -v jq &>/dev/null; then
+                      syntax_err=$(jq . "$file" 2>&1 > /dev/null) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.yml|*.yaml)
+                    if command -v python3 &>/dev/null && python3 -c "import yaml" &>/dev/null; then
+                      syntax_err=$(python3 -c "import yaml, sys; yaml.safe_load(sys.stdin)" < "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.sql)
+                    if command -v sqlite3 &>/dev/null; then
+                      # Use stdin redirection to avoid filename quoting issues in .read
+                      syntax_err=$(sqlite3 :memory: ".read /dev/stdin" < "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.rb)
+                    if command -v ruby &>/dev/null; then
+                      syntax_err=$(ruby -c "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.php)
+                    if command -v php &>/dev/null; then
+                      syntax_err=$(php -l "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                  *.go)
+                    if command -v gofmt &>/dev/null; then
+                      syntax_err=$(gofmt -e "$file" 2>&1) || syntax_ok=false
+                    else
+                      tool_found=false
+                    fi
+                    ;;
+                esac
+
+                if [ "$tool_found" = "false" ]; then
+                  log "[Verify Warning] No syntax check tool found for $file. Skipping secondary check."
+                fi
+
+                if [ "$syntax_ok" = "true" ]; then
+                  log "[Verify Success] Syntax check passed (or skipped) for $file."
+                  git add "$file"
+                  resolved=true
+                  break
                 else
-                   log "[Gemini Success] Conflict markers removed from $file"
-                   resolved=true
-                   break
+                  log "[Verify Error] Secondary syntax check failed for $file in attempt $attempt:"
+                  printf "%s\n" "$syntax_err" | while read -r line; do log "  > $line"; done
                 fi
               fi
             else
@@ -611,77 +703,7 @@ process_pr() {
             log "Error: Failed to resolve $file after $max_attempts attempts."
             continue
           else
-            log "File $file was successfully resolved."
-          fi
-
-          # Verify that conflict markers are gone
-          if grep -qE "<<<<<<<|=======|>>>>>>>" "$file"; then
-            log "[Verify Warning] Conflict markers still present in $file after Gemini attempt."
-          else
-            log "[Verify] Conflict markers successfully removed from $file. Performing secondary syntax check..."
-
-            local syntax_ok=true
-            local syntax_err=""
-            case "$file" in
-              *.js|*.mjs)
-                if command -v node &>/dev/null; then
-                  syntax_err=$(node --check "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.ts|*.tsx)
-                if command -v npx &>/dev/null; then
-                  syntax_err=$(npx -p typescript tsc --noEmit "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.py)
-                if command -v python3 &>/dev/null; then
-                  syntax_err=$(python3 -m py_compile "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.sh)
-                if command -v bash &>/dev/null; then
-                  syntax_err=$(bash -n "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.json)
-                if command -v jq &>/dev/null; then
-                  syntax_err=$(jq . "$file" 2>&1 > /dev/null) || syntax_ok=false
-                fi
-                ;;
-              *.yml|*.yaml)
-                if command -v python3 &>/dev/null && python3 -c "import yaml" &>/dev/null; then
-                  syntax_err=$(python3 -c "import yaml, sys; yaml.safe_load(sys.stdin)" < "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.sql)
-                if command -v sqlite3 &>/dev/null; then
-                  syntax_err=$(sqlite3 :memory: ".read '$file'" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.rb)
-                if command -v ruby &>/dev/null; then
-                  syntax_err=$(ruby -c "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.php)
-                if command -v php &>/dev/null; then
-                  syntax_err=$(php -l "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-              *.go)
-                if command -v gofmt &>/dev/null; then
-                  syntax_err=$(gofmt -e "$file" 2>&1) || syntax_ok=false
-                fi
-                ;;
-            esac
-
-            if [ "$syntax_ok" = "true" ]; then
-              log "[Verify Success] Syntax check passed for $file."
-              git add "$file"
-            else
-              log "[Verify Error] Secondary syntax check failed for $file:"
-              printf "%s\n" "$syntax_err" | while read -r line; do log "  > $line"; done
-            fi
+            log "File $file was successfully resolved and verified."
           fi
         done 4< "$conflicts_file"
         rm -f "$conflicts_file"
