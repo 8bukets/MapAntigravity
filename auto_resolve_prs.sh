@@ -18,6 +18,9 @@ TOTAL_PRS=0
 RESOLVED_PRS=0
 MERGED_PRS=0
 FAILED_PRS=0
+SKIPPED_DRAFTS=0
+SKIPPED_WIP=0
+SKIPPED_FORKS=0
 
 # Start time for global timeout
 START_TIME=$(date +%s)
@@ -135,6 +138,8 @@ log "Gemini API is healthy."
 # Configure git
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
+# Use diff3 conflict style to provide common ancestor context for better AI resolution
+git config merge.conflictStyle diff3
 
 # Capture original branch to return to it later
 ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -448,17 +453,20 @@ process_pr() {
 
   if [ "$is_draft" = "true" ]; then
     log "PR #$number is a draft. Skipping."
+    SKIPPED_DRAFTS=$((SKIPPED_DRAFTS + 1))
     return 0
   fi
 
   # Skip PRs with WIP or HOLD in title or labels
   if echo "$pr_title" | grep -qiE "WIP|HOLD|\[WIP\]|DO NOT MERGE"; then
     log "PR #$number title suggests it's not ready (WIP/HOLD). Skipping."
+    SKIPPED_WIP=$((SKIPPED_WIP + 1))
     return 0
   fi
 
   if echo "$pr_labels" | grep -qiE "wip|hold|do-not-merge|status: hold"; then
     log "PR #$number labels suggest it's not ready (wip/hold). Skipping."
+    SKIPPED_WIP=$((SKIPPED_WIP + 1))
     return 0
   fi
 
@@ -506,6 +514,7 @@ process_pr() {
     if [ "$head_repo" != "$REPO" ] && [ "$maintainer_can_modify" != "true" ]; then
       log "PR #$number is from a fork ($head_repo) and maintainer edits are disabled. Skipping automated update."
       post_comment "$number" "🤖 This PR is from a fork and 'Allow edits from maintainers' is disabled. To enable autonomous conflict resolution and automatic updates, please check the 'Allow edits from maintainers' box on your PR."
+      SKIPPED_FORKS=$((SKIPPED_FORKS + 1))
     else
       log "Attempting automated update/resolution for PR #$number..."
 
@@ -561,6 +570,7 @@ process_pr() {
               printf "### CONFLICT STRUCTURE\n"
               printf "The file contains git merge conflicts. In this context:\n"
               printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
+              printf "- '|||||||' (if present) represents the common base ancestor (original state before either branch's changes).\n"
               printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
               printf "### OBJECTIVE\n"
               printf "You are the primary decision-maker for this resolution. Use your tools to:\n"
@@ -914,6 +924,10 @@ log "Total PRs processed: $TOTAL_PRS"
 log "PRs resolved/updated: $RESOLVED_PRS"
 log "PRs successfully merged: $MERGED_PRS"
 log "PRs that failed processing: $FAILED_PRS"
+log "PRs skipped (drafts): $SKIPPED_DRAFTS"
+log "PRs skipped (WIP/HOLD): $SKIPPED_WIP"
+log "PRs skipped (restricted forks): $SKIPPED_FORKS"
+log "Total Run Duration: $(( $(date +%s) - START_TIME )) seconds"
 log "============================"
 
 # Write to GitHub Actions Job Summary if available
@@ -926,6 +940,9 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
     echo "| PRs Resolved/Updated | $RESOLVED_PRS |"
     echo "| PRs Successfully Merged | $MERGED_PRS |"
     echo "| PRs Failed Processing | $FAILED_PRS |"
+    echo "| PRs Skipped (Drafts) | $SKIPPED_DRAFTS |"
+    echo "| PRs Skipped (WIP/HOLD) | $SKIPPED_WIP |"
+    echo "| PRs Skipped (Restricted Forks) | $SKIPPED_FORKS |"
     echo ""
     echo "*Run Duration: $(( $(date +%s) - START_TIME )) seconds*"
   } >> "$GITHUB_STEP_SUMMARY"
@@ -950,5 +967,6 @@ if [ "$CONTINUOUS_MODE" = "true" ]; then
   fi
 
   # Re-execute the script
+  cleanup
   exec "$0" "$@"
 fi
