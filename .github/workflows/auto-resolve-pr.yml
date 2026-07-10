@@ -2,7 +2,7 @@ name: Auto Resolve and Merge PRs
 
 on:
   schedule:
-    # Run every 4 hours to autonomously resolve conflicts and squash-merge.
+    # Run every 4 hours to autonomously resolve conflicts and squash-merge (Requirement: every 4 hours).
     # This interval is a project requirement for autonomous PR resolution.
     - cron: "0 */4 * * *"
   workflow_dispatch: # Allow manual trigger
@@ -60,6 +60,12 @@ jobs:
             echo "Error: Gemini API health check failed."
             exit 1
           fi
+
+      - name: Install Agent Skills
+        run: |
+          echo "Discovering and installing agent skills..."
+          find agent-skills -name SKILL.md -exec dirname {} \; | xargs -I {} gemini skills install {}
+          gemini skills list
 
       - name: Run PR resolution script
         continue-on-error: true
