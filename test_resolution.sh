@@ -47,6 +47,8 @@ git commit -m "main commit" -q
 # Attempt to merge and expect a conflict
 log "Attempting merge (expecting conflict)..."
 set +e
+# Use diff3 to match the production script
+git config merge.conflictStyle diff3
 git merge feature
 set -e
 
@@ -59,8 +61,8 @@ log "Conflict created successfully in main.py."
 # Define a mock Gemini resolution if GEMINI_API_KEY is not set
 if [ -z "${GEMINI_API_KEY:-}" ]; then
   log "GEMINI_API_KEY not set. Using mock resolution."
-  # Mock: just pick one side and remove markers
-  sed -i '/<<<<<<<\|=======\|>>>>>>>/d' main.py
+  # Mock: just pick one side and remove markers (including diff3 ancestor)
+  sed -i '/^<<<<<<<\|^|||||||\|^=======\|^>>>>>>>/d' main.py
   log "Mock resolution applied."
 else
   log "GEMINI_API_KEY is set. Running real resolution via gemini CLI..."
@@ -76,7 +78,7 @@ else
 fi
 
 # Verify resolution
-if grep -qE "<<<<<<<|=======|>>>>>>>" main.py; then
+if grep -qE "<<<<<<<|\|\|\|\|\|\|\||=======|>>>>>>>" main.py; then
   log "FAILED: Conflict markers still present in main.py."
   exit 1
 fi
