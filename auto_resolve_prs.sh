@@ -135,6 +135,7 @@ log "Gemini API is healthy."
 # Configure git
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
+git config merge.conflictStyle diff3
 
 # Capture original branch to return to it later
 ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -512,7 +513,7 @@ process_pr() {
       # Use a unique local branch name to avoid collisions
       local local_branch="auto-resolve-pr-$number"
       log "Checking out local branch $local_branch from $pr_head_commit..."
-      git checkout -B "$local_branch" "$pr_head_commit"
+      git checkout -B "$local_branch" "$pr_head_commit" || return 1
 
       log "[Merge] Attempting to merge base branch ($base_branch_head) into $local_branch..."
       if ! git merge "$base_branch_head" --no-edit; then
@@ -559,8 +560,9 @@ process_pr() {
               printf "PR Description: %s\n" "$pr_body"
               printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
               printf "### CONFLICT STRUCTURE\n"
-              printf "The file contains git merge conflicts. In this context:\n"
+              printf "The file contains git merge conflicts in 'diff3' format. In this context:\n"
               printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
+              printf "- '|||||||' represents the common ancestor (the original version of the code before both branches diverged). Use this to understand the starting point of the changes.\n"
               printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
               printf "### OBJECTIVE\n"
               printf "You are the primary decision-maker for this resolution. Use your tools to:\n"
@@ -735,7 +737,7 @@ process_pr() {
 
         if [ -n "$(git status --short)" ]; then
           log "Committing resolved conflicts for PR #$number..."
-          git commit -m "chore: auto-resolve merge conflicts for PR #$number via gemini-cli"
+          git commit -m "chore: auto-resolve merge conflicts for PR #$number via gemini-cli" || return 1
         else
           log "No changes to commit after conflict resolution attempt."
         fi

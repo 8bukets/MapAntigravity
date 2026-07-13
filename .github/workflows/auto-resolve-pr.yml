@@ -61,6 +61,11 @@ jobs:
             exit 1
           fi
 
+      - name: Install Agent Skills
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: gemini skills install agent-skills/
+
       - name: Run PR resolution script
         continue-on-error: true
         env:
