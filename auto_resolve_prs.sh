@@ -135,6 +135,7 @@ log "Gemini API is healthy."
 # Configure git
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
+git config merge.conflictStyle diff3
 
 # Capture original branch to return to it later
 ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -559,16 +560,17 @@ process_pr() {
               printf "PR Description: %s\n" "$pr_body"
               printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
               printf "### CONFLICT STRUCTURE\n"
-              printf "The file contains git merge conflicts. In this context:\n"
+              printf "The file contains git merge conflicts using the 'diff3' style. In this context:\n"
               printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
-              printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
+              printf "- '|||||||' precedes the original base ancestor of both branches.\n"
+              printf "- '=======' precedes the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
               printf "### OBJECTIVE\n"
               printf "You are the primary decision-maker for this resolution. Use your tools to:\n"
-              printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, =======, >>>>>>>). You MUST read the entire file to ensure you have full context.\n" "$file"
+              printf "1. MANDATORY: Use your 'read_file' tool to read the file '%s' and identify all conflict markers (<<<<<<<, |||||||, =======, >>>>>>>). You MUST read the entire file to ensure you have full context.\n" "$file"
               printf "2. MANDATORY: Use your 'read_file' tool to read 'GEMINI.md' in the root directory and adhere to all project-wide rules and architectural patterns defined there.\n"
               printf "3. Resolve the conflicts accurately, preserving the intended logic from both branches. If changes are mutually exclusive, prioritize the base branch's architecture unless the PR's intent is clearly superior.\n"
               printf "4. MANDATORY: Use your 'write_file' tool to write the fully resolved, clean content back to '%s'. You must overwrite the file with the final version. DO NOT just output the code in your response; use the tool.\n" "$file"
-              printf "5. MANDATORY: Ensure ABSOLUTELY NO conflict markers remain. Triple check for '<<<<<<<', '=======', and '>>>>>>>' before finalizing.\n"
+              printf "5. MANDATORY: Ensure ABSOLUTELY NO conflict markers remain. Triple check for '<<<<<<<', '|||||||', '=======', and '>>>>>>>' before finalizing.\n"
               printf "6. MANDATORY: Verify the resulting code is syntactically correct and functional. Run a syntax check using available tools and FIX any errors found:\n"
               printf "   - For JavaScript: 'node --check %s'\n" "$file"
               printf "   - For TypeScript: Use 'tsc --noEmit %s' if available.\n" "$file"

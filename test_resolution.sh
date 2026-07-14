@@ -17,6 +17,7 @@ cd "$TEST_DIR"
 git init -q -b main
 git config user.name "test"
 git config user.email "test@example.com"
+git config merge.conflictStyle diff3
 
 # Create a file with initial content
 cat <<EOF > main.py
@@ -60,7 +61,7 @@ log "Conflict created successfully in main.py."
 if [ -z "${GEMINI_API_KEY:-}" ]; then
   log "GEMINI_API_KEY not set. Using mock resolution."
   # Mock: just pick one side and remove markers
-  sed -i '/<<<<<<<\|=======\|>>>>>>>/d' main.py
+  sed -i '/<<<<<<<\|||||||\|=======\|>>>>>>>/d' main.py
   log "Mock resolution applied."
 else
   log "GEMINI_API_KEY is set. Running real resolution via gemini CLI..."
@@ -71,12 +72,12 @@ else
     gemini --prompt "$PROMPT" --approval-mode yolo --skip-trust < main.py
   else
     log "Gemini CLI not found. Skipping real resolution."
-    sed -i '/<<<<<<<\|=======\|>>>>>>>/d' main.py
+    sed -i '/<<<<<<<\|||||||\|=======\|>>>>>>>/d' main.py
   fi
 fi
 
 # Verify resolution
-if grep -qE "<<<<<<<|=======|>>>>>>>" main.py; then
+if grep -qE "<<<<<<<|\|\|\|\|\|\|\||=======|>>>>>>>" main.py; then
   log "FAILED: Conflict markers still present in main.py."
   exit 1
 fi
