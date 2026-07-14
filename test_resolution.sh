@@ -59,8 +59,8 @@ log "Conflict created successfully in main.py."
 # Define a mock Gemini resolution if GEMINI_API_KEY is not set
 if [ -z "${GEMINI_API_KEY:-}" ]; then
   log "GEMINI_API_KEY not set. Using mock resolution."
-  # Mock: just pick one side and remove markers
-  sed -i '/<<<<<<<\|=======\|>>>>>>>/d' main.py
+  # Mock: just pick one side and remove markers (including diff3 markers)
+  sed -i '/<<<<<<<\|||||||\|=======\|>>>>>>>/d' main.py
   log "Mock resolution applied."
 else
   log "GEMINI_API_KEY is set. Running real resolution via gemini CLI..."
