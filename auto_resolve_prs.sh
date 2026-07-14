@@ -135,6 +135,7 @@ log "Gemini API is healthy."
 # Configure git
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
+git config merge.conflictStyle diff3
 
 # Capture original branch to return to it later
 ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -559,8 +560,9 @@ process_pr() {
               printf "PR Description: %s\n" "$pr_body"
               printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
               printf "### CONFLICT STRUCTURE\n"
-              printf "The file contains git merge conflicts. In this context:\n"
+              printf "The file contains git merge conflicts in 'diff3' style. In this context:\n"
               printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
+              printf "- '|||||||' (if present) represents the original common ancestor (base) version.\n"
               printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
               printf "### OBJECTIVE\n"
               printf "You are the primary decision-maker for this resolution. Use your tools to:\n"

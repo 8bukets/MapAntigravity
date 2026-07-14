@@ -45,6 +45,17 @@ jobs:
           echo "git version: $(git --version)"
           echo "python version: $(python3 --version)"
 
+      - name: Install Agent Skills
+        run: |
+          if [ -d "agent-skills" ]; then
+            echo "Discovering and installing agent skills..."
+            # Install each skill directory. The gemini skills install command
+            # registers the skill for the current environment.
+            find agent-skills -maxdepth 1 -mindepth 1 -type d -exec gemini skills install {} \;
+          else
+            echo "No agent-skills directory found. Skipping."
+          fi
+
       - name: Gemini CLI Health Check
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
