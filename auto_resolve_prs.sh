@@ -1,5 +1,7 @@
 #!/bin/bash
 # auto_resolve_prs.sh
+# This script autonomously resolves conflicts in GitHub PRs using Gemini CLI
+# and performs a squash-merge. It is designed to be run every 4 hours.
 
 set -euo pipefail
 
@@ -514,6 +516,9 @@ process_pr() {
       log "Checking out local branch $local_branch from $pr_head_commit..."
       git checkout -B "$local_branch" "$pr_head_commit"
 
+      # Use diff3 conflict style to provide Gemini with common ancestor context
+      git config merge.conflictStyle diff3
+
       log "[Merge] Attempting to merge base branch ($base_branch_head) into $local_branch..."
       if ! git merge "$base_branch_head" --no-edit; then
         log "[Merge] Merge failed with conflicts. Identifying files..."
@@ -559,8 +564,9 @@ process_pr() {
               printf "PR Description: %s\n" "$pr_body"
               printf "Global Project Context: Refer to 'GEMINI.md' in the root directory for project-specific rules and instructions.\n\n"
               printf "### CONFLICT STRUCTURE\n"
-              printf "The file contains git merge conflicts. In this context:\n"
+              printf "The file contains git merge conflicts in 'diff3' style. In this context:\n"
               printf "- '<<<<<<< HEAD' represents the current state of the Pull Request branch.\n"
+              printf "- '|||||||' (if present) represents the original common ancestor (the base state before changes from either branch).\n"
               printf "- The section after '=======' until '>>>>>>>' represents the incoming changes from the Target Base branch ('%s').\n\n" "$base_ref"
               printf "### OBJECTIVE\n"
               printf "You are the primary decision-maker for this resolution. Use your tools to:\n"
@@ -781,9 +787,9 @@ process_pr() {
     log "PR #$number is mergeable and up to date."
   fi
 
-  # 3. Squash and Merge
+  # 3. Squash and Merge (User requirement: Must squash and merge autonomously)
   if [ "$mergeable" = "true" ]; then
-    log "[Merge] PR #$number is mergeable. Proceeding to squash-merge."
+    log "[Merge] PR #$number is mergeable. Proceeding to autonomous squash-merge..."
     # Final poll to ensure PR state is fresh before merge
     mergeable=$(poll_mergeability "$number")
     if [ "$mergeable" != "true" ]; then
