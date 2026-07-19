@@ -135,6 +135,7 @@ log "Gemini API is healthy."
 # Configure git
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
+git config merge.conflictStyle diff3
 
 # Capture original branch to return to it later
 ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -950,5 +951,6 @@ if [ "$CONTINUOUS_MODE" = "true" ]; then
   fi
 
   # Re-execute the script
+  cleanup
   exec "$0" "$@"
 fi
