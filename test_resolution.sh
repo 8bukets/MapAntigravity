@@ -17,6 +17,7 @@ cd "$TEST_DIR"
 git init -q -b main
 git config user.name "test"
 git config user.email "test@example.com"
+git config merge.conflictStyle diff3
 
 # Create a file with initial content
 cat <<EOF > main.py
@@ -56,11 +57,18 @@ if ! git diff --name-only --diff-filter=U | grep -q "main.py"; then
 fi
 log "Conflict created successfully in main.py."
 
+# Verify that the diff3 marker structure is produced (includes '|||||||')
+if ! grep -q "^|||||||" main.py; then
+  log "FAILED: Expected diff3 conflict marker '|||||||' in main.py not found."
+  exit 1
+fi
+log "Diff3 ancestor marker found successfully."
+
 # Define a mock Gemini resolution if GEMINI_API_KEY is not set
 if [ -z "${GEMINI_API_KEY:-}" ]; then
   log "GEMINI_API_KEY not set. Using mock resolution."
-  # Mock: just pick one side and remove markers
-  sed -i '/<<<<<<<\|=======\|>>>>>>>/d' main.py
+  # Mock: just pick one side and remove markers (including ||||||| for diff3)
+  sed -i -e '/<<<<<<</d' -e '/|||||||/d' -e '/=======/d' -e '/>>>>>>>/d' main.py
   log "Mock resolution applied."
 else
   log "GEMINI_API_KEY is set. Running real resolution via gemini CLI..."
@@ -76,8 +84,8 @@ else
 fi
 
 # Verify resolution
-if grep -qE "<<<<<<<|=======|>>>>>>>" main.py; then
-  log "FAILED: Conflict markers still present in main.py."
+if grep -qE "<<<<<<<|\|\|\|\|\|\|\||=======|>>>>>>>" main.py; then
+  log "FAILED: Conflict markers (including diff3 ancestor) still present in main.py."
   exit 1
 fi
 
