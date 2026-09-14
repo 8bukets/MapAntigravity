@@ -39,10 +39,15 @@ def create_skills_from_prompts(prompts_file='prompts.json', output_dir='agent-sk
         if len(description) > 1024:
             description = description[:1021] + "..."
 
+        # Escape backslashes and double quotes so titles containing them
+        # (or a trailing backslash) don't break the YAML double-quoted
+        # scalar and corrupt/invalidate the generated frontmatter.
+        description_escaped = description.replace('\\', '\\\\').replace('"', '\\"')
+
         with open(skill_md_path, 'w') as f:
             f.write("---\n")
             f.write(f"name: {name}\n")
-            f.write(f"description: \"{description}\"\n")
+            f.write(f"description: \"{description_escaped}\"\n")
             f.write("---\n\n")
 
             f.write(f"# {title}\n\n")
