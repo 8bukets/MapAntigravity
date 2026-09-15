@@ -207,12 +207,14 @@ process_mr() {
     log "Attempting to merge origin/$target_branch into $local_branch..."
     if ! git merge "origin/$target_branch" --no-edit; then
       log "Merge failed with conflicts. Identifying files..."
-      local conflicts
-      conflicts=$(git diff --name-only --diff-filter=U)
+      local conflicts_file
+      conflicts_file=$(mktemp)
+      git diff --name-only --diff-filter=U > "$conflicts_file"
 
       post_comment "$iid" "🤖 MR !$iid has conflicts. Attempting autonomous resolution via Gemini CLI ($GEMINI_MODEL)..."
 
-      for file in $conflicts; do
+      while read -u 4 -r file; do
+        if [ -z "$file" ]; then continue; fi
         if [ ! -f "$file" ]; then
            log "File $file no longer exists. Skipping."
            continue
@@ -280,7 +282,8 @@ process_mr() {
           log "Conflict markers successfully removed from $file."
           git add "$file"
         fi
-      done
+      done 4< "$conflicts_file"
+      rm -f "$conflicts_file"
 
       # Final check for remaining conflicts
       local remaining_conflicts

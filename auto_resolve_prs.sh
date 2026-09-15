@@ -272,20 +272,31 @@ check_ci_status() {
     return 1
   fi
 
+  # A valid check-runs response is always an object with a "check_runs" array
+  # (possibly empty). An API error (e.g. 404, secondary rate limit) is still
+  # valid JSON but lacks this key — treat that as a fetch failure rather than
+  # letting `.check_runs[]` crash jq (which, combined with `set -e`/`pipefail`,
+  # would otherwise leave $failed_checks/$in_progress_checks empty and cause
+  # the "-gt 0" checks below to silently fail open and allow an unverified merge).
+  if ! printf '%s\n' "$checks_resp" | jq -e '.check_runs | type == "array"' >/dev/null 2>&1; then
+    log "Warning: Unexpected check-runs response for PR #$pr_number (missing 'check_runs' array)."
+    return 1
+  fi
+
   local total_checks
   total_checks=$(printf '%s\n' "$checks_resp" | jq '.total_count // 0')
 
   # Detailed conclusions summary
   local conclusions_summary
-  conclusions_summary=$(printf '%s\n' "$checks_resp" | jq -r '[.check_runs[] | .conclusion // "null"] | group_by(.) | map({conclusion: .[0], count: length}) | .[] | "\(.conclusion)=\(.count)"' | paste -sd "," -)
+  conclusions_summary=$(printf '%s\n' "$checks_resp" | jq -r '[(.check_runs // [])[] | .conclusion // "null"] | group_by(.) | map({conclusion: .[0], count: length}) | .[] | "\(.conclusion)=\(.count)"' | paste -sd "," -)
 
   # Any failures? (Strictly fail on these)
   local failed_checks
-  failed_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled" or .conclusion == "action_required")] | length')
+  failed_checks=$(printf '%s\n' "$checks_resp" | jq '[(.check_runs // [])[] | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled" or .conclusion == "action_required")] | length')
 
   # Any still in progress?
   local in_progress_checks
-  in_progress_checks=$(printf '%s\n' "$checks_resp" | jq '[.check_runs[] | select(.status != "completed")] | length')
+  in_progress_checks=$(printf '%s\n' "$checks_resp" | jq '[(.check_runs // [])[] | select(.status != "completed")] | length')
 
   log "CI Summary for PR #$pr_number: State=$status_state, TotalChecks=$total_checks, Failed=$failed_checks, InProgress=$in_progress_checks, Conclusions=[$conclusions_summary]"
 
